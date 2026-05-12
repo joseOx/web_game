@@ -1,0 +1,30 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #0a0812;
+  overflow: hidden;
+}
+
+#game-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-canvas {
+  /* Pixel-perfect scaling — canvas is always 320×180 internally.
+     CSS stretches it to fill the viewport while keeping aspect ratio. */
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+}
