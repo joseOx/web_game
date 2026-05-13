@@ -1,0 +1,82 @@
+Guía de prueba del juego
+
+  Controles generales
+
+  ┌─────────────────┬────────────────────────────────────────────────┐
+  │      Tecla      │                     Acción                     │
+  ├─────────────────┼────────────────────────────────────────────────┤
+  │ ↑ ↓ ← → o WASD  │ Mover a Mateo                                  │
+  ├─────────────────┼────────────────────────────────────────────────┤
+  │ E o Espacio     │ Interactuar (NPCs, Rifts)                      │
+  ├─────────────────┼────────────────────────────────────────────────┤
+  │ Q               │ Llamar a Luna                                  │
+  ├─────────────────┼────────────────────────────────────────────────┤
+  │ Shift izquierdo │ Activar Visión Felina (tiene barra de energía) │
+  └─────────────────┴────────────────────────────────────────────────┘
+
+  ---
+  1. Casa de Rosa (R_HOME) — zona inicial
+
+  El juego arranca aquí. Mateo aparece en el centro.
+
+  - Habla con Rosa — está en el centro-derecho del cuarto (col 11, fila 5). Acércate y pulsa E. Ella te da una pista
+  sobre el Faro.
+  - Sal por la puerta — está abajo al centro. Camina hacia el sur hasta el tile oscuro de la fila 11. Mateo pasa
+  automáticamente a la Plaza (R_HUB).
+
+  ---
+  2. Plaza Central (R_HUB)
+
+  Conecta todas las zonas. Hay dos NPCs decorativos sin diálogo.
+
+  - Rift en el callejón — hay una grieta en col 7, fila 5 (esquina izquierda-arriba). Primero activa la Visión Felina
+  (Shift) para verla brillar. Luego pulsa E cerca para interactuar.
+  - Eco de Antonio — un EchoBound (fantasma naranja/morado) cerca del rift en col 9, fila 4. Pulsa E para hablar con él
+  → diálogo antonio_echo_first_encounter.
+  - 3 EchoMinor — pequeños ecos flotantes cerca del rift. Reagrupan con Luna automáticamente.
+  - Ir al Faro — camina hacia el borde norte (filas 0-1, cols 10-13). Transición automática a R_LIGHTHOUSE.
+  - Ir a la Escuela — camina hacia el borde derecho (col 23-24, filas 8-9). Transición automática a R_SCHOOL.
+  - Volver a la Casa — camina al sur (fila 16, cols 11-12).
+
+  ---
+  3. Faro — Mundo Real (R_LIGHTHOUSE)
+
+  - Activar Visión Felina (Shift) — verás el rift G_lighthouse_lantern brillar dentro del faro (col 5, fila 4).
+  - Cruzar al Vacío — acércate al rift y pulsa E. Mateo y Luna cruzan a V_LIGHTHOUSE (la pantalla se oscurece, paleta
+  violeta).
+  - Volver a la Plaza — camina al sur (fila 16) para volver a R_HUB.
+
+  ---
+  4. Faro — El Vacío (V_LIGHTHOUSE)
+
+  - Recoger la Carta de Antonio — hay un ítem en col 4-5, fila 9 (dentro del faro). Camina encima para recogerlo
+  automáticamente. Activa el flag antonio_letter_found.
+  - Hablar con el Eco de Antonio — está en col 5, fila 7. Pulsa E.
+  - Sellar el Rift — pulsa E cerca del rift (col 5, fila 4) para sellarlo. Esto dispara el evento rift:sealed y avanza
+  la misión lighthouse.
+  - Salir — la salida sur te devuelve al mundo real en R_LIGHTHOUSE automáticamente.
+
+  ---
+  5. Escuela (R_SCHOOL)
+
+  - La misión melody se activa automáticamente al entrar por primera vez.
+  - Rift del piano (G_school_piano) — está dentro del edificio (col 10, fila 5). Es de tipo major. Usa Visión Felina +
+  E.
+  - Cruzar al Vacío — igual que en el Faro, E cerca del rift.
+  - Volver a la Plaza — salida sur (fila 16).
+
+  ---
+  HUD en pantalla (siempre visible)
+
+  - Arriba derecha — barra de vínculo (verde = sano, rojo = crítico).
+  - Arriba izquierda — dimensión actual (REAL / VACÍO) y zona.
+  - Debajo de la zona — misión activa si hay una.
+  - Abajo izquierda — estado de la IA de Luna.
+  - Abajo centro — barra morada de energía de Visión Felina (solo cuando está activa).
+
+  ---
+  Flujo recomendado para probar todo:
+  1. Habla con Rosa → sal a la Plaza
+  2. En la Plaza: activa Visión Felina, habla con el Eco de Antonio, interactúa con el rift
+  3. Ve al Faro → cruza al Vacío → recoge la carta → sella el rift → vuelve
+  4. Ve a la Escuela → entra al edificio → repite con el rift del piano

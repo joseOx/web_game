@@ -11,6 +11,7 @@ export class World {
     this.tilemap  = null;  // ProceduralTilemap — exposed for SceneManager to set on CollisionSystem
     this._palette = {};
     this._npcs    = [];
+    this._objects      = [];
     this._exits        = [];
     this._itemTriggers = [];
     this._zoneDef      = null;
@@ -36,6 +37,7 @@ export class World {
       return npc;
     });
 
+    this._objects      = (zoneDef.objects ?? []).map(o => ({ ...o }));
     this._exits        = (zoneDef.exits ?? []).map(e => ({ ...e }));
     this._itemTriggers = (zoneDef.items ?? []).map(i => ({ ...i }));
 
@@ -46,6 +48,7 @@ export class World {
     this.loaded        = false;
     this.tilemap       = null;
     this._npcs         = [];
+    this._objects      = [];
     this._exits        = [];
     this._itemTriggers = [];
     this._zoneDef      = null;
@@ -61,6 +64,19 @@ export class World {
       const dy = npc.centerY() - wy;
       const d  = Math.hypot(dx, dy);
       if (d <= range && d < nearestD) { nearest = npc; nearestD = d; }
+    }
+    return nearest;
+  }
+
+  // Returns the nearest inspectable object within range, or null
+  nearestObject(wx, wy, range) {
+    let nearest  = null;
+    let nearestD = Infinity;
+    for (const obj of this._objects) {
+      const cx = obj.x + (obj.width  ?? 16) / 2;
+      const cy = obj.y + (obj.height ?? 16) / 2;
+      const d  = Math.hypot(cx - wx, cy - wy);
+      if (d <= range && d < nearestD) { nearest = obj; nearestD = d; }
     }
     return nearest;
   }
@@ -130,6 +146,17 @@ export class World {
     ctx.fillStyle = EXIT_INDICATOR_COLOR;
     for (const exit of this._exits) {
       ctx.fillRect(exit.x, exit.y, exit.width, exit.height);
+    }
+
+    // Draw inspectable objects
+    for (const obj of this._objects) {
+      ctx.fillStyle = obj.color ?? '#7BAFD4';
+      ctx.fillRect(obj.x, obj.y, obj.width ?? 16, obj.height ?? 16);
+      if (obj.label) {
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '8px VT323, monospace';
+        ctx.fillText(obj.label, obj.x, obj.y - 2);
+      }
     }
 
     // Draw items

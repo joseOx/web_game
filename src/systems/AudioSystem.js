@@ -8,6 +8,7 @@ export class AudioSystem {
     this._sfxVolume  = 0.7;
     this._musicVolume = 0.6;
     this._muted      = false;
+    this._warnedMissing = new Set();
   }
 
   // AudioContext must be created after a user gesture (browser policy)
@@ -37,7 +38,10 @@ export class AudioSystem {
   playMusic(id, { loop = true, volume = null, fadeIn = 1000 } = {}) {
     this._ensureContext();
     const buffer = this._tracks.get(id);
-    if (!buffer) { console.warn(`AudioSystem: music "${id}" not loaded`); return null; }
+    if (!buffer) {
+      if (!this._warnedMissing.has(id)) { console.warn(`AudioSystem: music "${id}" not loaded`); this._warnedMissing.add(id); }
+      return null;
+    }
 
     const source = this._ctx.createBufferSource();
     const gain   = this._ctx.createGain();
@@ -56,7 +60,7 @@ export class AudioSystem {
   }
 
   stopMusic(track, fadeOut = 800) {
-    if (!track || !this._ctx) return;
+    if (!track || !track.gain || !this._ctx) return;
     const now = this._ctx.currentTime;
     track.gain.gain.linearRampToValueAtTime(0, now + fadeOut / 1000);
     track.source.stop(now + fadeOut / 1000 + 0.05);
@@ -69,7 +73,8 @@ export class AudioSystem {
     this._ensureContext();
     if (this._current) this.stopMusic(this._current, duration);
     this._current = this.playMusic(newId, { fadeIn: duration });
-    if (this._current) this._current.id = newId;
+    if (!this._current) this._current = { id: newId, source: null, gain: null };
+    else this._current.id = newId;
   }
 
   // ── SFX ───────────────────────────────────────────────────────────────────
@@ -77,7 +82,10 @@ export class AudioSystem {
   playSFX(id, { volume = null, pan = 0 } = {}) {
     this._ensureContext();
     const buffer = this._sfx.get(id);
-    if (!buffer) { console.warn(`AudioSystem: SFX "${id}" not loaded`); return; }
+    if (!buffer) {
+      if (!this._warnedMissing.has(id)) { console.warn(`AudioSystem: SFX "${id}" not loaded`); this._warnedMissing.add(id); }
+      return;
+    }
 
     const source = this._ctx.createBufferSource();
     const gain   = this._ctx.createGain();

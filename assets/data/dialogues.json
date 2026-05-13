@@ -383,7 +383,7 @@
   "diego_res_A_end": {
     "id": "diego_res_A_end", "speaker": "Diego", "portrait": "diego_peaceful",
     "text": "Gracias, Mateo.",
-    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','A')"
+    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','A'); riftSystem.completeSealing('G_cemetery_chapel')"
   },
 
   "diego_m05_resolution_B": {
@@ -407,7 +407,7 @@
   "diego_res_B_05": {
     "id": "diego_res_B_05", "speaker": "Diego", "portrait": "diego_walking_away",
     "text": "Dame tiempo.",
-    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','B'); saveSystem.setFlag('diego_unavailable',true)"
+    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','B'); saveSystem.setFlag('diego_unavailable',true); riftSystem.completeSealing('G_cemetery_chapel')"
   },
 
   "diego_m05_resolution_C": {
@@ -449,7 +449,7 @@
   "diego_res_C_end_02": {
     "id": "diego_res_C_end_02", "speaker": "Diego", "portrait": "diego_resolved",
     "text": "Okay. Okay.",
-    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','C'); saveSystem.setFlag('diego_ally',true)"
+    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','C'); saveSystem.setFlag('diego_ally',true); riftSystem.completeSealing('G_cemetery_chapel')"
   },
 
   "hermano_echo_encounter": {
@@ -637,7 +637,10 @@
   },
   "inspect_shipwreck_box": {
     "id": "inspect_shipwreck_box", "speaker": "mateo", "portrait": "mateo_curious",
-    "text": "Está sellada. Hay algo grabado: una fecha y unas iniciales. No puedo abrirla todavía.", "next": null
+    "text": "Está sellada. Hay algo grabado: una fecha y unas iniciales. No puedes abrirla todavía.",
+    "condition": "NOT:flag:memory_share_unlocked",
+    "choices": [{ "label": "Dejarla.", "next": null }],
+    "next": "inspect_shipwreck_box_open"
   },
 
   "luna_sits_rift": {
@@ -663,6 +666,312 @@
   "luna_found_void": {
     "id": "luna_found_void", "speaker": "", "portrait": null,
     "text": "En el Vacío, Luna es más grande. Sus marcas brillan sin esfuerzo. Como si aquí fuera más ella misma.",
+    "next": null, "style": "narrative_float"
+  },
+
+  "antonio_echo_plaza": {
+    "id": "antonio_echo_plaza", "speaker": "Antonio", "portrait": "antonio_confused",
+    "text": "...¿El faro? ¿Por qué estoy aquí afuera?",
+    "next": "antonio_echo_plaza_02"
+  },
+  "antonio_echo_plaza_02": {
+    "id": "antonio_echo_plaza_02", "speaker": "Antonio", "portrait": "antonio_sad",
+    "text": "Muchacho. Tienes algo mío. Lo siento cerca.",
+    "next": "antonio_echo_plaza_choice"
+  },
+  "antonio_echo_plaza_choice": {
+    "id": "antonio_echo_plaza_choice", "speaker": "mateo", "portrait": "mateo_thinking",
+    "text": "",
+    "choices": [
+      { "label": "Tengo su carta.", "next": "antonio_echo_plaza_letter" },
+      { "label": "¿Cómo llegó hasta aquí?", "next": "antonio_echo_plaza_lost" }
+    ]
+  },
+  "antonio_echo_plaza_lost": {
+    "id": "antonio_echo_plaza_lost", "speaker": "Antonio", "portrait": "antonio_confused",
+    "text": "No lo sé. Los que quedamos a medias andamos donde nos llama lo que dejamos pendiente.",
+    "next": "antonio_echo_plaza_choice"
+  },
+  "antonio_echo_plaza_letter": {
+    "id": "antonio_echo_plaza_letter", "speaker": "Antonio", "portrait": "antonio_shocked",
+    "text": "La carta. Claro. Pero no es aquí donde debo recibirla.",
+    "next": "antonio_echo_plaza_letter_02"
+  },
+  "antonio_echo_plaza_letter_02": {
+    "id": "antonio_echo_plaza_letter_02", "speaker": "Antonio", "portrait": "antonio_sad",
+    "text": "Vuelve al faro. Al otro lado de la grieta. Ahí sí puedo escucharte.",
+    "next": null
+  },
+
+  "mirror_inspect_01": {
+    "id": "mirror_inspect_01", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "Un espejo antiguo. El marco tiene marcas como zarpazos. La superficie está intacta.",
+    "next": "mirror_inspect_02"
+  },
+  "mirror_inspect_02": {
+    "id": "mirror_inspect_02", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "Tu reflejo te devuelve la mirada. Pero por un segundo, algo en el fondo del cristal... se mueve.",
+    "next": "mirror_inspect_choice"
+  },
+  "mirror_inspect_choice": {
+    "id": "mirror_inspect_choice", "speaker": "mateo", "portrait": "mateo_thinking",
+    "text": "",
+    "choices": [
+      { "label": "Tocar el espejo.", "next": "mirror_inspect_touch" },
+      { "label": "Alejarse.",        "next": null }
+    ]
+  },
+  "mirror_inspect_touch": {
+    "id": "mirror_inspect_touch", "speaker": "mateo", "portrait": "mateo_surprised",
+    "text": "El cristal está frío. Mucho más de lo que debería a esta hora.",
+    "next": "mirror_inspect_touch_02",
+    "onExit": "saveSystem.setFlag('abuelo_mirror_inspected', true)"
+  },
+  "mirror_inspect_touch_02": {
+    "id": "mirror_inspect_touch_02", "speaker": "mateo", "portrait": "mateo_uncertain",
+    "text": "Sientes que ya estuviste aquí antes. Que ya tocaste esto. Pero no recuerdas cuándo.",
+    "next": null
+  },
+
+  "mirror_inspect_post_m06_01": {
+    "id": "mirror_inspect_post_m06_01", "speaker": "mateo", "portrait": "mateo_serious",
+    "text": "El espejo del abuelo. Todo lo que leí en la biblioteca... empieza aquí.",
+    "next": "mirror_inspect_post_m06_02"
+  },
+  "mirror_inspect_post_m06_02": {
+    "id": "mirror_inspect_post_m06_02", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "Los registros de 1974 mencionan una abertura en el desván de la familia Aguirre. Este espejo era de él.",
+    "next": "mirror_inspect_post_m06_03"
+  },
+  "mirror_inspect_post_m06_03": {
+    "id": "mirror_inspect_post_m06_03", "speaker": "mateo", "portrait": "mateo_sad",
+    "text": "Desapareció dos semanas buscando algo bajo el faro. Volvió distinto. Y nunca explicó qué encontró.",
+    "next": "mirror_inspect_post_m06_04"
+  },
+  "mirror_inspect_post_m06_04": {
+    "id": "mirror_inspect_post_m06_04", "speaker": "", "portrait": null,
+    "text": "Luna se acerca al espejo. Ronronea suavemente. Sus ojos no se apartan del cristal.",
+    "next": null, "style": "narrative_float",
+    "onExit": "saveSystem.setFlag('ending_seen', true)"
+  },
+
+  "rosa_root": {
+    "id": "rosa_root", "speaker": "Rosa", "portrait": "rosa_thoughtful",
+    "text": "¿Ves ese faro? Lleva veinte años clausurado desde que murió el viejo Antonio.",
+    "condition": "NOT:flag:mission_lighthouse_done",
+    "choices": [
+      { "label": "¿Cómo murió Antonio?", "next": "rosa_antonio_death" },
+      { "label": "¿Crees en esas cosas, abuela?", "next": "rosa_believes" },
+      { "label": "Voy a investigar el faro.", "next": "rosa_lighthouse_warning", "onExit": "missionManager.activate('lighthouse')" }
+    ],
+    "next": "rosa_root_b"
+  },
+  "rosa_root_b": {
+    "id": "rosa_root_b", "speaker": "Rosa", "portrait": "rosa_worried",
+    "text": "Mateo, ¿puedes regar el jardín? Las plantas están marchitas y no entiendo por qué.",
+    "condition": "NOT:flag:garden_triggered",
+    "choices": [
+      { "label": "Claro, abuela.", "next": null, "onExit": "saveSystem.setFlag('garden_triggered', true); missionManager.activate('garden')" }
+    ],
+    "next": "rosa_root_c"
+  },
+  "rosa_root_c": {
+    "id": "rosa_root_c", "speaker": "Rosa", "portrait": "rosa_neutral",
+    "text": "¿Cómo van las plantas, Mateo?",
+    "condition": "NOT:mission:garden:done",
+    "choices": [
+      { "label": "Abuela, hay alguien que quiere decirte algo.", "condition": "mission:garden:step:2", "next": "rosa_m03_intermediary_react" },
+      { "label": "Todavía lo estoy investigando.", "next": null }
+    ],
+    "next": "rosa_root_d"
+  },
+  "rosa_root_d": {
+    "id": "rosa_root_d", "speaker": "Rosa", "portrait": "rosa_warm",
+    "text": "Siéntate, Mateo. Hay cosas de este pueblo que deberías saber.",
+    "next": "rosa_root_e"
+  },
+
+  "diego_route": {
+    "id": "diego_route", "speaker": "Diego", "portrait": "diego_awkward",
+    "text": "Oye. Tú eres el chico de la gata rara, ¿verdad?",
+    "condition": "NOT:flag:mission_dogs_done",
+    "next": "diego_route_ally_check"
+  },
+  "diego_route_post": {
+    "id": "diego_route_post", "speaker": "Diego", "portrait": "diego_nervous",
+    "text": "Oye... ¿puedo pedirte algo raro?",
+    "condition": "flag:mission_dogs_done",
+    "next": "diego_m05_02"
+  },
+
+  "diego_route_ally_check": {
+    "id": "diego_route_ally_check", "speaker": "Diego", "portrait": "diego_grateful",
+    "text": "Oye. Gracias por lo del otro día. De verdad. No sé cómo explicarlo, pero... ya puedo respirar.",
+    "condition": "flag:diego_ally",
+    "choices": [{ "label": "Me alegra.", "next": null }],
+    "next": "diego_route_unavailable"
+  },
+  "diego_route_unavailable": {
+    "id": "diego_route_unavailable", "speaker": "Diego", "portrait": "diego_distant",
+    "text": "Ahora mismo no puedo. Necesito tiempo.",
+    "condition": "flag:diego_unavailable",
+    "choices": [{ "label": "Entendido.", "next": null }],
+    "next": "diego_route_post"
+  },
+  "diego_post_b_return": {
+    "id": "diego_post_b_return", "speaker": "Diego", "portrait": "diego_calm",
+    "text": "Estuve pensando mucho. En lo que me contaste. No sé si creerlo del todo, pero... sí lo creo.",
+    "next": "diego_post_b_return_02"
+  },
+  "diego_post_b_return_02": {
+    "id": "diego_post_b_return_02", "speaker": "Diego", "portrait": "diego_grateful",
+    "text": "Gracias. Por ir. Por no mentirme.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('diego_unavailable', false)"
+  },
+
+  "echo_dog_encounter_1": {
+    "id": "echo_dog_encounter_1", "speaker": "", "portrait": null,
+    "text": "Un Eco se adhiere al perro. El animal tiembla. No es miedo suyo — es el miedo de algo perdido.",
+    "next": "echo_dog_1_call", "style": "narrative_float"
+  },
+  "echo_dog_1_call": {
+    "id": "echo_dog_1_call", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Luna. Aquí.", "next": "echo_dog_1_release"
+  },
+  "echo_dog_1_release": {
+    "id": "echo_dog_1_release", "speaker": "", "portrait": null,
+    "text": "Luna ronronea. El Eco vacila y se desprende, disolviéndose en el Vacío.",
+    "next": null, "style": "narrative_float",
+    "onExit": "eventBus.emit('echo:separated', 'echoId', 'echo_dog_1')"
+  },
+  "echo_dog_encounter_2": {
+    "id": "echo_dog_encounter_2", "speaker": "", "portrait": null,
+    "text": "El perro gruñe sin razón. El Eco que lo habita está perdido, no es malicioso.",
+    "next": "echo_dog_2_call", "style": "narrative_float"
+  },
+  "echo_dog_2_call": {
+    "id": "echo_dog_2_call", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Luna. Aquí.", "next": "echo_dog_2_release"
+  },
+  "echo_dog_2_release": {
+    "id": "echo_dog_2_release", "speaker": "", "portrait": null,
+    "text": "Luna ronronea. El Eco se estremece y se suelta, libre al fin.",
+    "next": null, "style": "narrative_float",
+    "onExit": "eventBus.emit('echo:separated', 'echoId', 'echo_dog_2')"
+  },
+  "echo_dog_encounter_3": {
+    "id": "echo_dog_encounter_3", "speaker": "", "portrait": null,
+    "text": "Este Eco llegó desde la grieta submarina. Se aferró al perro más cercano. Lleva días así.",
+    "next": "echo_dog_3_call", "style": "narrative_float"
+  },
+  "echo_dog_3_call": {
+    "id": "echo_dog_3_call", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Luna. Aquí.", "next": "echo_dog_3_release"
+  },
+  "echo_dog_3_release": {
+    "id": "echo_dog_3_release", "speaker": "", "portrait": null,
+    "text": "Luna ronronea. El último Eco cede. Los tres perros quedan libres.",
+    "next": null, "style": "narrative_float",
+    "onExit": "eventBus.emit('echo:separated', 'echoId', 'echo_dog_3')"
+  },
+
+  "carmen_route": {
+    "id": "carmen_route", "speaker": "Carmen", "portrait": "carmen_worried",
+    "text": "¿Has oído los perros de noche? Llevan tres días aullando hacia la playa norte.",
+    "condition": "NOT:flag:mission_dogs_done",
+    "next": "carmen_post_m04"
+  },
+  "carmen_post_m04": {
+    "id": "carmen_post_m04", "speaker": "Carmen", "portrait": "carmen_relieved",
+    "text": "Canela durmió entera anoche. No sé qué hiciste, pero funcione lo que funcione... gracias.",
+    "next": "carmen_post_m04_02"
+  },
+  "carmen_post_m04_02": {
+    "id": "carmen_post_m04_02", "speaker": "Carmen", "portrait": "carmen_thoughtful",
+    "text": "Ya no descarto las cosas raras que pasan en este pueblo. Demasiadas coincidencias.",
+    "next": null
+  },
+
+  "ponce_route": {
+    "id": "ponce_route", "speaker": "Sra. Ponce", "portrait": "ponce_distressed",
+    "text": "¡Mira esto! ¡Los libros amanecen en blanco! Llevo tres días reportándolo y nadie me cree.",
+    "condition": "NOT:flag:mission_library_done",
+    "next": "ponce_post_m06"
+  },
+  "ponce_post_m06": {
+    "id": "ponce_post_m06", "speaker": "Sra. Ponce", "portrait": "ponce_relieved",
+    "text": "Los libros volvieron. Esta mañana abrí la sección de historia y las páginas tenían texto de nuevo.",
+    "next": "ponce_post_m06_02"
+  },
+  "ponce_post_m06_02": {
+    "id": "ponce_post_m06_02", "speaker": "Sra. Ponce", "portrait": "ponce_serious",
+    "text": "Leí algunos. Hay cosas de 1974 que no sabía. Cosas que alguien quería que desaparecieran.",
+    "next": null
+  },
+
+  "inspect_shipwreck_box_open": {
+    "id": "inspect_shipwreck_box_open", "speaker": "mateo", "portrait": "mateo_focused",
+    "text": "Con la misma atención que usas para sentir los objetos cargados de emoción, la cerradura cede.",
+    "next": "inspect_shipwreck_box_open_02"
+  },
+  "inspect_shipwreck_box_open_02": {
+    "id": "inspect_shipwreck_box_open_02", "speaker": "mateo", "portrait": "mateo_serious",
+    "text": "Papeles doblados con cuidado. Todos tienen el mismo sello: una mano sobre una grieta. Y una firma: El Tejedor.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('shipwreck_box_opened', true)"
+  },
+
+  "rosa_root_e": {
+    "id": "rosa_root_e", "speaker": "Rosa", "portrait": "rosa_thoughtful",
+    "text": "Mateo, ¿encontraste algo en la biblioteca sobre el pasado del pueblo?",
+    "condition": "flag:abuelo_connection_unlocked",
+    "choices": [
+      { "label": "Sí. El abuelo aparecía en los registros de 1974.", "next": "rosa_post_m06_01" },
+      { "label": "Todavía estoy investigando.", "next": null }
+    ],
+    "next": "rosa_backstory_01"
+  },
+  "rosa_post_m06_01": {
+    "id": "rosa_post_m06_01", "speaker": "Rosa", "portrait": "rosa_sad",
+    "text": "Lo sabía. Sabía que algún día ibas a encontrar eso.",
+    "next": "rosa_post_m06_02"
+  },
+  "rosa_post_m06_02": {
+    "id": "rosa_post_m06_02", "speaker": "Rosa", "portrait": "rosa_serious",
+    "text": "Tu abuelo pasó dos semanas bajo el faro ese año. Cuando volvió... ya no era el mismo. Nunca me explicó qué encontró. Solo me dijo que había algo que proteger.",
+    "next": "rosa_post_m06_03"
+  },
+  "rosa_post_m06_03": {
+    "id": "rosa_post_m06_03", "speaker": "Rosa", "portrait": "rosa_warm",
+    "text": "Creo que Luna no llegó a ti por accidente, Mateo. Creo que él lo arregló.",
+    "next": null
+  },
+
+  "rosa_meta": {
+    "id": "rosa_meta", "speaker": "Rosa", "portrait": "rosa_warm",
+    "text": "Mateo, sube al desván cuando puedas. Quiero mostrarte algo del abuelo.",
+    "condition": "flag:rosa_ending_invite_active",
+    "choices": [
+      { "label": "Voy ahora.", "next": null },
+      { "label": "Ahora no puedo.", "next": null }
+    ],
+    "next": "rosa_root"
+  },
+
+  "ending_epilogue": {
+    "id": "ending_epilogue", "speaker": "", "portrait": null,
+    "text": "Miraloma seguirá siendo Miraloma. Pero tú ya sabes lo que hay debajo.",
+    "next": "ending_epilogue_02", "style": "narrative_float"
+  },
+  "ending_epilogue_02": {
+    "id": "ending_epilogue_02", "speaker": "", "portrait": null,
+    "text": "Luna ronronea en tu regazo. El faro sigue apagado. El pueblo duerme.",
+    "next": "ending_epilogue_03", "style": "narrative_float"
+  },
+  "ending_epilogue_03": {
+    "id": "ending_epilogue_03", "speaker": "", "portrait": null,
+    "text": "Por ahora, las grietas están cerradas.",
     "next": null, "style": "narrative_float"
   }
 }

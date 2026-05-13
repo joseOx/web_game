@@ -8,6 +8,12 @@ export class Game {
     this.ctx    = canvas.getContext('2d');
     this.ctx.imageSmoothingEnabled = false;
 
+    // Render at 2× physical pixels so sprites use more source pixels.
+    // Logical coordinate space stays 320×180; CSS handles display size.
+    this._scale   = 2;
+    canvas.width  = BASE_WIDTH  * this._scale;
+    canvas.height = BASE_HEIGHT * this._scale;
+
     this.lastTime    = 0;
     this.accumulator = 0;
     this.FIXED_STEP  = 1000 / 60;
@@ -69,6 +75,8 @@ export class Game {
   }
 
   _render(alpha) {
+    this.ctx.setTransform(this._scale, 0, 0, this._scale, 0, 0);
+    this.ctx.imageSmoothingEnabled = false;
     this.ctx.clearRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
 
     for (const sys of this._renderSystems) {

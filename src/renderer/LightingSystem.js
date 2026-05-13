@@ -59,8 +59,10 @@ export class LightingSystem {
   // Separate render pass for darkness (called explicitly after lights are registered)
   renderDarkness(ctx) {
     const mode = this._mode();
-    if (mode === 'real_day') return;
+    if (mode === 'real_day') { this._lights = []; return; }
+    if (mode === 'void') this._drawVoidTint(ctx);
     this._drawDarkness(ctx, DARK_ALPHA[mode] ?? 0);
+    this._lights = [];
   }
 
   _mode() {

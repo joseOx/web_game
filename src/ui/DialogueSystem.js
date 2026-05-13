@@ -339,6 +339,13 @@ export class DialogueSystem {
       case 'riftSystem':     this._riftSystem?.[method]?.(...args);     break;
       case 'audioSystem':    this._audioSystem?.[method]?.(...args);    break;
       case 'visionSystem':   this._visionSystem?.[method]?.(...args);   break;
+      case 'eventBus':
+        if (method === 'emit' && args.length >= 1) {
+          // emit('event') or emit('event', 'key', value) → { key: value }
+          const payload = args.length === 3 ? { [args[1]]: args[2] } : undefined;
+          this._eventBus?.emit(args[0], payload);
+        }
+        break;
       case 'inventory':
         if (method === 'addItem')    this._saveSystem?.addItem(...args);
         if (method === 'removeItem') this._saveSystem?.removeItem(...args);

@@ -15,6 +15,9 @@ import { EchoManager } from './systems/EchoManager.js';
 import { TransitionFX } from './ui/TransitionFX.js';
 import { LightingSystem } from './renderer/LightingSystem.js';
 import { DialogueSystem } from './ui/DialogueSystem.js';
+import { HintSystem } from './ui/HintSystem.js';
+import { PrologueScreen } from './ui/PrologueScreen.js';
+import { TitleScreen } from './ui/TitleScreen.js';
 import { MissionManager } from './missions/MissionManager.js';
 import { World } from './world/World.js';
 import { SceneManager } from './world/SceneManager.js';
@@ -31,11 +34,18 @@ import { Mission06Library }    from './missions/data/mission_06_library.js';
 
 // Zone definitions
 import { ZoneR_HOME }        from './world/zones/ZoneR_HOME.js';
+import { ZoneR_HOME_ATTIC }  from './world/zones/ZoneR_HOME_ATTIC.js';
 import { ZoneR_HUB }         from './world/zones/ZoneR_HUB.js';
 import { ZoneR_LIGHTHOUSE }  from './world/zones/ZoneR_LIGHTHOUSE.js';
 import { ZoneV_LIGHTHOUSE }  from './world/zones/ZoneV_LIGHTHOUSE.js';
 import { ZoneR_SCHOOL }      from './world/zones/ZoneR_SCHOOL.js';
 import { ZoneV_SCHOOL }      from './world/zones/ZoneV_SCHOOL.js';
+import { ZoneR_BEACH }       from './world/zones/ZoneR_BEACH.js';
+import { ZoneV_BEACH }       from './world/zones/ZoneV_BEACH.js';
+import { ZoneR_CEMETERY }    from './world/zones/ZoneR_CEMETERY.js';
+import { ZoneV_CEMETERY }    from './world/zones/ZoneV_CEMETERY.js';
+import { ZoneR_LIBRARY }     from './world/zones/ZoneR_LIBRARY.js';
+import { ZoneV_LIBRARY }     from './world/zones/ZoneV_LIBRARY.js';
 
 const canvas = document.getElementById('game-canvas');
 
@@ -56,6 +66,9 @@ export const transition= new TransitionFX();
 export const lighting  = new LightingSystem(camera);
 export const dialogue  = new DialogueSystem();
 export const missions  = new MissionManager();
+export const hints     = new HintSystem();
+export const prologue  = new PrologueScreen();
+export const titleScreen = new TitleScreen();
 export const world     = new World();
 export const scenes    = new SceneManager();
 export const game      = new Game(canvas);
@@ -101,16 +114,27 @@ rifts.inject({ saveSystem: save, missionManager: missions, audioSystem: audio, e
 vision.inject({ input, riftSystem: rifts, eventBus: events, luna });
 dialogue.inject({ input, saveSystem: save, missionManager: missions, riftSystem: rifts, audioSystem: audio, visionSystem: vision, eventBus: events });
 
+hints.inject({ rifts, dimension, vision, dialogue, mateo });
+prologue.inject({ input });
+titleScreen.inject({ input, hasSave: save.hasSave() });
+
 scenes.inject({
   world, mateo, luna, echoes, rifts, camera, collision,
   dimension, lighting, audio, dialogue, transition, save, eventBus: events,
 });
 scenes.register(ZoneR_HOME);
+scenes.register(ZoneR_HOME_ATTIC);
 scenes.register(ZoneR_HUB);
 scenes.register(ZoneR_LIGHTHOUSE);
 scenes.register(ZoneV_LIGHTHOUSE);
 scenes.register(ZoneR_SCHOOL);
 scenes.register(ZoneV_SCHOOL);
+scenes.register(ZoneR_BEACH);
+scenes.register(ZoneV_BEACH);
+scenes.register(ZoneR_CEMETERY);
+scenes.register(ZoneV_CEMETERY);
+scenes.register(ZoneR_LIBRARY);
+scenes.register(ZoneV_LIBRARY);
 
 // ── EventBus wiring ───────────────────────────────────────────────────────────
 events.on('dimension:changed', ({ dim }) => {
@@ -131,6 +155,14 @@ events.on('zone:loaded', data => {
     missions.activate('melody');
   }
   missions.dispatchEvent('zone:loaded', data);
+  // Auto-save on every zone transition
+  save.save();
+});
+
+events.on('ending:show_screen', () => {
+  transition.play('fade_black').then(() => {
+    dialogue.start('ending_epilogue');
+  });
 });
 
 bond.onLevelChange = (level) => {
@@ -142,8 +174,24 @@ bond.onLevelChange = (level) => {
 // ── Async init ────────────────────────────────────────────────────────────────
 async function init() {
   await document.fonts.load('10px VT323');
-  const json = await assets.loadJSON('dialogues', 'assets/data/dialogues.json');
+  const [json, lunaImg, lunaVoidImg, mateoImg] = await Promise.all([
+    assets.loadJSON('dialogues', 'assets/data/dialogues.json'),
+    assets.loadImage('luna_real', 'assets/sprites/luna_cat.png'),
+    assets.loadImage('luna_void', 'assets/sprites/luna_noc.png'),
+    assets.loadImage('mateo',    'assets/sprites/mateo.png'),
+  ]);
   dialogue.loadDialogues(json);
+  luna.setRealSprite(lunaImg);
+  luna.setVoidSprite(lunaVoidImg);
+  mateo.setSprite(mateoImg);
+  const newGame = await titleScreen.start();
+  if (!newGame && save.hasSave()) {
+    const data = save.load();
+    save.applyLoad(data);
+  } else {
+    save.deleteSave();
+  }
+  await prologue.start();
   save.setFlag('game_started', true);
   await scenes.load('R_HOME');
 }
@@ -167,6 +215,7 @@ const worldUpdate = {
     transition.update(dt);
     dialogue.update(dt);
     missions.update(dt);
+    hints.update(dt);
 
     if (!dialogueOpen) {
       // Call Luna (Q key)
@@ -187,6 +236,34 @@ const worldUpdate = {
           events.emit('item:combined', { resultId: 'I_partitura_completa' });
         }
 
+        // Auto-combine document fragments once all 3 are found
+        if (!save.hasItem('I_documentos_reconstruidos') &&
+            save.getFlag('fragmento_doc_1_found') &&
+            save.getFlag('fragmento_doc_2_found') &&
+            save.getFlag('fragmento_doc_3_found')) {
+          save.addItem('I_documentos_reconstruidos');
+          events.emit('item:combined', { resultId: 'I_documentos_reconstruidos' });
+        }
+
+        // Ending trigger — all 6 missions done
+        if (!save.getFlag('ending_triggered') &&
+            save.getFlag('mission_lighthouse_done') &&
+            save.getFlag('mission_melody_done') &&
+            save.getFlag('mission_garden_done') &&
+            save.getFlag('mission_dogs_done') &&
+            save.getFlag('mission_brothers_done') &&
+            save.getFlag('mission_library_done')) {
+          save.setFlag('ending_triggered', true);
+          save.setFlag('rosa_ending_invite_active', true);
+          events.emit('ending:triggered');
+        }
+
+        // Ending seen — fade to end screen
+        if (save.getFlag('ending_seen') && !save.getFlag('ending_screen_shown')) {
+          save.setFlag('ending_screen_shown', true);
+          events.emit('ending:show_screen');
+        }
+
         // Interact (E key)
         if (input.wasPressed('interact') && !dimension.transitioning) {
           const nearRift = rifts.nearestUnsealedInRange(
@@ -205,7 +282,17 @@ const worldUpdate = {
             }
           } else if (!dialogue.isVisible()) {
             const npc = world.nearestNPC(mateo.centerX(), mateo.centerY(), 32);
-            if (npc) dialogue.start(npc.dialogueId);
+            if (npc) {
+              dialogue.start(npc.dialogueId);
+            } else {
+              const obj = world.nearestObject(mateo.centerX(), mateo.centerY(), 32);
+              if (obj) {
+                const nodeId = (obj.unlockFlag && save.getFlag(obj.unlockFlag))
+                  ? (obj.dialogueIdUnlocked ?? obj.dialogueId)
+                  : obj.dialogueId;
+                dialogue.start(nodeId);
+              }
+            }
           }
         }
       }
@@ -235,6 +322,7 @@ const worldRender = {
     transition.render(ctx, alpha);
 
     dialogue.render(ctx);
+    hints.render(ctx);
     _renderHUD(ctx);
   },
 };
@@ -281,9 +369,13 @@ function _renderHUD(ctx) {
 }
 
 // ── Register in Game ──────────────────────────────────────────────────────────
+game.registerUpdateSystem(titleScreen); // first: title screen before everything
+game.registerUpdateSystem(prologue);   // second: prologue cards
 game.registerUpdateSystem(camera);
 game.registerUpdateSystem(worldUpdate);
 game.registerUpdateSystem(input);
 game.registerRenderSystem(worldRender);
+game.registerRenderSystem(prologue);    // draws on top while active
+game.registerRenderSystem(titleScreen); // last: title screen on top of everything
 
 game.start();

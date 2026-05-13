@@ -7,10 +7,10 @@ export const ZoneR_HOME = {
   tileSize: 16,
   solidChars: '#f',
 
-  // '#' wall  '.' wood floor  'f' furniture (solid)  'd' door frame (walkable)
+  // '#' wall  '.' wood floor  'f' furniture (solid)  'd' door frame (walkable)  'a' attic hatch
   grid: [
     '####################',
-    '#..................#',
+    '#..............aa..#',
     '#.fff..............#',
     '#.fff..............#',
     '#..................#',
@@ -29,14 +29,16 @@ export const ZoneR_HOME = {
     '.': '#C8A06A',   // wood floor
     'f': '#4A3020',   // furniture
     'd': '#B89560',   // door sill (slightly darker floor)
+    'a': '#7A5F3A',   // attic hatch (slightly lighter, warm wood)
   },
 
   spawns: {
-    default:  { x: 152, y: 144 },  // center of room
-    from_hub: { x: 112, y: 168 },  // near the door
+    default:    { x: 152, y: 144 },  // center of room
+    from_hub:   { x: 112, y: 148 },  // near the door, clear of exit trigger
+    from_attic: { x: 248, y:  36 },  // near attic hatch, row 2 (clear of hatch exit at row 1)
   },
 
-  // Exits: pixel rects; must match walkable 'd' tile positions in the grid
+  // Exits: pixel rects; must match walkable tile positions in the grid
   exits: [
     {
       id:          'to_hub',
@@ -44,6 +46,13 @@ export const ZoneR_HOME = {
       width:  2 * 16, height: 16,
       targetZone:  'R_HUB',
       targetSpawn: 'from_home',
+    },
+    {
+      id:          'to_attic',
+      x:   15 * 16, y:  1 * 16,
+      width:  2 * 16, height: 16,
+      targetZone:  'R_HOME_ATTIC',
+      targetSpawn: 'default',
     },
   ],
 
@@ -54,7 +63,7 @@ export const ZoneR_HOME = {
       x:          11 * 16,
       y:           5 * 16,
       color:      '#D4A96A',
-      dialogueId: 'rosa_lighthouse_hint',
+      dialogueId: 'rosa_meta',
       label:      'Rosa',
     },
   ],

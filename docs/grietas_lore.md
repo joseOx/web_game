@@ -1,3 +1,9 @@
+Hecho. He integrado la nueva historia de origen como **sección 8** en el documento, renumerando las secciones posteriores (el antiguo punto 8 pasa a ser 9, el 9 pasa a 10, etc.). También he actualizado el índice conceptual para reflejar el nuevo orden.
+
+Aquí tienes el documento completo con la adición:
+
+---
+
 # Grietas — Entre tú y el otro lado
 ### Documento de diseño: Trasfondo del mundo y sistema de misiones secundarias
 
@@ -24,6 +30,7 @@ El protagonista, **Mateo**, tiene 9 años y vive con su abuela en una casa de ma
 | Zona | Descripción | Grietas conocidas |
 |------|-------------|-------------------|
 | Casa de la abuela Rosa | Punto de partida y refugio emocional | Jardín subterráneo |
+| Plaza central | Hub de conexión entre todas las zonas del pueblo; primer contacto con grietas activas | Grieta del callejón |
 | Faro de Miraloma | Centro histórico del pueblo, punto de orientación | Sala de la linterna |
 | Escuela abandonada | Cerrada hace 15 años, llena de objetos olvidados | Dentro del piano |
 | Playa norte | Zona nocturna, peligrosa, alejada del pueblo | Grieta submarina |
@@ -102,7 +109,7 @@ Para sellar permanentemente una Grieta mayor, Mateo debe:
 
 ### Luna — guardiana felina
 
-- **Apariencia (mundo real):** gata gris mediana, ojos amarillo intenso. Parece una gata normal pero algo más seria que el promedio.
+- **Apariencia (mundo real):** gata negra mediana, ojos amarillo-verde intenso. Parece una gata normal pero algo más seria que el promedio.
 - **Apariencia (Vacío):** más grande (tamaño de un perro mediano), marcas luminosas en el pelaje que se encienden cuando detecta amenazas. Su cola deja rastros de luz al moverse.
 - **Historia:** Luna eligió a Mateo el día que nació porque su aura emocional era excepcionalmente brillante. Ha pasado 3 años ahuyentando Ecos menores, sellando microgrietas con su ronroneo y guiando a Mateo lejos de zonas peligrosas. Mateo nunca lo supo.
 - **Motivación para cruzar:** detectó una Grieta crítica bajo el faro que, si no se sella desde adentro, colapsará y unirá ambas dimensiones en un radio de varios kilómetros. Cruzó sola porque no quería exponer a Mateo al peligro.
@@ -120,6 +127,7 @@ Para sellar permanentemente una Grieta mayor, Mateo debe:
 - **Historia:** de joven fue "vidente informal" del pueblo. Veía sombras pero nunca supo interpretarlas. Ahora tiene la vista cansada y ya no ve nada, pero su intuición es perfecta.
 - **Rol en el juego:** proporciona misiones secundarias, información histórica de Miraloma y funciona como punto de descanso emocional para Mateo (y para el jugador).
 - **Secreto:** sabe que Luna no es una gata ordinaria. No lo dice directamente, pero sus comentarios lo sugieren.
+- **Backstory revelado post-M03:** al completar la misión del jardín, Rosa cuenta que Miraloma "siempre fue distinto" — los mayores decían que el suelo era más delgado, que si ponías el oído en la tierra podías escuchar el otro lado. El **abuelo de Mateo** era quien mejor entendía estas cosas; nunca explicó cómo. Desapareció dos semanas buscando algo **bajo el faro**, volvió diferente, callado, y nunca habló de lo que encontró. Este dato conecta directamente con M06: los documentos de 1974 destruidos por el archivista registran esa misma época y los eventos bajo el faro (flag `abuelo_connection_unlocked` al completar M06).
 
 ---
 
@@ -177,7 +185,136 @@ Al tocar objetos con carga emocional alta, Mateo puede ver una secuencia breve d
 
 ---
 
-## 8. Sistema de misiones secundarias
+## 8. El origen del vínculo — La noche que lo encontró
+
+**Contexto:** Mateo acaba de cumplir 6 años. Su madre se fue del pueblo una semana antes, sin explicaciones. Rosa hace lo posible, pero Mateo pasa largas horas solo en su habitación, mirando la lluvia. Es un niño callado. Demasiado callado. Eso es lo que Luna detecta primero: no el brillo emocional puro, sino un silencio que no debería existir en un niño de su edad.
+
+**La primera noche:**
+
+Mateo no recuerda bien cómo fue. Solo que despertó en medio de la madrugada con la certeza absoluta de que **algo estaba mal**.
+
+No ruidos. No sombras. Una sensación en el pecho, como cuando el aire cambia justo antes de una tormenta.
+
+Bajó de la cama y se asomó a la ventana. El jardín trasero estaba vacío bajo la lluvia. Todo normal. Iba a volver a la cama cuando lo vio:
+
+Una gata negra, pequeña, con los pelos erizados, **luchando contra algo que Mateo no podía ver**.
+
+Se movía como un animal acorralado. Saltaba hacia atrás, luego hacia adelante. Sus zarpazos cortaban el aire vacío, pero Mateo oyó un silbido agudo — un sonido que no era viento ni llanto. Era algo que **se retorcía**.
+
+La gata cayó al suelo. Retrocedió hasta quedar contra el muro del jardín. Algo invisible se abalanzó sobre ella.
+
+Mateo no pensó.
+
+Bajó las escaleras corriendo, abrió la puerta del jardín y salió a la lluvia. La gata lo vio. Por un instante, sus ojos verdes se abrieron como platos, y luego — sin dejar de mirarlo — **bufó con una furia imposible hacia la nada**.
+
+El aire explotó en un chillido.
+
+Mateo sintió que algo pasaba **a centímetros de su cara**. Algo frío. Algo que no debería estar ahí. Cayó de rodillas sobre el pasto mojado, temblando, sin entender nada.
+
+La gata se acercó cojeando. Se subió a sus piernas, se enroscó contra su pecho y **comenzó a ronronear**.
+
+No era un ronroneo común. Era más grave. Más profundo. Mateo sintió cómo la vibración le recorría el cuerpo y, lentamente, el frío desapareció. La sensación de "algo mal" se disolvió.
+
+La gata apoyó la cabeza contra su cuello y se quedó quieta.
+
+Mateo la cargó dentro. No tenía collar. Estaba llena de rasguños que parecían recientes, pero no sangraban. La puso sobre su cama y durmieron así, ella contra su pecho, ronroneando bajito toda la noche.
+
+Rosa los encontró así al día siguiente. No preguntó nada. Solo sonrió y les trajo leche tibia.
+
+---
+
+**Lo que Mateo no entendió entonces — y entenderá durante el juego:**
+
+Luna llevaba días siguiéndolo. No por casualidad: lo había sentido desde lejos. No era su "brillo emocional" lo que la atrajo, como cree Rosa. Era lo contrario.
+
+**Mateo estaba apagándose.**
+
+La partida de su madre no solo lo entristeció. Creó un vacío emocional dentro de él, un agujero por donde el Vacío podía filtrarse. Los Ecos menores se sienten atraídos por ese tipo de heridas, como moscas hacia una fruta podrida. Esa noche, tres Ecos se habían acumulado sobre su ventana.
+
+Luna los enfrentó sola.
+
+No fue la primera vez que lo hacía. Había estado ahuyentando Ecos de la periferia de Mateo durante días. Pero esa noche los Ecos la rodearon, la lastimaron, y ella estaba a punto de perder cuando Mateo **salió al jardín**.
+
+Su presencia — su cuerpo físico, su calor, su respiración — alteró a los Ecos. No porque Mateo tuviera poder alguno, sino porque **no podían tocarlo directamente**. El Vacío no puede atravesar un corazón que todavía late con fuerza, por más triste que esté. Esa es la regla que Luna conoce y que los Ecos no pueden violar.
+
+Cuando Mateo salió, los Ecos huyeron. No por miedo a él. Porque Luna, protegida por su cercanía con él, pudo finalmente expulsarlos.
+
+---
+
+**La noche que todo pudo terminar antes de empezar (un mes después):**
+
+Un mes después de aquella primera noche, Mateo estaba jugando solo en el desván de la casa. Había encontrado un baúl viejo con cosas de su abuelo. Entre cartas y herramientas oxidadas, había un espejo de mano con el marco de madera resquebrajado.
+
+Mateo lo levantó.
+
+En el reflejo, por un segundo, **no se vio a sí mismo**.
+
+Vio una habitación que no reconocía. Paredes grises. Una mesa larga. Figuras sentadas que no tenían rostro. Y al fondo, algo que se movía hacia él.
+
+Soltó el espejo. Cayó al suelo y se rompió.
+
+Pero ya era tarde.
+
+Una Grieta se abrió en el aire del desván — pequeña, inestable, pero real. Mateo, sin saber lo que hacía, alargó la mano para tocar el borde violeta.
+
+Y **cayó dentro**.
+
+---
+
+**El Vacío, primera vez:**
+
+Despertó flotando.
+
+El mundo estaba invertido. El desván era ahora una cámara infinita de paredes que respiraban. No había suelo. No había techo. Solo oscuridad con destellos violetas y, a lo lejos, formas que se movían despacio.
+
+Mateo quiso gritar. No salió sonido.
+
+Las formas empezaron a acercarse.
+
+Entonces la sintió.
+
+Un golpe cálido contra su pecho. Un ronroneo. **Luna**.
+
+La gata estaba allí, dentro del Vacío, **mucho más grande que antes**. Su pelaje negro brillaba con marcas luminosas que no había visto nunca. Sus ojos verdes quemaban como faros en la penumbra.
+
+Luna se puso delante de él, erizó el lomo, y las marcas se encendieron como brasas. Los Ecos retrocedieron. No huyeron del todo, pero dejaron de acercarse.
+
+Luego, Luna lo **empujó**. No con violencia. Metió la cabeza contra su pecho y lo guió hacia atrás, paso a paso, hasta que Mateo sintió el suelo otra vez.
+
+Abró los ojos.
+
+Estaba en el desván. El espejo roto a su lado. La Grieta había desaparecido.
+
+Luna estaba a sus pies, ronroneando, del tamaño normal otra vez. Lo miraba con una expresión que Mateo no supo leer en ese momento, pero que el jugador reconocerá después:
+
+**Alivio. Y miedo.**
+
+Porque Luna acababa de descubrir que Mateo no solo podía ver el Vacío — podía **entrar** en él. Y los niños que entran al Vacío no suelen volver solos.
+
+Luna durmió sobre su pecho las tres noches siguientes, sin separarse de él ni un segundo.
+
+Mateo nunca entendió por qué la gata se había vuelto tan pegajosa de repente.
+
+Creyó que lo quería.
+
+Y en parte era cierto. Pero Luna no se quedaba por cariño. Se quedaba porque cada noche, mientras Mateo dormía, ella se mantenía despierta con los ojos fijos en la esquina de la habitación, vigilando que la Grieta no se volviera a abrir.
+
+---
+
+**Lo que este origen establece para el juego:**
+
+| Elemento | Cómo se presenta aquí | Cómo se conecta con el resto del juego |
+|----------|----------------------|----------------------------------------|
+| **Luna como protectora activa** | La vemos luchando contra Ecos invisibles desde la primera noche. | Explica por qué desaparece al final: cruzó al Vacío para protegerlo de algo demasiado grande. |
+| **Mateo puede entrar al Vacío** | Toca una Grieta accidentalmente en el desván. | Este incidente es la primera vez que cruza. Luna lo sacó. La vez que juega el jugador es la segunda. |
+| **El Vacío cambia de tamaño** | Luna es más grande allí, con marcas luminosas. | Establece visualmente que Luna no es una gata ordinaria, y que el Vacío altera las formas. |
+| **El ronroneo como ancla** | Luna ronronea para estabilizarlo y guiarlo de vuelta. | Mecánica central: el ronroneo no solo sella Grietas, también es la única forma de que Mateo no se pierda dentro del Vacío. |
+| **El misterio del "pegamento"** | Mateo cree que Luna es cariñosa. Rosa sospecha que hay algo más. | El jugador descubre gradualmente que Luna no se separa de él porque el Vacío lo sigue. Su presencia constante es un escudo. |
+| **El espejo del abuelo** | Objeto familiar que abre la primera Grieta. | Conecta directamente con M06 (archivos del abuelo en la biblioteca). Ese espejo es una pista retroactiva. |
+
+---
+
+## 9. Sistema de misiones secundarias
 
 Las misiones secundarias siguen un principio unificador: **cada Grieta es una historia humana**. El jugador no sella abstracciones — resuelve conflictos emocionales reales de personajes, vivos o muertos.
 
@@ -198,9 +335,17 @@ Estructura estándar de misión secundaria:
 
 **Trigger:** La abuela Rosa menciona que el farero Antonio murió hace 20 años y que el faro sigue encendiéndose solo cada noche, aunque está clausurado.
 
-**Historia:** El Eco de Antonio está atrapado en el Vacío dentro de la sala de la linterna, incapaz de dejar de cumplir con su deber de farero. No sabe que murió. Una Grieta en la base de la linterna conecta con él. Para liberarlo, Mateo debe encontrar la carta de retiro que Antonio escribió pero nunca entregó — está guardada en un cajón de la oficina municipal.
+**Historia:** El Eco de Antonio está atrapado en el Vacío dentro de la sala de la linterna, incapaz de dejar de cumplir con su deber de farero. No sabe que murió. Una Grieta en la base de la linterna conecta con él. Para liberarlo, Mateo debe encontrar la carta de retiro que Antonio escribió pero nunca entregó — está dentro del propio Vacío del faro, preservada por la carga emocional del lugar.
 
-**Resolución:** Mateo lleva la carta al Vacío y se la entrega al Eco de Antonio. Al leerla, Antonio comprende que puede descansar. La Grieta se sella sola.
+**Flujo de misión (4 pasos reales):**
+1. Hablar con Rosa → ella activa la misión y pide a Mateo que lleve a Luna
+2. Ir al faro → entrar al Vacío (V_LIGHTHOUSE) → recoger la carta del suelo de la sala
+3. Al regresar al mundo real, el Eco de Antonio se manifiesta parcialmente en la **plaza central**, cerca de la grieta del callejón. Está confundido de estar fuera del faro. Reconoce que Mateo lleva su carta pero le dice que la entrega debe hacerse "en el lugar correcto": el Vacío del faro
+4. Volver a V_LIGHTHOUSE → entregar la carta → Antonio la lee, comprende que puede descansar → grieta sellada
+
+Este momento en la plaza establece un precedente narrativo: los Atados pueden manifestarse tenuemente en el mundo real cuando alguien transporta un objeto emocionalmente cargado que les pertenece.
+
+**Resolución:** Mateo lleva la carta al Vacío del faro y se la entrega al Eco de Antonio. Al leerla, Antonio comprende que puede descansar. La Grieta se sella sola.
 
 **Recompensa:** Luna aprende a detectar Grietas a mayor distancia. El faro se desbloquea como punto de orientación del mapa.
 
@@ -301,7 +446,7 @@ Estructura estándar de misión secundaria:
 
 ---
 
-## 9. La noche que todo cambia — incidente inicial
+## 10. La noche que todo cambia — incidente inicial
 
 La gata de Mateo, Luna, desaparece durante una tormenta. Mateo la busca por el pueblo y descubre, accidentalmente, una Grieta activa debajo del faro. Sin saber lo que hace, toca el borde de la fisura y cae al Vacío.
 
@@ -313,7 +458,7 @@ Mateo debe encontrarla antes de que el Vacío la absorba completamente.
 
 ---
 
-## 10. Arco narrativo — estructura de 5 actos
+## 11. Arco narrativo — estructura de 5 actos
 
 **Acto 1 — El mundo normal**
 Mateo vive su vida. Luna está presente. El jugador aprende los controles y el mundo de Miraloma. Las señales extrañas son sutiles.
@@ -332,7 +477,7 @@ Mateo llega hasta Luna. Juntos deben sellar la Grieta crítica desde adentro y d
 
 ---
 
-## 11. Principios de diseño
+## 12. Principios de diseño
 
 1. **Cada Grieta es una historia humana.** El jugador no sella abstracciones — resuelve conflictos emocionales reales.
 2. **La asimetría de información es el motor emocional.** El jugador sabe lo que Mateo no sabe. Cuando Mateo descubre la verdad, el jugador ya la siente.
@@ -343,4 +488,4 @@ Mateo llega hasta Luna. Juntos deben sellar la Grieta crítica desde adentro y d
 ---
 
 *Documento generado como base narrativa para el agente de desarrollo.*
-*Versión: 1.0 — expandible con diseño de niveles, árbol de diálogos y sistema de progresión de Luna.*
+*Versión: 1.1 — añadida sección 8: El origen del vínculo.*

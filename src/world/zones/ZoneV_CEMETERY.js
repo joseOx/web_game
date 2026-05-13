@@ -1,0 +1,76 @@
+// V_CEMETERY — Cementerio en el Vacío
+// 20 × 16 tiles = 320 × 256 px
+// El eco del hermano de Diego espera aquí, anclado a la grieta de la capilla.
+
+export const ZoneV_CEMETERY = {
+  id:       'V_CEMETERY',
+  music:    null,
+  tileSize: 16,
+  solidChars: '#g',
+
+  // mismo layout que R_CEMETERY pero con paleta void
+  grid: [
+    '####################',
+    '#..................#',
+    '#.gg....gg....gg..#',
+    '#.gg....gg....gg..#',
+    '#..................#',
+    '#..................#',
+    '#.gg....gg....gg..#',
+    '#.gg....gg....gg..#',
+    '#..................#',
+    '#..................#',
+    '#.gg....gg....gg..#',
+    '#.gg....gg....gg..#',
+    '#..................#',
+    '#..................#',
+    '#.......d.d........#',
+    '####################',
+  ],
+
+  palette: {
+    '#': '#1A1A28',   // muro void
+    '.': '#1E2A1A',   // hierba void (casi negra)
+    'g': '#2A2A3A',   // lápida void
+    'p': '#2E2E3E',   // camino
+    'd': '#1E2A1A',   // salida
+  },
+
+  spawns: {
+    default:     { x: 10 * 16, y: 13 * 16 },
+    from_real:   { x: 10 * 16, y: 13 * 16 },
+  },
+
+  exits: [
+    {
+      id:          'to_cemetery',
+      x:    7 * 16, y: 14 * 16,
+      width:  2 * 16, height: 16,
+      targetZone:  'R_CEMETERY',
+      targetSpawn: 'from_hub',
+    },
+  ],
+
+  npcs: [],
+
+  rifts: [
+    { id: 'G_cemetery_chapel', x: 10 * 16, y: 4 * 16, size: 'major', emotion: 'grief' },
+  ],
+
+  echoes: [
+    {
+      type:       'bound',
+      id:         'echo_hermano',
+      x:          10 * 16,
+      y:           6 * 16,
+      emotion:    'grief',
+      dialogueId: 'hermano_echo_encounter',
+      doneFlag:   'mission_brothers_done',
+    },
+  ],
+
+  objects: [],
+
+  realZoneId: 'R_CEMETERY',
+  dimension:  'void',
+};

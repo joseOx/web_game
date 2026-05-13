@@ -184,7 +184,8 @@ export class SceneManager {
   // ── Shared helpers ────────────────────────────────────────────────────────────
 
   _spawnEcho(def) {
-    if (def.doneFlag && this._save?.getFlag(def.doneFlag)) return;
+    if (def.spawnFlag && !this._save?.getFlag(def.spawnFlag)) return;
+    if (def.doneFlag  &&  this._save?.getFlag(def.doneFlag))  return;
 
     if (def.type === 'minor') {
       const em   = new EchoMinor(def.id, def.x, def.y, { emotion: def.emotion });
