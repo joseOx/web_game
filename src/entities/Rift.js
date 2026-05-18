@@ -25,7 +25,7 @@ const PULSE_SPEED = {
 };
 
 export class Rift extends Entity {
-  constructor({ id, x, y, size = 'minor', emotion = 'grief', anchorId = null }) {
+  constructor({ id, x, y, size = 'minor', emotion = 'grief', anchorId = null, visible }) {
     const dims = SIZE_DIMS[size] ?? SIZE_DIMS.minor;
     super(id, x, y);
     this.width  = dims.w;
@@ -43,9 +43,10 @@ export class Rift extends Entity {
     this._pulseSpeed  = PULSE_SPEED[size] ?? 0.004;
 
     // Visibility — controlled by RiftSystem depending on dimension / feline vision
-    this.visibleInReal = false;  // only visible with feline vision in real world
-    this.visibleInVoid = true;   // always visible in the Void
-    this._currentlyVisible = false;
+    this.visibleInReal      = false;  // only visible with feline vision in real world
+    this.visibleInVoid      = true;   // always visible in the Void
+    this._forceHiddenInReal = visible === false; // never shown in real, not even with feline vision
+    this._currentlyVisible  = false;
   }
 
   // Returns pulse intensity 0.0–1.0

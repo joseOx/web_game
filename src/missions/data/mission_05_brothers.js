@@ -39,9 +39,11 @@ export class Mission05Brothers extends MissionBase {
         }
         break;
 
-      // Resolution dialogues call complete() directly via onExit action
+      // Resolution dialogues call complete() directly via onExit action.
+      // Only allow rift-based completion after hermano encounter (step >= 3)
+      // to prevent Luna auto-sealing the rift before the player talks to hermano.
       case 'rift:sealed':
-        if (data.riftId === 'G_cemetery_chapel') {
+        if (data.riftId === 'G_cemetery_chapel' && this.currentStep >= 3) {
           this.complete();
         }
         break;

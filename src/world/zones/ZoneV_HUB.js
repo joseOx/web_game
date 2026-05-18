@@ -42,7 +42,24 @@ export const ZoneV_HUB = {
     from_hub: { x: 12 * 16, y: 9 * 16 },
   },
 
-  exits: [],
+  exits: [
+    {
+      id:          'to_hub_left',
+      x:    0,          y: 7 * 16,
+      width:  16,       height: 3 * 16,
+      targetZone:  'R_HUB',
+      targetSpawn: 'from_v_hub',
+      switchDim:   'real',
+    },
+    {
+      id:          'to_hub_right',
+      x:    24 * 16,    y: 8 * 16,
+      width:  16,       height: 2 * 16,
+      targetZone:  'R_HUB',
+      targetSpawn: 'from_v_hub',
+      switchDim:   'real',
+    },
+  ],
 
   // El Tejedor como NPC — desaparece una vez que ya fue visto (doneFlag = weaver_first_seen)
   npcs: [

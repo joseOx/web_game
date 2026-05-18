@@ -66,12 +66,14 @@ export const ZoneV_CEMETERY = {
       y:           6 * 16,
       emotion:    'grief',
       dialogueId: 'hermano_echo_encounter',
+      spawnFlag:  'mission_brothers_active',
       doneFlag:   'mission_brothers_done',
     },
-    // Barrera de duelo — 3 guardianes rodean al hermano; requiere visión felina + Luna para despejar
-    { type: 'minor', id: 'guard_grief_1', x: 10 * 16 - 22, y: 6 * 16,      emotion: 'grief', guard: true, doneFlag: 'mission_brothers_done' },
-    { type: 'minor', id: 'guard_grief_2', x: 10 * 16 + 22, y: 6 * 16,      emotion: 'grief', guard: true, doneFlag: 'mission_brothers_done' },
-    { type: 'minor', id: 'guard_grief_3', x: 10 * 16,      y: 6 * 16 - 20, emotion: 'grief', guard: true, doneFlag: 'mission_brothers_done' },
+    // Barrera de duelo: fila horizontal en row 5 (todos tiles abiertos)
+    // Solo aparece cuando la misión está activa
+    { type: 'minor', id: 'guard_grief_1', x:  7 * 16, y: 5 * 16, emotion: 'grief', guard: true, spawnFlag: 'mission_brothers_active', doneFlag: 'mission_brothers_done' },
+    { type: 'minor', id: 'guard_grief_2', x: 13 * 16, y: 5 * 16, emotion: 'grief', guard: true, spawnFlag: 'mission_brothers_active', doneFlag: 'mission_brothers_done' },
+    { type: 'minor', id: 'guard_grief_3', x: 10 * 16, y: 5 * 16, emotion: 'grief', guard: true, spawnFlag: 'mission_brothers_active', doneFlag: 'mission_brothers_done' },
   ],
 
   objects: [],

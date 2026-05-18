@@ -63,6 +63,7 @@ export const ZoneV_HOME = {
       y:           7 * 16,
       emotion:    'grief',
       dialogueId: 'abuelo_echo_encounter',
+      spawnFlag:  'mission_garden_active',
       doneFlag:   'abuelo_echo_met',
     },
   ],

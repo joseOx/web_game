@@ -28,6 +28,7 @@ import { Luna } from './entities/Luna.js';
 import { NPC } from './entities/NPC.js';
 import { EchoMinor } from './entities/EchoMinor.js';
 import { EchoMinorAI } from './systems/EchoMinorAI.js';
+import { LunaCombatMode } from './modes/LunaCombatMode.js';
 
 // Missions
 import { Mission01Lighthouse } from './missions/data/mission_01_lighthouse.js';
@@ -78,6 +79,7 @@ export const piano     = new PianoMiniGame();
 export const particles = new ParticleSystem();
 export const prologue  = new PrologueScreen();
 export const titleScreen = new TitleScreen();
+export const lunaMode   = new LunaCombatMode();
 export const world     = new World();
 export const scenes    = new SceneManager();
 export const game      = new Game(canvas);
@@ -125,10 +127,11 @@ rifts.inject({ saveSystem: save, missionManager: missions, audioSystem: audio, e
 vision.inject({ input, riftSystem: rifts, eventBus: events, luna });
 dialogue.inject({ input, saveSystem: save, missionManager: missions, riftSystem: rifts, audioSystem: audio, visionSystem: vision, eventBus: events });
 
-hints.inject({ rifts, dimension, vision, dialogue, mateo });
+hints.inject({ rifts, dimension, vision, dialogue, mateo, world });
 piano.inject({ audio, eventBus: events });
 prologue.inject({ input });
 titleScreen.inject({ input, hasSave: save.hasSave() });
+lunaMode.inject({ input, particles, audio });
 
 scenes.inject({
   world, mateo, luna, echoes, rifts, camera, collision,
@@ -247,6 +250,23 @@ events.on('zone:loaded', data => {
     if (diegoSprite) {
       world.getNPC('diego')?.setMateoSprite(diegoSprite, { drawW: 28, drawH: 28 });
     }
+  }
+
+  // Diego acompañante en R_LIBRARY — solo con resolución C (diego_resolution = 'C')
+  if (data.zoneId === 'R_LIBRARY' && save.getFlag('diego_resolution') === 'C') {
+    const diegoDialogue = save.getFlag('mission_library_done')
+      ? 'diego_library_done'
+      : 'diego_library_visit';
+    const diegoLib = new NPC('diego_library', 12 * 16, 10 * 16, {
+      color:      '#9B7FE8',
+      label:      'Diego',
+      dialogueId: diegoDialogue,
+    });
+    const diegoSprite = assets.getImage('diego');
+    if (diegoSprite) {
+      diegoLib.setMateoSprite(diegoSprite, { drawW: 28, drawH: 28 });
+    }
+    world.addNPC(diegoLib);
   }
 
   // Aplicar sprite del hermano de Diego en V_CEMETERY
@@ -399,6 +419,148 @@ bond.onLevelChange = (level) => {
   );
 };
 
+// ── Narrative combat encounters ───────────────────────────────────────────────
+// Wave definitions per location — emotion-themed, difficulty scales with story progression
+
+const ENCOUNTER_WAVES = {
+  lighthouse: [
+    [
+      { emotion: 'longing', hp: 1, spd: 0.50, r: 5 },
+      { emotion: 'longing', hp: 1, spd: 0.55, r: 5 },
+      { emotion: 'longing', hp: 1, spd: 0.60, r: 4 },
+    ],
+    [
+      { emotion: 'longing', hp: 2, spd: 0.45, r: 9 },
+      { emotion: 'grief',   hp: 1, spd: 0.65, r: 5 },
+      { emotion: 'grief',   hp: 1, spd: 0.70, r: 4 },
+    ],
+  ],
+  beach: [
+    [
+      { emotion: 'fear', hp: 1, spd: 0.70, r: 5 },
+      { emotion: 'fear', hp: 1, spd: 0.75, r: 5 },
+      { emotion: 'fear', hp: 1, spd: 0.80, r: 4 },
+      { emotion: 'fear', hp: 1, spd: 0.65, r: 5 },
+    ],
+    [
+      { emotion: 'fear',  hp: 2, spd: 0.85, r: 6 },
+      { emotion: 'fear',  hp: 2, spd: 0.90, r: 5 },
+      { emotion: 'grief', hp: 1, spd: 0.80, r: 4 },
+    ],
+    [
+      { emotion: 'fear', hp: 4, spd: 0.50, r: 13, boss: true },
+    ],
+  ],
+  cemetery: [
+    [
+      { emotion: 'grief', hp: 1, spd: 0.55, r: 5 },
+      { emotion: 'grief', hp: 1, spd: 0.60, r: 5 },
+      { emotion: 'grief', hp: 1, spd: 0.65, r: 4 },
+      { emotion: 'guilt', hp: 1, spd: 0.50, r: 5 },
+    ],
+    [
+      { emotion: 'grief', hp: 4, spd: 0.40, r: 14, boss: true },
+    ],
+  ],
+};
+
+// Trigger combat intro dialogue on zone entry (flag-gated, once per encounter)
+events.on('zone:loaded', ({ zoneId }) => {
+  // void_first_entry check prevents collision with the tutorial on first V_LIGHTHOUSE entry
+  if (zoneId === 'V_LIGHTHOUSE'
+      && save.getFlag('void_first_entry')
+      && !save.getFlag('lighthouse_combat_done')) {
+    setTimeout(() => dialogue.start('lighthouse_guardians_01'), 900);
+  }
+
+  if (zoneId === 'V_BEACH'
+      && !save.getFlag('beach_combat_done')) {
+    setTimeout(() => dialogue.start('beach_combat_intro_01'), 900);
+  }
+
+  // Not while brothers mission is active — that context has its own barrier/echo flow
+  if (zoneId === 'V_CEMETERY'
+      && !missions.isActive('brothers')
+      && !save.getFlag('cemetery_combat_done')) {
+    setTimeout(() => dialogue.start('cemetery_combat_intro_01'), 900);
+  }
+});
+
+// When the intro dialogue closes, start the encounter; handle win/lose
+events.on('dialogue:node_exit', ({ nodeId }) => {
+  if (nodeId === 'lighthouse_guardians_01') {
+    (async () => {
+      const result = await lunaMode.startEncounter({
+        title:    'Guardianes del Faro',
+        subtitle: 'Los ecos de Añoranza protegen la linterna',
+        wavesDef: ENCOUNTER_WAVES.lighthouse,
+      });
+      if (result === 'win') {
+        save.setFlag('lighthouse_combat_done', true);
+        dialogue.start('lighthouse_combat_win_01');
+      } else {
+        dialogue.start('lighthouse_combat_lose_01');
+        // No flag set — player can retry by re-entering V_LIGHTHOUSE
+      }
+    })();
+  }
+
+  if (nodeId === 'beach_combat_intro_01') {
+    (async () => {
+      const result = await lunaMode.startEncounter({
+        title:    'El Miedo en las Aguas',
+        subtitle: 'Los ecos de Miedo acechan a Mateo',
+        wavesDef: ENCOUNTER_WAVES.beach,
+      });
+      if (result === 'win') {
+        save.setFlag('beach_combat_done', true);
+        dialogue.start('beach_combat_win_01');
+      } else {
+        dialogue.start('beach_combat_lose_01');
+      }
+    })();
+  }
+
+  if (nodeId === 'cemetery_combat_intro_01') {
+    (async () => {
+      const result = await lunaMode.startEncounter({
+        title:    'Guardianes del Dolor',
+        subtitle: 'El Pesar bloquea el acceso a la cripta',
+        wavesDef: ENCOUNTER_WAVES.cemetery,
+      });
+      if (result === 'win') {
+        save.setFlag('cemetery_combat_done', true);
+        dialogue.start('cemetery_combat_win_01');
+      } else {
+        dialogue.start('cemetery_combat_lose_01');
+      }
+    })();
+  }
+});
+
+// ── Zone display names ────────────────────────────────────────────────────────
+const ZONE_NAMES = {
+  R_HOME:        'Casa de Rosa',
+  R_HOME_ATTIC:  'Desván',
+  R_HUB:         'Plaza Central',
+  R_LIGHTHOUSE:  'Faro de Miraloma',
+  R_SCHOOL:      'Escuela de Música',
+  R_BEACH:       'Playa Norte',
+  R_CEMETERY:    'Cementerio',
+  R_LIBRARY:     'Biblioteca',
+  V_HOME:        'Jardín Marchito',
+  V_HUB:         'Plaza del Vacío',
+  V_LIGHTHOUSE:  'El Faro Hundido',
+  V_SCHOOL:      'Aula Silenciosa',
+  V_BEACH:       'El Naufragio',
+  V_CEMETERY:    'La Cripta',
+  V_LIBRARY:     'Archivo Borrado',
+};
+
+// ── HUD state ─────────────────────────────────────────────────────────────────
+let _hudElapsed      = 0;
+let _controlsAlpha   = 1.0;
+
 // ── Ending determination ──────────────────────────────────────────────────────
 function _determineEnding() {
   const missions_done = [
@@ -471,7 +633,7 @@ async function init() {
                     'mateo_serious','mateo_calm','mateo_gentle','mateo_focused',
                     'mateo_reading','mateo_sad','mateo_scared_soft','mateo_soft',
                     'mateo_surprised','mateo_thinking','mateo_thoughtful',
-                    'mateo_translating','mateo_uncertain']) {
+                    'mateo_translating','mateo_uncertain','mateo_nod']) {
     dialogue.loadPortrait(id, mateoImg);
   }
 
@@ -488,20 +650,32 @@ async function init() {
   const npcPortraitMap = {
     vera:      ['vera_confused','vera_sad','vera_hopeful','vera_excited','vera_peaceful'],
     diego:     ['diego_neutral','diego_sad','diego_defensive','diego_grieving',
-                'diego_struggling','diego_resolved','diego_grateful','diego_hopeful'],
-    hermano:   ['hermano_confused','hermano_sad','hermano_peaceful','hermano_fading'],
+                'diego_struggling','diego_resolved','diego_grateful','diego_hopeful',
+                'diego_awkward','diego_nervous','diego_relieved','diego_surprised',
+                'diego_emotional','diego_peaceful','diego_shocked','diego_overwhelmed',
+                'diego_walking_away','diego_determined','diego_at_rift','diego_crying',
+                'diego_calm','diego_distant'],
+    hermano:   ['hermano_confused','hermano_sad','hermano_peaceful','hermano_fading',
+                'hermano_dim','hermano_relieved','hermano_determined','hermano_hopeful'],
     carmen:    ['carmen_neutral','carmen_grateful','carmen_worried','carmen_sad'],
     ponce:     ['ponce_neutral','ponce_worried','ponce_curious','ponce_shocked','ponce_grateful'],
     archivist: ['archivist_hostile','archivist_defensive','archivist_confused',
-                'archivist_breaking','archivist_fading'],
+                'archivist_breaking','archivist_fading','archivist_relieved'],
     weaver:    ['weaver_shadow','weaver_curious','weaver_enigmatic'],
     abuelo:    ['abuelo_confused','abuelo_sad','abuelo_hopeful','abuelo_fading'],
   };
   for (const [key, ids] of Object.entries(npcPortraitMap)) {
     for (const id of ids) dialogue.loadPortrait(id, npcPortraits[key]);
   }
-  const newGame = await titleScreen.start();
-  if (!newGame && save.hasSave()) {
+  const mode = await titleScreen.start();
+
+  if (mode === 'luna_mode') {
+    await lunaMode.start();
+    location.reload();
+    return;
+  }
+
+  if (mode === 'continue' && save.hasSave()) {
     const data = save.load();
     save.applyLoad(data);
   } else {
@@ -517,6 +691,13 @@ init().catch(console.error);
 // ── Update system ─────────────────────────────────────────────────────────────
 const worldUpdate = {
   update(dt) {
+    particles.update(dt);           // always run — also needed by lunaMode
+    _hudElapsed += dt;
+    if (_controlsAlpha > 0 && _hudElapsed > 8000) {
+      _controlsAlpha = Math.max(0, 1 - (_hudElapsed - 8000) / 3000);
+    }
+    if (lunaMode.active) return;    // lunaMode owns the loop while active
+
     const dialogueOpen = dialogue.isVisible();
 
     // Luna visible en el mundo real solo cuando no está desaparecida,
@@ -536,7 +717,6 @@ const worldUpdate = {
     world.update(dt);
     bond.update(dt);
     rifts.update(dt);
-    particles.update(dt);
     vision.update(dt);
     transition.update(dt);
     dialogue.update(dt);
@@ -652,6 +832,7 @@ const worldUpdate = {
 // ── Render system ─────────────────────────────────────────────────────────────
 const worldRender = {
   render(ctx, alpha) {
+    if (lunaMode.active) return;   // lunaMode renders its own scene
     camera.apply(ctx);
     world.render(ctx, alpha);       // tiles + NPCs
     rifts.render(ctx, alpha);
@@ -674,12 +855,23 @@ const worldRender = {
 };
 
 function _renderHUD(ctx) {
+  // Bond danger vignette
+  const bondLevel = bond.currentLevel();
+  if (bondLevel === 'CRITICAL' || bondLevel === 'DANGER') {
+    const pulse     = 0.5 + 0.5 * Math.sin(_hudElapsed / (bondLevel === 'CRITICAL' ? 280 : 560));
+    const intensity = bondLevel === 'CRITICAL' ? 0.28 : 0.13;
+    ctx.globalAlpha = intensity * pulse;
+    ctx.fillStyle   = bondLevel === 'CRITICAL' ? '#FF1010' : '#FF5010';
+    ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+    ctx.globalAlpha = 1;
+  }
+
   // Bond bar
   const BW = 60, BH = 5, BX = BASE_WIDTH - BW - 6, BY = 12;
   const COLORS = { HEALTHY: '#5DBB63', WARNING: '#E8B94F', DANGER: '#D4703A', CRITICAL: '#9E3A3A' };
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.fillRect(BX - 1, BY - 1, BW + 2, BH + 2);
-  ctx.fillStyle = COLORS[bond.currentLevel()];
+  ctx.fillStyle = COLORS[bondLevel];
   ctx.fillRect(BX, BY, Math.round(bond.normalized() * BW), BH);
   ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
@@ -687,29 +879,33 @@ function _renderHUD(ctx) {
   ctx.fillStyle = '#fff'; ctx.font = '8px VT323, monospace';
   ctx.fillText('vínculo', BX, BY - 2);
 
-  // Dimension + zone
+  // Dimension + zone name
   ctx.fillStyle = dimension.isVoid() ? '#9B7FE8' : '#87CEEB';
   ctx.font = '10px VT323, monospace';
   ctx.fillText(dimension.isVoid() ? 'VACÍO' : 'REAL', 6, 14);
   ctx.fillStyle = 'rgba(255,255,255,0.4)';
   ctx.font = '8px VT323, monospace';
-  ctx.fillText(scenes.currentZoneId ?? '…', 6, 24);
+  const zoneId = scenes.currentZoneId;
+  ctx.fillText(ZONE_NAMES[zoneId] ?? zoneId ?? '…', 6, 24);
 
-  // Active mission
+  // Active mission + step
   const active = ['lighthouse','melody','garden','dogs','brothers','library']
     .find(id => missions.isActive(id));
   if (active) {
+    const m    = missions.get(active);
+    const step = m ? Math.min(m.getStep() + 1, m.steps.length) : 1;
+    const tot  = m?.steps.length ?? 1;
     ctx.fillStyle = 'rgba(155,127,232,0.8)'; ctx.font = '8px VT323, monospace';
-    ctx.fillText(`▶ ${missions.get(active)?.title ?? active}`, 6, 34);
+    ctx.fillText(`▶ ${m?.title ?? active}  ${step}/${tot}`, 6, 34);
   }
 
-  // Luna AI state
-  ctx.fillStyle = 'rgba(155,127,232,0.5)'; ctx.font = '8px VT323, monospace';
-  ctx.fillText(`Luna: ${lunaAI.state}`, 6, BASE_HEIGHT - 12);
-
-  // Controls hint
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '8px VT323, monospace';
-  ctx.fillText('[E] interactuar   [Q] llamar Luna   [Shift] visión felina', 6, BASE_HEIGHT - 4);
+  // Controls hint (fades after 8s)
+  if (_controlsAlpha > 0) {
+    ctx.globalAlpha = _controlsAlpha * 0.45;
+    ctx.fillStyle = '#ffffff'; ctx.font = '8px VT323, monospace';
+    ctx.fillText('[E] interactuar   [Q] llamar Luna   [Shift] visión felina', 6, BASE_HEIGHT - 4);
+    ctx.globalAlpha = 1;
+  }
 
   ctx.shadowColor = 'transparent'; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
 }
@@ -717,10 +913,12 @@ function _renderHUD(ctx) {
 // ── Register in Game ──────────────────────────────────────────────────────────
 game.registerUpdateSystem(titleScreen); // first: title screen before everything
 game.registerUpdateSystem(prologue);   // second: prologue cards
+game.registerUpdateSystem(lunaMode);   // combat mode (inactive unless triggered)
 game.registerUpdateSystem(camera);
 game.registerUpdateSystem(worldUpdate);
 game.registerUpdateSystem(input);
 game.registerRenderSystem(worldRender);
+game.registerRenderSystem(lunaMode);    // draws when active
 game.registerRenderSystem(prologue);    // draws on top while active
 game.registerRenderSystem(titleScreen); // last: title screen on top of everything
 

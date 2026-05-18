@@ -61,8 +61,8 @@ export const ZoneR_LIBRARY = {
   ],
 
   rifts: [
-    // La grieta de historia no es visible en el mundo real
-    { id: 'G_library_history', x: 8 * 16, y: 2 * 16, size: 'major', emotion: 'shame', visible: false },
+    // Solo visible con visión felina (visibleInReal = false por defecto en Rift)
+    { id: 'G_library_history', x: 8 * 16, y: 2 * 16, size: 'major', emotion: 'guilt' },
   ],
 
   echoes:  [],

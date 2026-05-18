@@ -61,7 +61,8 @@ export class RiftSystem {
     if (this._dimension === DIM.VOID) {
       rift._currentlyVisible = rift.visibleInVoid;
     } else {
-      rift._currentlyVisible = rift.visibleInReal || this._felineVisionActive;
+      rift._currentlyVisible = !rift._forceHiddenInReal &&
+        (rift.visibleInReal || this._felineVisionActive);
     }
   }
 

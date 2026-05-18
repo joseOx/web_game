@@ -132,7 +132,7 @@ export class VisionSystem {
     const BAR_W = 40;
     const BAR_H = 3;
     const BAR_X = BASE_WIDTH / 2 - BAR_W / 2;
-    const BAR_Y = BASE_HEIGHT - 10;
+    const BAR_Y = BASE_HEIGHT - 12;
     const fill  = (this.energy / MAX_ENERGY) * BAR_W;
 
     ctx.fillStyle   = 'rgba(0,0,0,0.5)';
@@ -140,6 +140,11 @@ export class VisionSystem {
 
     ctx.fillStyle = '#C8A9FF';
     ctx.fillRect(BAR_X, BAR_Y, Math.round(fill), BAR_H);
+
+    ctx.fillStyle = 'rgba(200,169,255,0.55)';
+    ctx.font      = '7px VT323, monospace';
+    const lw = ctx.measureText('visión felina').width;
+    ctx.fillText('visión felina', Math.round(BASE_WIDTH / 2 - lw / 2), BAR_Y - 2);
   }
 
   destroy() {

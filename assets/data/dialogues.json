@@ -425,7 +425,7 @@
   "diego_res_A_end": {
     "id": "diego_res_A_end", "speaker": "Diego", "portrait": "diego_peaceful",
     "text": "Gracias, Mateo.",
-    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','A'); saveSystem.setFlag('rift_G_cemetery_chapel_sealed',true)"
+    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','A'); riftSystem.completeSealing('G_cemetery_chapel')"
   },
 
   "diego_m05_resolution_B": {
@@ -449,7 +449,7 @@
   "diego_res_B_05": {
     "id": "diego_res_B_05", "speaker": "Diego", "portrait": "diego_walking_away",
     "text": "Dame tiempo.",
-    "next": null, "onExit": "saveSystem.setFlag('diego_resolution','B'); saveSystem.setFlag('diego_unavailable',true); missionManager.complete('brothers'); saveSystem.setFlag('rift_G_cemetery_chapel_sealed',true)"
+    "next": null, "onExit": "saveSystem.setFlag('diego_resolution','B'); saveSystem.setFlag('diego_unavailable',true); missionManager.complete('brothers'); riftSystem.completeSealing('G_cemetery_chapel')"
   },
 
   "diego_m05_resolution_C": {
@@ -491,7 +491,23 @@
   "diego_res_C_end_02": {
     "id": "diego_res_C_end_02", "speaker": "Diego", "portrait": "diego_resolved",
     "text": "Okay. Okay.",
-    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','C'); saveSystem.setFlag('diego_ally',true); saveSystem.setFlag('rift_G_cemetery_chapel_sealed',true)"
+    "next": null, "onExit": "missionManager.complete('brothers'); saveSystem.setFlag('diego_resolution','C'); saveSystem.setFlag('diego_ally',true); riftSystem.completeSealing('G_cemetery_chapel')"
+  },
+
+  "diego_library_visit": {
+    "id": "diego_library_visit", "speaker": "Diego", "portrait": "diego_neutral",
+    "text": "Ponce me llamó. Dice que los libros de historia son los más afectados. ¿Vas a entrar al fondo?",
+    "next": "diego_library_02"
+  },
+  "diego_library_02": {
+    "id": "diego_library_02", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "Eso es exactamente lo que voy a hacer.",
+    "next": null
+  },
+  "diego_library_done": {
+    "id": "diego_library_done", "speaker": "Diego", "portrait": "diego_resolved",
+    "text": "Devolviste esa historia al pueblo. Mi hermano hubiera apreciado eso.",
+    "next": null
   },
 
   "hermano_echo_encounter": {
@@ -603,7 +619,7 @@
   "archivist_echo_end": {
     "id": "archivist_echo_end", "speaker": "Archivista", "portrait": "archivist_fading",
     "text": "Devuelve esos documentos al pueblo. Que los lean.",
-    "next": null, "onExit": "missionManager.complete('library'); saveSystem.setFlag('abuelo_connection_unlocked',true)"
+    "next": null, "onExit": "missionManager.complete('library'); saveSystem.setFlag('abuelo_connection_unlocked',true); riftSystem.completeSealing('G_library_history')"
   },
 
   "carmen_dogs_hint": {
@@ -869,6 +885,14 @@
       { "label": "Hablé con él.", "next": "diego_m05_resolution_B" },
       { "label": "Ven conmigo al cementerio.", "next": "diego_m05_resolution_C" }
     ],
+    "next": "diego_brothers_active_wait"
+  },
+
+  "diego_brothers_active_wait": {
+    "id": "diego_brothers_active_wait", "speaker": "Diego", "portrait": "diego_nervous",
+    "text": "¿Encontraste algo en el cementerio? Ten cuidado ahí.",
+    "condition": "mission:brothers:active",
+    "choices": [{ "label": "Estoy en ello.", "next": null }],
     "next": "diego_route_post"
   },
   "diego_post_b_return": {
@@ -1416,6 +1440,64 @@
   "garden_memory_03": {
     "id": "garden_memory_03", "speaker": "", "portrait": null, "style": "narrative_float",
     "text": "El banco de madera. Rosa todavía lo pinta cada primavera aunque ya nadie lo usa. Salvo Luna, que duerme ahí cuando cree que nadie la ve.",
+    "next": null
+  },
+
+  "lighthouse_guardians_01": {
+    "id": "lighthouse_guardians_01", "speaker": "Mateo", "portrait": "mateo_scared_soft",
+    "text": "Hay ecos bloqueando el paso a la linterna. Parecen... arraigados aquí. Como si no quisieran que nadie llegara. ¿Los reconoces, Luna?",
+    "next": null
+  },
+  "lighthouse_combat_win_01": {
+    "id": "lighthouse_combat_win_01", "speaker": "Mateo", "portrait": "mateo_relieved",
+    "text": "Lo lograste. El camino está despejado. Los ecos se retiraron... como si alguien les diera permiso por fin.",
+    "next": "lighthouse_combat_win_02"
+  },
+  "lighthouse_combat_win_02": {
+    "id": "lighthouse_combat_win_02", "speaker": "Mateo", "portrait": "mateo_thoughtful",
+    "text": "No los destruiste, Luna. Los... liberaste. Igual que haces siempre.",
+    "next": null
+  },
+  "lighthouse_combat_lose_01": {
+    "id": "lighthouse_combat_lose_01", "speaker": "Mateo", "portrait": "mateo_worried",
+    "text": "Son demasiados... El vínculo está demasiado débil ahora mismo. Tenemos que retroceder.",
+    "next": "lighthouse_combat_lose_02"
+  },
+  "lighthouse_combat_lose_02": {
+    "id": "lighthouse_combat_lose_02", "speaker": "Mateo", "portrait": "mateo_sad",
+    "text": "Está bien, Luna. No pasa nada. Descansemos y volvemos cuando estemos más fuertes.",
+    "next": null
+  },
+
+  "beach_combat_intro_01": {
+    "id": "beach_combat_intro_01", "speaker": "Mateo", "portrait": "mateo_scared_soft",
+    "text": "Los ecos de Miedo están por todas partes aquí abajo. El naufragio los atrae. Luna... no dejes que lleguen a mí.",
+    "next": null
+  },
+  "beach_combat_win_01": {
+    "id": "beach_combat_win_01", "speaker": "Mateo", "portrait": "mateo_relieved",
+    "text": "El agua se calma. Los ecos se disuelven como espuma en la orilla. Buen trabajo, Luna.",
+    "next": null, "onExit": "riftSystem.completeSealing('G_beach_submarine')"
+  },
+  "beach_combat_lose_01": {
+    "id": "beach_combat_lose_01", "speaker": "Mateo", "portrait": "mateo_worried",
+    "text": "El miedo es demasiado denso aquí abajo. Necesitamos recuperar el vínculo antes de volver.",
+    "next": null
+  },
+
+  "cemetery_combat_intro_01": {
+    "id": "cemetery_combat_intro_01", "speaker": "Mateo", "portrait": "mateo_sad",
+    "text": "Los ecos de Pesar rodean la cripta. Son el dolor de Diego... hecho forma. Luna, no dejes que lleguen a mí.",
+    "next": null
+  },
+  "cemetery_combat_win_01": {
+    "id": "cemetery_combat_win_01", "speaker": "Mateo", "portrait": "mateo_thoughtful",
+    "text": "El camino a la cripta está libre. El hermano de Diego puede escuchar ahora. Este dolor... tiene un final.",
+    "next": null
+  },
+  "cemetery_combat_lose_01": {
+    "id": "cemetery_combat_lose_01", "speaker": "Mateo", "portrait": "mateo_worried",
+    "text": "El pesar de Diego es demasiado pesado hoy. Necesitamos fortalecer el vínculo antes de intentarlo de nuevo.",
     "next": null
   }
 }

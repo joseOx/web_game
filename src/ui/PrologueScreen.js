@@ -3,6 +3,7 @@ import { BASE_WIDTH, BASE_HEIGHT } from '../core/Game.js';
 const CARDS = [
   { text: 'Miraloma.',                                          hold: 2000 },
   { text: '3 de la mañana.',                                   hold: 1800 },
+  { text: 'Eres Mateo.',                                        hold: 1800 },
   { text: 'Tu gata lleva seis años contigo.',                   hold: 2400 },
   { text: 'Esta noche desapareció durante la tormenta.',        hold: 3000 },
 ];

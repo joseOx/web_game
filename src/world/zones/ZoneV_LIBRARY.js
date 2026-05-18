@@ -54,7 +54,7 @@ export const ZoneV_LIBRARY = {
   npcs: [],
 
   rifts: [
-    { id: 'G_library_history', x: 8 * 16, y: 2 * 16, size: 'major', emotion: 'shame' },
+    { id: 'G_library_history', x: 8 * 16, y: 2 * 16, size: 'major', emotion: 'guilt' },
   ],
 
   echoes: [
@@ -63,14 +63,15 @@ export const ZoneV_LIBRARY = {
       id:               'echo_archivista',
       x:                8 * 16,
       y:                4 * 16,
-      emotion:          'shame',
+      emotion:          'guilt',
       dialogueId:       'archivist_echo_encounter',
+      spawnFlag:        'mission_library_active',
       doneFlag:         'mission_library_done',
       evadeOnApproach:  true,   // huye de Mateo; Luna debe acorralarlo
     },
-    // Dos guardianes de vergüenza protegen el fragmento 3 (el más comprometedor)
-    { type: 'minor', id: 'guard_shame_1', x: 16 * 16 - 14, y: 3 * 16,      emotion: 'shame', guard: true, doneFlag: 'fragmento_doc_3_found' },
-    { type: 'minor', id: 'guard_shame_2', x: 16 * 16 + 14, y: 3 * 16 + 10, emotion: 'shame', guard: true, doneFlag: 'fragmento_doc_3_found' },
+    // Dos guardianes de culpa protegen el fragmento 3 (el más comprometedor)
+    { type: 'minor', id: 'guard_guilt_1', x: 16 * 16 - 14, y: 3 * 16,      emotion: 'guilt', guard: true, doneFlag: 'fragmento_doc_3_found' },
+    { type: 'minor', id: 'guard_guilt_2', x: 16 * 16 + 14, y: 3 * 16 + 10, emotion: 'guilt', guard: true, doneFlag: 'fragmento_doc_3_found' },
   ],
 
   objects: [],

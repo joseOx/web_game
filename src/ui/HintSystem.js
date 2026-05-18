@@ -1,9 +1,11 @@
 import { BASE_WIDTH, BASE_HEIGHT } from '../core/Game.js';
 
-const HINT_ENTER = '[E]  entrar a la grieta';
-const HINT_EXIT  = '[E]  salir del Vacío';
-const FADE_SPEED = 3.5;
-const FONT       = '10px VT323, monospace';
+const HINT_ENTER   = '[E]  entrar a la grieta';
+const HINT_EXIT    = '[E]  salir del Vacío';
+const HINT_TALK    = '[E]  hablar';
+const HINT_EXAMINE = '[E]  examinar';
+const FADE_SPEED   = 3.5;
+const FONT         = '10px VT323, monospace';
 
 export class HintSystem {
   constructor() {
@@ -16,14 +18,16 @@ export class HintSystem {
     this._vision    = null;
     this._dialogue  = null;
     this._mateo     = null;
+    this._world     = null;
   }
 
-  inject({ rifts, dimension, vision, dialogue, mateo } = {}) {
+  inject({ rifts, dimension, vision, dialogue, mateo, world } = {}) {
     if (rifts)     this._rifts     = rifts;
     if (dimension) this._dimension = dimension;
     if (vision)    this._vision    = vision;
     if (dialogue)  this._dialogue  = dialogue;
     if (mateo)     this._mateo     = mateo;
+    if (world)     this._world     = world;
   }
 
   update(dt) {
@@ -40,6 +44,12 @@ export class HintSystem {
         this._target  = 1;
       } else if (nearRift && riftVisible) {
         this._message = HINT_ENTER;
+        this._target  = 1;
+      } else if (this._world?.nearestNPC(this._mateo.centerX(), this._mateo.centerY(), 32)) {
+        this._message = HINT_TALK;
+        this._target  = 1;
+      } else if (this._world?.nearestObject(this._mateo.centerX(), this._mateo.centerY(), 32)) {
+        this._message = HINT_EXAMINE;
         this._target  = 1;
       } else {
         this._target = 0;

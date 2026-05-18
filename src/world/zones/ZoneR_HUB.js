@@ -9,7 +9,8 @@ export const ZoneR_HUB = {
   solidChars: '#bf',  // '#' walls, 'b' building blocks, 'f' plaza features
 
   // '#' edge wall  '.' stone floor  'b' building facade (solid)
-  // 'f' fountain/bench (solid)  'd' exit south to R_HOME  'g' grass patch
+  // 'f' fountain/bench (solid)  'd' side exits  'g' grass patch
+  // 'h' exit south → R_HOME (warm earth)  'c' exit south → R_CEMETERY (mossy slate)
   grid: [
     '#########################',
     '#.......................#',
@@ -27,7 +28,7 @@ export const ZoneR_HUB = {
     '#.bbb..............bbb.#',
     '#.......................#',
     '#.......................#',
-    '#...........d..d.......#',
+    '#...........hh#cc.......#',
     '#########################',
   ],
 
@@ -36,8 +37,10 @@ export const ZoneR_HUB = {
     '.': '#666676',   // stone floor
     'b': '#3A3545',   // building facade
     'f': '#555565',   // fountain/bench feature
-    'd': '#666676',   // exit tile (same color as floor)
+    'd': '#666676',   // side exit tiles (same color as floor)
     'g': '#4A6040',   // grass
+    'h': '#A87C5A',   // south exit → R_HOME (warm amber path)
+    'c': '#4A6045',   // south exit → R_CEMETERY (mossy green path)
   },
 
   spawns: {
@@ -46,8 +49,9 @@ export const ZoneR_HUB = {
     from_lighthouse:  { x: 12 * 16, y: 2 * 16 },
     from_school:      { x: 21 * 16, y: 9 * 16 },
     from_beach:       { x:  2 * 16, y: 8 * 16 },
-    from_cemetery:    { x: 13 * 16, y: 14 * 16 },
+    from_cemetery:    { x: 15 * 16, y: 14 * 16 },
     from_library:     { x: 22 * 16, y: 11 * 16 },
+    from_v_hub:       { x: 12 * 16, y:  9 * 16 },
   },
 
   exits: [
@@ -81,7 +85,7 @@ export const ZoneR_HUB = {
     },
     {
       id:          'to_cemetery',
-      x:   13 * 16, y: 16 * 16,
+      x:   14 * 16, y: 16 * 16,
       width:  2 * 16, height: 16,
       targetZone:  'R_CEMETERY',
       targetSpawn: 'from_hub',

@@ -14,7 +14,7 @@ export class Mission06Library extends MissionBase {
   }
 
   onComplete() {
-    this._saveSystem?.setFlag('rift_library_history_sealed', true);
+    this._saveSystem?.setFlag('rift_G_library_history_sealed', true);
     this._saveSystem?.setFlag('archive_full_unlocked', true);
     this._saveSystem?.setFlag('weaver_pattern_revealed', true);
     this._saveSystem?.setFlag('abuelo_connection_unlocked', true);
@@ -56,7 +56,7 @@ export class Mission06Library extends MissionBase {
         break;
 
       case 'rift:sealed':
-        if (data.riftId === 'G_library_history') {
+        if (data.riftId === 'G_library_history' && this.currentStep >= 2) {
           this.complete();
         }
         break;

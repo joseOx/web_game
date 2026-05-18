@@ -129,11 +129,18 @@ FASE 6 — Contenido (una zona por iteración)
   Criterio por zona: entidades en posición correcta, diálogos funcionando, misión completa de punta a punta.
 
 FASE 7 — Polish
+  [x] TitleScreen — partículas de Vacío, grieta pulsante, Luna walk, typewriter subtítulo, tagline efímera, opción Modo Luna
+  [x] LunaCombatMode — arena de combate configurable (startEncounter), Luna controlable, vínculo como HP
+  [x] Encuentros narrativos — 3 combates integrados en la historia (faro/playa/cementerio) con trigger zone:loaded, diálogos pre/post combate y flags: lighthouse_combat_done, beach_combat_done, cemetery_combat_done
+  [x] Bugs M05/M06 — spawnFlag en ecos atados sin misión activa, step gate en rift:sealed handlers
+  [x] V_LIBRARY — emoción corregida shame→guilt, spawnFlag archivista, guards renombrados
+  [x] R_HUB — salidas home/cemetery visualmente diferenciadas (colores h/c, separador #)
   [ ] ParticleSystem.js — efectos de sellado, transiciones
   [ ] Audio adaptativo — crossfade entre zonas
   [ ] Mobile/touch support en InputSystem
   [ ] Optimización — culling de tiles, object pooling de Ecos
-  [ ] Endings — función determineEnding() y secuencias finales
+  [ ] Endings — secuencias finales (determineEnding() existe; faltan nodos de diálogo: ending_complete_01, ending_standard_01, ending_minimal_01, ending_hard_01)
+  [ ] Save scene restoration — save.inject() no pasa sceneManager; continue siempre arranca en R_HOME
 ```
 
 ---
