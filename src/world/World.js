@@ -8,7 +8,8 @@ const EXIT_INDICATOR_COLOR = 'rgba(255, 255, 180, 0.25)';
 export class World {
   constructor() {
     this.loaded   = false;
-    this.tilemap  = null;  // ProceduralTilemap — exposed for SceneManager to set on CollisionSystem
+    this.tilemap  = null;
+    this._camera  = null;
     this._palette = {};
     this._npcs    = [];
     this._objects      = [];
@@ -17,8 +18,10 @@ export class World {
     this._zoneDef      = null;
   }
 
+  setCamera(camera) { this._camera = camera; }
+
   // Called by SceneManager when loading a new zone
-  load(zoneDef) {
+  load(zoneDef, save = null) {
     this._zoneDef = zoneDef;
     this._palette = zoneDef.palette ?? {};
 
@@ -27,14 +30,16 @@ export class World {
       solidChars: zoneDef.solidChars ?? '#f',
     });
 
-    // Build NPC list
-    this._npcs = (zoneDef.npcs ?? []).map(def => {
+    // Build NPC list — skip NPCs whose spawnFlag is unset or doneFlag is set
+    this._npcs = (zoneDef.npcs ?? []).flatMap(def => {
+      if (def.spawnFlag && !save?.getFlag(def.spawnFlag)) return [];
+      if (def.doneFlag  &&  save?.getFlag(def.doneFlag))  return [];
       const npc = new NPC(def.id, def.x, def.y, {
         color:      def.color,
         dialogueId: def.dialogueId,
         label:      def.label ?? '',
       });
-      return npc;
+      return [npc];
     });
 
     this._objects      = (zoneDef.objects ?? []).map(o => ({ ...o }));
@@ -94,20 +99,32 @@ export class World {
   get realZoneId()  { return this._zoneDef?.realZoneId ?? null; }
 
   // Fire item:picked for any item trigger Mateo walks over (idempotent via save flag)
-  checkItemTriggers(entity, save, eventBus) {
+  // echoManager is optional — when provided, items with guardedByEcho:true are blocked
+  // while an active EchoMinor (has .fleeing property) is within 30px of the item centre.
+  checkItemTriggers(entity, save, eventBus, echoManager = null) {
     for (let i = this._itemTriggers.length - 1; i >= 0; i--) {
       const trigger = this._itemTriggers[i];
       if (save.getFlag(trigger.pickFlag)) {
         this._itemTriggers.splice(i, 1);
         continue;
       }
-      console.log(`[item] mateo(${Math.round(entity.x)},${Math.round(entity.y)}) item(${trigger.x},${trigger.y},${trigger.width}x${trigger.height}) overlap=${CollisionSystem.overlaps(entity, trigger)}`);
+
+      // Guard check — nearby EchoMinor blocks pickup
+      if (trigger.guardedByEcho && echoManager) {
+        const cx = trigger.x + (trigger.width  ?? 16) / 2;
+        const cy = trigger.y + (trigger.height ?? 16) / 2;
+        const blocked = echoManager.getAll().some(e =>
+          e.active && e.fleeing !== undefined &&
+          Math.hypot(e.centerX() - cx, e.centerY() - cy) < 30
+        );
+        if (blocked) continue;
+      }
+
       if (CollisionSystem.overlaps(entity, trigger)) {
         save.setFlag(trigger.pickFlag, true);
         save.addItem(trigger.id);
         this._itemTriggers.splice(i, 1);
         eventBus.emit('item:picked', { itemId: trigger.id });
-        console.log(`[item] recogido: ${trigger.id}`);
       }
     }
   }
@@ -120,9 +137,21 @@ export class World {
     }
   }
 
+  // Returns NPC by id, or null
+  getNPC(id) {
+    return this._npcs.find(n => n.id === id) ?? null;
+  }
+
+  // Adds an externally-created NPC to the current scene
+  addNPC(npc) {
+    this._npcs.push(npc);
+  }
+
   // ── Update / Render ───────────────────────────────────────────────────────────
 
-  update(_dt) { /* static world — NPCs don't update here */ }
+  update(dt) {
+    for (const npc of this._npcs) npc.update(dt);
+  }
 
   setDimension(_dim) { /* reserved for future void world variant */ }
 
@@ -131,9 +160,15 @@ export class World {
 
     const { tileWidth: tw, tileHeight: th } = this.tilemap;
 
-    // Draw tiles
-    for (let row = 0; row < this.tilemap.rows; row++) {
-      for (let col = 0; col < this.tilemap.cols; col++) {
+    // Draw tiles (with camera culling)
+    const cam = this._camera;
+    const startCol = cam ? Math.max(0,                  Math.floor(cam.x / tw) - 1) : 0;
+    const endCol   = cam ? Math.min(this.tilemap.cols,  Math.ceil((cam.x + cam.width)  / tw) + 1) : this.tilemap.cols;
+    const startRow = cam ? Math.max(0,                  Math.floor(cam.y / th) - 1) : 0;
+    const endRow   = cam ? Math.min(this.tilemap.rows,  Math.ceil((cam.y + cam.height) / th) + 1) : this.tilemap.rows;
+
+    for (let row = startRow; row < endRow; row++) {
+      for (let col = startCol; col < endCol; col++) {
         const ch    = this.tilemap.charAt(col, row);
         const color = this._palette[ch];
         if (!color) continue;

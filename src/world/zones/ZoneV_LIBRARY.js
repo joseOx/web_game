@@ -47,6 +47,7 @@ export const ZoneV_LIBRARY = {
       width:  2 * 16, height: 16,
       targetZone:  'R_LIBRARY',
       targetSpawn: 'from_hub',
+      switchDim:   'real',
     },
   ],
 
@@ -58,23 +59,27 @@ export const ZoneV_LIBRARY = {
 
   echoes: [
     {
-      type:       'bound',
-      id:         'echo_archivista',
-      x:          8 * 16,
-      y:           4 * 16,
-      emotion:    'shame',
-      dialogueId: 'archivist_echo_encounter',
-      doneFlag:   'mission_library_done',
+      type:             'bound',
+      id:               'echo_archivista',
+      x:                8 * 16,
+      y:                4 * 16,
+      emotion:          'shame',
+      dialogueId:       'archivist_echo_encounter',
+      doneFlag:         'mission_library_done',
+      evadeOnApproach:  true,   // huye de Mateo; Luna debe acorralarlo
     },
+    // Dos guardianes de vergüenza protegen el fragmento 3 (el más comprometedor)
+    { type: 'minor', id: 'guard_shame_1', x: 16 * 16 - 14, y: 3 * 16,      emotion: 'shame', guard: true, doneFlag: 'fragmento_doc_3_found' },
+    { type: 'minor', id: 'guard_shame_2', x: 16 * 16 + 14, y: 3 * 16 + 10, emotion: 'shame', guard: true, doneFlag: 'fragmento_doc_3_found' },
   ],
 
   objects: [],
 
   // Tres fragmentos de documento dispersos por la zona
   items: [
-    { id: 'I_fragmento_doc_1', x:  3 * 16, y:  5 * 16, width: 12, height: 12, pickFlag: 'fragmento_doc_1_found' },
+    { id: 'I_fragmento_doc_1', x:  4 * 16, y:  5 * 16, width: 12, height: 12, pickFlag: 'fragmento_doc_1_found' },
     { id: 'I_fragmento_doc_2', x:  9 * 16, y:  9 * 16, width: 12, height: 12, pickFlag: 'fragmento_doc_2_found' },
-    { id: 'I_fragmento_doc_3', x: 15 * 16, y:  3 * 16, width: 12, height: 12, pickFlag: 'fragmento_doc_3_found' },
+    { id: 'I_fragmento_doc_3', x: 16 * 16, y:  3 * 16, width: 12, height: 12, pickFlag: 'fragmento_doc_3_found', guardedByEcho: true },
   ],
 
   realZoneId: 'R_LIBRARY',

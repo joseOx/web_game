@@ -183,7 +183,9 @@ export class DialogueSystem {
     ctx.globalAlpha = 0.85;
     ctx.fillStyle   = '#C8A9FF';
     ctx.font        = '10px VT323, monospace';
-    ctx.fillText(shown, PAD + 2, BASE_HEIGHT / 2 - 20);
+    const floatX   = PAD + 2;
+    const floatMaxW = BASE_WIDTH - floatX - PAD;
+    this._drawWrappedText(ctx, shown, floatX, BASE_HEIGHT / 2 - 20, floatMaxW, 11, BASE_HEIGHT - PAD);
     ctx.globalAlpha = 1;
     this._clearShadow(ctx);
   }
@@ -201,7 +203,7 @@ export class DialogueSystem {
     ctx.shadowOffsetY = 0;
   }
 
-  _drawWrappedText(ctx, text, x, y, maxW, lineH) {
+  _drawWrappedText(ctx, text, x, y, maxW, lineH, maxY = BOX_Y + BOX_H - 4) {
     const words = text.split(' ');
     let line = '';
     let curY  = y;
@@ -211,7 +213,7 @@ export class DialogueSystem {
         ctx.fillText(line, x, curY);
         line = word;
         curY += lineH;
-        if (curY > BOX_Y + BOX_H - 4) break;
+        if (curY > maxY) break;
       } else {
         line = test;
       }

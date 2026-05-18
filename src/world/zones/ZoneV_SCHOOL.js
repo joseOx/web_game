@@ -69,13 +69,19 @@ export const ZoneV_SCHOOL = {
       dialogueId: 'vera_echo_loop',
       doneFlag:   'mission_melody_done',
     },
+    // Un guardián por fragmento (miedo condensado); fragmento 4 tiene dos
+    { type: 'minor', id: 'guard_score_1',  x: 4 * 16 - 10, y:  5 * 16 + 4,  emotion: 'fear', guard: true, doneFlag: 'partitura_1_found' },
+    { type: 'minor', id: 'guard_score_2',  x: 16 * 16 - 10, y: 5 * 16 + 4,  emotion: 'fear', guard: true, doneFlag: 'partitura_2_found' },
+    { type: 'minor', id: 'guard_score_3',  x: 4 * 16 - 10, y:  10 * 16 + 4, emotion: 'fear', guard: true, doneFlag: 'partitura_3_found' },
+    { type: 'minor', id: 'guard_score_4a', x: 16 * 16 - 10, y: 10 * 16 + 4, emotion: 'fear', guard: true, doneFlag: 'partitura_4_found' },
+    { type: 'minor', id: 'guard_score_4b', x: 16 * 16 + 10, y: 10 * 16 + 8, emotion: 'fear', guard: true, doneFlag: 'partitura_4_found' },
   ],
 
   items: [
-    { id: 'I_partitura_1', x: 4 * 16 + 4, y:  5 * 16 + 4, width: 8, height: 8, pickFlag: 'partitura_1_found' },
-    { id: 'I_partitura_2', x: 16 * 16 + 4, y: 5 * 16 + 4, width: 8, height: 8, pickFlag: 'partitura_2_found' },
-    { id: 'I_partitura_3', x: 4 * 16 + 4, y: 10 * 16 + 4, width: 8, height: 8, pickFlag: 'partitura_3_found' },
-    { id: 'I_partitura_4', x: 16 * 16 + 4, y: 10 * 16 + 4, width: 8, height: 8, pickFlag: 'partitura_4_found' },
+    { id: 'I_partitura_1', x: 4 * 16 + 4, y:  5 * 16 + 4, width: 8, height: 8, pickFlag: 'partitura_1_found', guardedByEcho: true },
+    { id: 'I_partitura_2', x: 16 * 16 + 4, y: 5 * 16 + 4, width: 8, height: 8, pickFlag: 'partitura_2_found', guardedByEcho: true },
+    { id: 'I_partitura_3', x: 4 * 16 + 4, y: 10 * 16 + 4, width: 8, height: 8, pickFlag: 'partitura_3_found', guardedByEcho: true },
+    { id: 'I_partitura_4', x: 16 * 16 + 4, y: 10 * 16 + 4, width: 8, height: 8, pickFlag: 'partitura_4_found', guardedByEcho: true },
   ],
 
   voidZoneId: null,

@@ -122,9 +122,9 @@ export const ZoneR_HUB = {
     },
   ],
 
-  // Rift G_hub_alley lives here (the demo rift from Phase 4/5)
   rifts: [
-    { id: 'G_hub_alley', x: 7 * 16, y: 5 * 16, size: 'minor', emotion: 'longing' },
+    { id: 'G_hub_alley', x: 7 * 16, y:  5 * 16, size: 'minor', emotion: 'longing' },
+    { id: 'G_hub_tree',  x: 19 * 16, y: 5 * 16, size: 'micro', emotion: 'grief'   },
   ],
 
   // Three EchoMinor near the alley rift + one EchoBound (antonio)
@@ -144,6 +144,6 @@ export const ZoneR_HUB = {
     },
   ],
 
-  voidZoneId: null,
+  voidZoneId: 'V_HUB',
   dimension:  'real',
 };

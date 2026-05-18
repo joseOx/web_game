@@ -15,7 +15,7 @@ export class Mission05Brothers extends MissionBase {
   }
 
   onComplete() {
-    this._saveSystem?.setFlag('rift_cemetery_chapel_sealed', true);
+    this._saveSystem?.setFlag('rift_G_cemetery_chapel_sealed', true);
     this._saveSystem?.setFlag('memory_share_unlocked', true);
     // Resolution effects applied via dialogue onExit actions (setFlag diego_resolution)
     const res = this._saveSystem?.getFlag('diego_resolution');
@@ -32,14 +32,10 @@ export class Mission05Brothers extends MissionBase {
         }
         if (data.nodeId === 'hermano_echo_end' && this.currentStep === 1) {
           this._saveSystem?.setFlag('hermano_echo_met', true);
-          this.advanceStep();
-        }
-        break;
-
-      case 'item:picked':
-        if (data.itemId === 'I_objeto_diego' && this.currentStep === 2) {
+          this.advanceStep();   // → step 2
+          // Item is given directly in dialogue (onEnter), no physical pickup needed
           this._saveSystem?.setFlag('objeto_diego_found', true);
-          this.advanceStep();
+          this.advanceStep();   // → step 3
         }
         break;
 

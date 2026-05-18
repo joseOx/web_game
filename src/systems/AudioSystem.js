@@ -115,6 +115,51 @@ export class AudioSystem {
     if (vol > 0.01) this.playSFX(id, { volume: vol });
   }
 
+  // ── Synthesis ─────────────────────────────────────────────────────────────
+
+  playTone(freq, duration, type = 'sine', gain = 0.08) {
+    this._ensureContext();
+    if (this._muted) return;
+    const osc = this._ctx.createOscillator();
+    const g   = this._ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(gain, this._ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this._ctx.currentTime + duration);
+    osc.connect(g);
+    g.connect(this._master);
+    osc.start();
+    osc.stop(this._ctx.currentTime + duration + 0.05);
+  }
+
+  startAmbient(isVoid) {
+    this._ensureContext();
+    this._stopAmbient();
+    const freqs = isVoid ? [55, 82.5, 110] : [110, 165, 220];
+    this._ambientNodes = freqs.map((f, i) => {
+      const osc = this._ctx.createOscillator();
+      const g   = this._ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      g.gain.setValueAtTime(0, this._ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.025 - i * 0.005, this._ctx.currentTime + 2);
+      osc.connect(g);
+      g.connect(this._master);
+      osc.start();
+      return { osc, g };
+    });
+  }
+
+  _stopAmbient() {
+    if (!this._ambientNodes) return;
+    const now = this._ctx.currentTime;
+    for (const { osc, g } of this._ambientNodes) {
+      g.gain.linearRampToValueAtTime(0, now + 1.5);
+      osc.stop(now + 1.6);
+    }
+    this._ambientNodes = null;
+  }
+
   // ── Volume ────────────────────────────────────────────────────────────────
 
   setMasterVolume(v) {

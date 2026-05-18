@@ -80,6 +80,10 @@ export const ZoneV_LIGHTHOUSE = {
       dialogueId: 'antonio_echo_first_encounter',
       doneFlag:   'mission_lighthouse_done',
     },
+    // Tres guardianes de la grieta del farol — bloquean el sellado hasta que Luna los echa
+    { type: 'minor', id: 'guard_lantern_1', x: 80, y: 68,  emotion: 'longing', guard: true, doneFlag: 'mission_lighthouse_done' },
+    { type: 'minor', id: 'guard_lantern_2', x: 84, y: 84,  emotion: 'longing', guard: true, doneFlag: 'mission_lighthouse_done' },
+    { type: 'minor', id: 'guard_lantern_3', x: 78, y: 100, emotion: 'longing', guard: true, doneFlag: 'mission_lighthouse_done' },
   ],
 
   // Carta — objeto recogible en el suelo del faro

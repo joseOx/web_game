@@ -48,6 +48,7 @@ export const ZoneV_CEMETERY = {
       width:  2 * 16, height: 16,
       targetZone:  'R_CEMETERY',
       targetSpawn: 'from_hub',
+      switchDim:   'real',
     },
   ],
 
@@ -67,6 +68,10 @@ export const ZoneV_CEMETERY = {
       dialogueId: 'hermano_echo_encounter',
       doneFlag:   'mission_brothers_done',
     },
+    // Barrera de duelo — 3 guardianes rodean al hermano; requiere visión felina + Luna para despejar
+    { type: 'minor', id: 'guard_grief_1', x: 10 * 16 - 22, y: 6 * 16,      emotion: 'grief', guard: true, doneFlag: 'mission_brothers_done' },
+    { type: 'minor', id: 'guard_grief_2', x: 10 * 16 + 22, y: 6 * 16,      emotion: 'grief', guard: true, doneFlag: 'mission_brothers_done' },
+    { type: 'minor', id: 'guard_grief_3', x: 10 * 16,      y: 6 * 16 - 20, emotion: 'grief', guard: true, doneFlag: 'mission_brothers_done' },
   ],
 
   objects: [],

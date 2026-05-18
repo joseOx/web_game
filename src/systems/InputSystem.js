@@ -1,3 +1,10 @@
+// D-pad layout in logical 320×180 canvas space
+const DPAD_CX = 40, DPAD_CY = 152, DPAD_R = 26;
+const BTN_E   = { x: 286, y: 155, r: 14 };
+const BTN_Q   = { x: 263, y: 141, r: 11 };
+
+function _dist2(ax, ay, bx, by) { return (ax-bx)**2 + (ay-by)**2; }
+
 // Action states: false | 'just_pressed' | true | 'just_released'
 const BINDINGS = {
   'ArrowLeft':  'move_left',
@@ -30,8 +37,10 @@ const AXIS_THRESHOLD = 0.4;
 
 export class InputSystem {
   constructor() {
-    this._keys    = {};   // raw keyboard state
-    this._actions = {};   // abstract action states
+    this._keys    = {};
+    this._actions = {};
+    this._canvas  = null;
+    this._touchActive = false;
 
     this._boundKeyDown = this._onKeyDown.bind(this);
     this._boundKeyUp   = this._onKeyUp.bind(this);
@@ -39,6 +48,8 @@ export class InputSystem {
     this._setupListeners();
     this._setupTouch();
   }
+
+  setCanvas(canvas) { this._canvas = canvas; }
 
   // --- Public API ---
 
@@ -147,10 +158,11 @@ export class InputSystem {
     }
   }
 
-  // --- Touch (virtual D-pad stubs — full implementation in Fase 7) ---
+  // --- Touch (virtual D-pad) ---
 
   _setupTouch() {
-    this._touchStart = null;
+    this._moveTouchId  = null;
+    this._btnTouches   = new Map(); // touchId → action
     this._boundTouchStart = this._onTouchStart.bind(this);
     this._boundTouchMove  = this._onTouchMove.bind(this);
     this._boundTouchEnd   = this._onTouchEnd.bind(this);
@@ -165,36 +177,144 @@ export class InputSystem {
     window.removeEventListener('touchend',   this._boundTouchEnd);
   }
 
+  // Convert client coordinates to logical canvas space (320×180)
+  _toLogical(clientX, clientY) {
+    if (!this._canvas) return { x: clientX, y: clientY };
+    const r = this._canvas.getBoundingClientRect();
+    return {
+      x: (clientX - r.left) / r.width  * 320,
+      y: (clientY - r.top)  / r.height * 180,
+    };
+  }
+
+  _dpadAction(lx, ly) {
+    const dx = lx - DPAD_CX, dy = ly - DPAD_CY;
+    const DEAD = 6;
+    return {
+      left:  dx < -DEAD,
+      right: dx >  DEAD,
+      up:    dy < -DEAD,
+      down:  dy >  DEAD,
+    };
+  }
+
   _onTouchStart(e) {
     e.preventDefault();
-    const t = e.changedTouches[0];
-    this._touchStart = { x: t.clientX, y: t.clientY, id: t.identifier };
+    this._touchActive = true;
+    for (const t of e.changedTouches) {
+      const { x, y } = this._toLogical(t.clientX, t.clientY);
+
+      // Right-side buttons
+      if (_dist2(x, y, BTN_E.x, BTN_E.y) <= BTN_E.r ** 2) {
+        this._actions['interact'] = 'just_pressed';
+        this._btnTouches.set(t.identifier, 'interact');
+        continue;
+      }
+      if (_dist2(x, y, BTN_Q.x, BTN_Q.y) <= BTN_Q.r ** 2) {
+        this._actions['call_luna'] = 'just_pressed';
+        this._btnTouches.set(t.identifier, 'call_luna');
+        continue;
+      }
+
+      // D-pad zone (left half broadly, centered on DPAD_CX/CY)
+      if (x < 160 && this._moveTouchId == null) {
+        this._moveTouchId = t.identifier;
+        const dir = this._dpadAction(x, y);
+        this._setAxisAction('move_left',  dir.left);
+        this._setAxisAction('move_right', dir.right);
+        this._setAxisAction('move_up',    dir.up);
+        this._setAxisAction('move_down',  dir.down);
+      }
+    }
   }
 
   _onTouchMove(e) {
     e.preventDefault();
-    if (!this._touchStart) return;
     for (const t of e.changedTouches) {
-      if (t.identifier !== this._touchStart.id) continue;
-      const dx = t.clientX - this._touchStart.x;
-      const dy = t.clientY - this._touchStart.y;
-      const DEAD = 20;
-      this._setAxisAction('move_left',  dx < -DEAD);
-      this._setAxisAction('move_right', dx >  DEAD);
-      this._setAxisAction('move_up',    dy < -DEAD);
-      this._setAxisAction('move_down',  dy >  DEAD);
+      if (t.identifier !== this._moveTouchId) continue;
+      const { x, y } = this._toLogical(t.clientX, t.clientY);
+      const dir = this._dpadAction(x, y);
+      this._setAxisAction('move_left',  dir.left);
+      this._setAxisAction('move_right', dir.right);
+      this._setAxisAction('move_up',    dir.up);
+      this._setAxisAction('move_down',  dir.down);
     }
   }
 
   _onTouchEnd(e) {
     e.preventDefault();
     for (const t of e.changedTouches) {
-      if (t.identifier !== this._touchStart?.id) continue;
-      this._setAxisAction('move_left',  false);
-      this._setAxisAction('move_right', false);
-      this._setAxisAction('move_up',    false);
-      this._setAxisAction('move_down',  false);
-      this._touchStart = null;
+      if (t.identifier === this._moveTouchId) {
+        this._setAxisAction('move_left',  false);
+        this._setAxisAction('move_right', false);
+        this._setAxisAction('move_up',    false);
+        this._setAxisAction('move_down',  false);
+        this._moveTouchId = null;
+      }
+      const action = this._btnTouches.get(t.identifier);
+      if (action) {
+        if (this._actions[action] === true || this._actions[action] === 'just_pressed') {
+          this._actions[action] = 'just_released';
+        }
+        this._btnTouches.delete(t.identifier);
+      }
     }
+  }
+
+  renderTouchControls(ctx) {
+    if (!this._touchActive) return;
+
+    ctx.save();
+    ctx.globalAlpha = 0.45;
+
+    // D-pad — 4 triangle arrows
+    const arrowDist = 16, arrowSize = 7;
+    const dirs = [
+      { dx: -arrowDist, dy: 0, angle: Math.PI },
+      { dx:  arrowDist, dy: 0, angle: 0 },
+      { dx: 0, dy: -arrowDist, angle: -Math.PI / 2 },
+      { dx: 0, dy:  arrowDist, angle:  Math.PI / 2 },
+    ];
+    for (const { dx, dy, angle } of dirs) {
+      const ax = DPAD_CX + dx, ay = DPAD_CY + dy;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.moveTo(ax + Math.cos(angle) * arrowSize, ay + Math.sin(angle) * arrowSize);
+      ctx.lineTo(ax + Math.cos(angle + 2.4) * arrowSize * 0.7, ay + Math.sin(angle + 2.4) * arrowSize * 0.7);
+      ctx.lineTo(ax + Math.cos(angle - 2.4) * arrowSize * 0.7, ay + Math.sin(angle - 2.4) * arrowSize * 0.7);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Outer D-pad ring
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(DPAD_CX, DPAD_CY, DPAD_R, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Button E
+    ctx.fillStyle = '#C8A9FF';
+    ctx.beginPath();
+    ctx.arc(BTN_E.x, BTN_E.y, BTN_E.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px VT323, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('E', BTN_E.x, BTN_E.y + 1);
+
+    // Button Q
+    ctx.fillStyle = '#7EC8E3';
+    ctx.beginPath();
+    ctx.arc(BTN_Q.x, BTN_Q.y, BTN_Q.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '8px VT323, monospace';
+    ctx.fillText('Q', BTN_Q.x, BTN_Q.y + 1);
+
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.restore();
   }
 }

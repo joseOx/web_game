@@ -80,7 +80,7 @@ export class SceneManager {
     this._echoes.clear();
     this._world.unload();
 
-    this._world.load(zoneDef);
+    this._world.load(zoneDef, this._save);
     const tm = this._world.tilemap;
     this._collision.setTilemap(tm);
     this._camera.setBounds(tm.widthPx, tm.heightPx);
@@ -132,7 +132,7 @@ export class SceneManager {
     this._world.unload();
 
     // ── Load new zone ─────────────────────────────────────────────────────────
-    this._world.load(zoneDef);
+    this._world.load(zoneDef, this._save);
 
     const tm = this._world.tilemap;
     this._collision.setTilemap(tm);
@@ -190,18 +190,20 @@ export class SceneManager {
     if (def.type === 'minor') {
       const em   = new EchoMinor(def.id, def.x, def.y, { emotion: def.emotion });
       const emAI = new EchoMinorAI();
-      emAI.inject({ echo: em, luna: this._luna,
+      emAI.inject({ echo: em, luna: this._luna, mateo: this._mateo,
         riftSystem: this._rifts, dimensionManager: this._dimension });
+      if (def.guard) emAI.setGuard();
       em.setAI(emAI);
       this._echoes.register(em);
 
     } else if (def.type === 'bound') {
       const eb   = new EchoBound(def.id, def.x, def.y,
-        { emotion: def.emotion, dialogueId: def.dialogueId });
+        { emotion: def.emotion, dialogueId: def.dialogueId, visibleInReal: def.visibleInReal });
       const ebAI = new EchoBoundAI();
-      ebAI.inject({ echo: eb, mateo: this._mateo,
+      ebAI.inject({ echo: eb, mateo: this._mateo, luna: this._luna,
         dialogueSystem: this._dialogue, dimensionManager: this._dimension,
         eventBus: this._eventBus });
+      ebAI.configure({ separateByLuna: !!def.separateByLuna, evadeOnApproach: !!def.evadeOnApproach });
       eb.setAI(ebAI);
       this._echoes.register(eb);
     }

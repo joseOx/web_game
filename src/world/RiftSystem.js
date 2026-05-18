@@ -81,7 +81,7 @@ export class RiftSystem {
   // Called directly from dialogue onExit for anchor-based sealing
   completeSealing(riftId) {
     const rift = this._rifts.get(riftId);
-    if (!rift) return;
+    if (!rift || rift.sealed) return;
     rift.sealProgress = 100;
     this._completeSealing(rift);
   }
@@ -95,7 +95,12 @@ export class RiftSystem {
     this._audioSystem?.playSFX('rift_seal');
     this._saveSystem?.setFlag(`rift_${rift.id}_sealed`, true);
     this._missionManager?.checkTrigger('rift_sealed', rift.id);
-    this._eventBus?.emit('rift:sealed', { riftId: rift.id });
+    this._eventBus?.emit('rift:sealed', {
+      riftId:  rift.id,
+      x:       rift.x + (rift.width  ?? 16) / 2,
+      y:       rift.y + (rift.height ?? 16) / 2,
+      emotion: rift.emotion,
+    });
   }
 
   // Returns the nearest unsealed rift within range of (x, y), or null

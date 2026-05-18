@@ -185,7 +185,7 @@ export class Luna extends Entity {
   }
 
   render(ctx, alpha) {
-    if (!this.active) return;
+    if (!this.active || this.visible === false) return;
 
     const rx  = this.renderX(alpha);
     const ry  = this.renderY(alpha);

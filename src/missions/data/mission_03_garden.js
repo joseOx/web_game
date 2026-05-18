@@ -7,7 +7,7 @@ export class Mission03Garden extends MissionBase {
       title: 'El jardín de los recuerdos',
       steps: [
         { description: 'Investigar el jardín marchito de la abuela Rosa' },
-        { description: 'Usar la visión felina para encontrar la Grieta subterránea' },
+        { description: 'Entrar al jardín del Vacío y hablar con el espíritu' },
         { description: 'Actuar como intermediario entre el Eco y la abuela Rosa' },
       ],
     });
@@ -27,15 +27,11 @@ export class Mission03Garden extends MissionBase {
 
   onEvent(eventName, data) {
     switch (eventName) {
-      case 'feline_vision:rift_spotted':
-        if (data.riftId === 'G_home_garden' && this.currentStep === 1) {
-          this._saveSystem?.setFlag('garden_rift_found', true);
-          this.advanceStep();
-        }
-        break;
-
       case 'dialogue:node_exit':
         if (data.nodeId === 'rosa_m03_trigger_02' && this.currentStep === 0) {
+          this.advanceStep();
+        }
+        if (data.nodeId === 'abuelo_echo_end' && this.currentStep === 1) {
           this.advanceStep();
         }
         if (data.nodeId === 'rosa_m03_end_02' && this.currentStep === 2) {

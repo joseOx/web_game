@@ -1,9 +1,11 @@
 // AI for EchoMinor entities: wander within spawn radius, accumulate at rifts, flee from Luna.
+// GUARD mode: drift toward Mateo instead of wandering — used for mini-boss encounters.
 
 const STATE = {
   WANDER:     'WANDER',
   FLEE:       'FLEE',
   ACCUMULATE: 'ACCUMULATE',
+  GUARD:      'GUARD',
 };
 
 const WANDER_RADIUS      = 50;
@@ -14,6 +16,9 @@ const FLEE_LINGER        = 2000;   // ms to keep fleeing after losing sight
 const ACCUMULATE_SPEED   = 0.25;
 const RIFT_DETECT_RANGE  = 200;
 const ACCUMULATE_HOVER   = 8;      // px from rift center to stop
+const GUARD_SPEED        = 0.6;
+const GUARD_STOP_RANGE   = 36;     // hover distance from Mateo
+const GUARD_MAX_RANGE    = 320;    // don't chase beyond this
 
 export class EchoMinorAI {
   constructor() {
@@ -21,6 +26,7 @@ export class EchoMinorAI {
 
     this._echo       = null;
     this._luna       = null;
+    this._mateo      = null;
     this._riftSystem = null;
     this._dimension  = null;
 
@@ -30,14 +36,18 @@ export class EchoMinorAI {
 
     this._fleeTimer   = 0;
     this._targetRift  = null;
+    this._wasGuard    = false;
   }
 
-  inject({ echo, luna, riftSystem, dimensionManager } = {}) {
+  inject({ echo, luna, mateo, riftSystem, dimensionManager } = {}) {
     if (echo)             this._echo       = echo;
     if (luna)             this._luna       = luna;
+    if (mateo)            this._mateo      = mateo;
     if (riftSystem)       this._riftSystem = riftSystem;
     if (dimensionManager) this._dimension  = dimensionManager;
   }
+
+  setGuard() { this._state = STATE.GUARD; this._wasGuard = true; }
 
   get state() { return this._state; }
 
@@ -61,6 +71,7 @@ export class EchoMinorAI {
       case STATE.WANDER:     this._updateWander(dt);     break;
       case STATE.FLEE:       this._updateFlee(dt);       break;
       case STATE.ACCUMULATE: this._updateAccumulate(dt); break;
+      case STATE.GUARD:      this._updateGuard(dt);      break;
     }
   }
 
@@ -110,7 +121,7 @@ export class EchoMinorAI {
 
     if (this._fleeTimer <= 0) {
       this._echo.fleeing = false;
-      this._transition(STATE.WANDER);
+      this._transition(this._wasGuard ? STATE.GUARD : STATE.WANDER);
       return;
     }
 
@@ -149,6 +160,40 @@ export class EchoMinorAI {
 
     // Occasionally drift back to wander
     if (Math.random() < 0.0008) this._transition(STATE.WANDER);
+  }
+
+  _updateGuard(_dt) {
+    this._echo.fleeing = false;
+    if (!this._mateo) { this._transition(STATE.WANDER); return; }
+
+    const dx   = this._mateo.centerX() - this._echo.centerX();
+    const dy   = this._mateo.centerY() - this._echo.centerY();
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > GUARD_MAX_RANGE) {
+      // Drift back toward spawn so item guards always return to their post
+      const dxS = this._echo.spawnX - this._echo.x;
+      const dyS = this._echo.spawnY - this._echo.y;
+      const dS  = Math.hypot(dxS, dyS);
+      if (dS > 4) {
+        this._echo.vx += ((dxS / dS) * 0.3 - this._echo.vx) * 0.08;
+        this._echo.vy += ((dyS / dS) * 0.3 - this._echo.vy) * 0.08;
+      } else {
+        this._echo.vx *= 0.9;
+        this._echo.vy *= 0.9;
+      }
+      return;
+    }
+
+    if (dist < GUARD_STOP_RANGE) {
+      // Close enough — drift to a halt near Mateo
+      this._echo.vx *= 0.85;
+      this._echo.vy *= 0.85;
+      return;
+    }
+
+    this._echo.vx += ((dx / dist) * GUARD_SPEED - this._echo.vx) * 0.1;
+    this._echo.vy += ((dy / dist) * GUARD_SPEED - this._echo.vy) * 0.1;
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────────

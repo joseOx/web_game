@@ -14,7 +14,7 @@ export class Mission04Dogs extends MissionBase {
   }
 
   onComplete() {
-    this._saveSystem?.setFlag('rift_beach_submarine_sealed', true);
+    this._saveSystem?.setFlag('rift_G_beach_submarine_sealed', true);
     this._saveSystem?.setFlag('luna_whistle_unlocked', true);
     this._saveSystem?.setFlag('carmen_grateful', true);
   }

@@ -33,9 +33,10 @@ export const ZoneR_HOME = {
   },
 
   spawns: {
-    default:    { x: 152, y: 144 },  // center of room
-    from_hub:   { x: 112, y: 148 },  // near the door, clear of exit trigger
-    from_attic: { x: 248, y:  36 },  // near attic hatch, row 2 (clear of hatch exit at row 1)
+    default:    { x: 152, y: 144 },
+    from_hub:   { x: 112, y: 148 },
+    from_attic: { x: 248, y:  36 },
+    from_void:  { x: 112, y: 148 },  // vuelve cerca de la puerta al salir del vacío
   },
 
   // Exits: pixel rects; must match walkable tile positions in the grid
@@ -68,12 +69,14 @@ export const ZoneR_HOME = {
     },
   ],
 
-  // Rifts that exist in this zone (none in Rosa's house)
-  rifts: [],
+  // Rift oculta del jardín — solo visible con visión felina (M03)
+  rifts: [
+    { id: 'G_home_garden', x: 15 * 16, y: 9 * 16, size: 'minor', emotion: 'grief', visible: false },
+  ],
 
   // EchoMinor / EchoBound defs for this zone
   echoes: [],
 
-  voidZoneId: null,
+  voidZoneId: 'V_HOME',
   dimension: 'real',
 };

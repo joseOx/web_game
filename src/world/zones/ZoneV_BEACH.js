@@ -46,6 +46,7 @@ export const ZoneV_BEACH = {
       width:  4 * 16, height: 16,
       targetZone:  'R_BEACH',
       targetSpawn: 'from_hub',
+      switchDim:   'real',
     },
   ],
 
@@ -56,20 +57,24 @@ export const ZoneV_BEACH = {
   ],
 
   echoes: [
+    // Los ecos de los perros se separan con el siseo sostenido de Luna (2s), no con diálogo
     {
-      type: 'bound', id: 'echo_dog_1', x: 10 * 16, y: 5 * 16, emotion: 'fear',
-      dialogueId: 'echo_dog_encounter_1',
-      doneFlag:   'echo_dog_1_separated',
+      type: 'bound', id: 'echo_dog_1', x: 8 * 16, y: 5 * 16, emotion: 'fear',
+      dialogueId:     null,
+      separateByLuna: true,
+      doneFlag:       'echo_dog_1_separated',
     },
     {
-      type: 'bound', id: 'echo_dog_2', x: 13 * 16, y: 4 * 16, emotion: 'fear',
-      dialogueId: 'echo_dog_encounter_2',
-      doneFlag:   'echo_dog_2_separated',
+      type: 'bound', id: 'echo_dog_2', x: 14 * 16, y: 4 * 16, emotion: 'fear',
+      dialogueId:     null,
+      separateByLuna: true,
+      doneFlag:       'echo_dog_2_separated',
     },
     {
-      type: 'bound', id: 'echo_dog_3', x: 11 * 16, y: 6 * 16, emotion: 'fear',
-      dialogueId: 'echo_dog_encounter_3',
-      doneFlag:   'echo_dog_3_separated',
+      type: 'bound', id: 'echo_dog_3', x: 11 * 16, y: 7 * 16, emotion: 'fear',
+      dialogueId:     null,
+      separateByLuna: true,
+      doneFlag:       'echo_dog_3_separated',
     },
   ],
 

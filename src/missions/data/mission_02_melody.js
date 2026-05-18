@@ -9,6 +9,7 @@ export class Mission02Melody extends MissionBase {
         { description: 'Investigar la música que suena en la escuela abandonada' },
         { description: 'Reunir los 4 fragmentos de la partitura' },
         { description: 'Entregar la partitura completa a Vera' },
+        { description: 'Toca la melodía en el piano para sellar la grieta' },
       ],
     });
   }
