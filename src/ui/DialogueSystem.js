@@ -226,8 +226,9 @@ export class DialogueSystem {
   _showNode(node) {
     // Evaluate node-level condition
     if (node.condition && !this._evalCondition(node.condition)) {
-      // Skip to next if condition not met
-      if (node.next) this._showNode(this._nodes[node.next]);
+      // Skip: use nextElse if defined, otherwise fall through to next
+      const skip = node.nextElse ?? node.next;
+      if (skip) this._showNode(this._nodes[skip]);
       else this._end();
       return;
     }

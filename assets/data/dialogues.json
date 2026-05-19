@@ -974,7 +974,8 @@
     "id": "ponce_route", "speaker": "Sra. Ponce", "portrait": "ponce_distressed",
     "text": "¡Mira esto! ¡Los libros amanecen en blanco! Llevo tres días reportándolo y nadie me cree.",
     "condition": "NOT:flag:mission_library_done",
-    "next": "ponce_post_m06"
+    "next": "ponce_books_02",
+    "nextElse": "ponce_post_m06"
   },
   "ponce_post_m06": {
     "id": "ponce_post_m06", "speaker": "Sra. Ponce", "portrait": "ponce_relieved",

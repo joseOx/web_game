@@ -11,6 +11,7 @@ export const LUNA_STATE = {
 
 const DETECT_RIFT_RANGE   = 150;
 const SEAL_ENTER_RANGE    = 14;
+const AUTO_SEAL_SIZES     = new Set(['minor', 'micro']); // major/critical se sellan solo por mecánica de misión
 const DETECT_ECHO_RANGE   = 80;
 const SEAL_RATE           = 10;     // seal points per second
 const ALERT_DURATION      = 700;    // ms — cat-like freeze before acting
@@ -100,13 +101,10 @@ export class LunaAI {
       this._followSpeed(mateoDist), 20);
     this._setAnim(mateoDist > 22 ? 'walk' : 'idle');
 
-    // Detect rifts when feline vision is on or in the Void
-    const canDetect = this._vision?.active || this._dimension?.isVoid();
-    if (canDetect) {
-      const rift = this._riftSystem?.nearestUnsealedInRange(
-        this._luna.centerX(), this._luna.centerY(), DETECT_RIFT_RANGE);
-      if (rift) { this._alertTarget = rift; this._transition(LUNA_STATE.ALERT); return; }
-    }
+    // Luna senses rifts by instinct — no feline vision required
+    const rift = this._riftSystem?.nearestUnsealedInRange(
+      this._luna.centerX(), this._luna.centerY(), DETECT_RIFT_RANGE);
+    if (rift) { this._alertTarget = rift; this._transition(LUNA_STATE.ALERT); return; }
 
     // Detect echo to hiss at
     const echo = this._echoManager?.nearestMinorInRange(
@@ -136,7 +134,18 @@ export class LunaAI {
     const riftCY = this._targetRift.y + this._targetRift.height / 2;
     const dist   = Math.hypot(this._luna.centerX() - riftCX, this._luna.centerY() - riftCY);
 
-    if (dist < SEAL_ENTER_RANGE) { this._transition(LUNA_STATE.PURR_SEAL); return; }
+    if (dist < SEAL_ENTER_RANGE) {
+      const hiddenInReal = this._targetRift._forceHiddenInReal && !this._dimension?.isVoid();
+      if (AUTO_SEAL_SIZES.has(this._targetRift.size) && !hiddenInReal) {
+        this._transition(LUNA_STATE.PURR_SEAL);
+      } else {
+        // Major/hidden rift: sit near it as a hint, do not seal
+        this._luna.vx *= 0.85;
+        this._luna.vy *= 0.85;
+        this._setAnim('idle');
+      }
+      return;
+    }
 
     this._moveToward(riftCX, riftCY, 1.5);
     this._setAnim('walk');
@@ -152,7 +161,9 @@ export class LunaAI {
   }
 
   _updatePurrSeal(dt, mateoDist) {
-    if (!this._targetRift || this._targetRift.sealed || !this._targetRift.active) {
+    const hiddenInReal = this._targetRift?._forceHiddenInReal && !this._dimension?.isVoid();
+    if (!this._targetRift || this._targetRift.sealed || !this._targetRift.active ||
+        !AUTO_SEAL_SIZES.has(this._targetRift.size) || hiddenInReal) {
       this._targetRift = null;
       this._transition(LUNA_STATE.FOLLOW);
       return;

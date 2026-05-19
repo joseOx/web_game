@@ -67,7 +67,6 @@ export const ZoneV_LIBRARY = {
       dialogueId:       'archivist_echo_encounter',
       spawnFlag:        'mission_library_active',
       doneFlag:         'mission_library_done',
-      evadeOnApproach:  true,   // huye de Mateo; Luna debe acorralarlo
     },
     // Dos guardianes de culpa protegen el fragmento 3 (el más comprometedor)
     { type: 'minor', id: 'guard_guilt_1', x: 16 * 16 - 14, y: 3 * 16,      emotion: 'guilt', guard: true, doneFlag: 'fragmento_doc_3_found' },
