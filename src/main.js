@@ -258,12 +258,11 @@ events.on('zone:loaded', data => {
   if (data.zoneId === 'R_HUB' &&
       save.getFlag('mission_brothers_done') &&
       !save.getFlag('mission_cemetery_child_done') &&
-      !save.getFlag('mission_cemetery_child_active') &&
       !world.getNPC('emilia')) {
     const emiliaNPC = new NPC('emilia', 4 * 16, 10 * 16, {
       color:      '#A08060',
       label:      'Sra. Emilia',
-      dialogueId: 'emilia_m07_route',
+      dialogueId: 'emilia_m07_route_hub',
     });
     world.addNPC(emiliaNPC);
   }

@@ -1635,7 +1635,7 @@
     "id": "tomas_echo_res_A_04", "speaker": "Tomás", "portrait": "tomas_peaceful",
     "text": "Está bien. Yo espero. Siempre espero.",
     "next": null,
-    "onExit": "saveSystem.setFlag('m07_resolution', 'A')"
+    "onExit": "saveSystem.setFlag('m07_resolution', 'A'); saveSystem.setFlag('m07_tree_flowered', true)"
   },
   "tomas_echo_resolution_B": {
     "id": "tomas_echo_resolution_B", "speaker": "mateo", "portrait": "mateo_serious",
@@ -1692,7 +1692,7 @@
     "id": "tomas_echo_res_B_end", "speaker": "Tomás", "portrait": "tomas_fading",
     "text": "Y dile que el mar sí se acordó de mí.",
     "next": null,
-    "onExit": "saveSystem.setFlag('m07_resolution', 'B'); inventory.addItem('I_collar_tomas')"
+    "onExit": "saveSystem.setFlag('m07_resolution', 'B'); saveSystem.setFlag('m07_emilia_comforted', true); inventory.addItem('I_collar_tomas')"
   },
   "emilia_m07_closure_A": {
     "id": "emilia_m07_closure_A", "speaker": "Sra. Emilia", "portrait": "emilia_at_tree",
@@ -1731,7 +1731,7 @@
     "id": "emilia_m07_closure_B_04", "speaker": "Sra. Emilia", "portrait": "emilia_resolved",
     "text": "Ahora puedo descansar. Los dos podemos.",
     "next": null,
-    "onExit": "missionManager.complete('cemetery_child'); saveSystem.setFlag('mission_cemetery_child_done', true); saveSystem.setFlag('emilia_ally', true)"
+    "onExit": "saveSystem.setFlag('m07_emilia_comforted', true); missionManager.complete('cemetery_child'); saveSystem.setFlag('mission_cemetery_child_done', true); saveSystem.setFlag('emilia_ally', true)"
   },
 
   "emilia_m07_route": {
@@ -1741,6 +1741,39 @@
     "next": "emilia_m07_02",
     "nextElse": "emilia_m07_ally_route"
   },
+  "emilia_m07_route_active": {
+    "id": "emilia_m07_route_active", "speaker": "Sra. Emilia", "portrait": "emilia_hopeful",
+    "text": "Mateo... ¿encontraste algo en el cementerio?",
+    "condition": "mission:cemetery_child:active",
+    "next": "emilia_m07_route_active_check"
+  },
+  "emilia_m07_route_active_check": {
+    "id": "emilia_m07_route_active_check", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "",
+    "condition": "flag:m07_tree_flowered",
+    "choices": [
+      { "label": "Sí. El árbol floreció. Tomás está en paz.", "next": "emilia_m07_closure_A" },
+      { "label": "Todavía estoy investigando.", "next": null }
+    ],
+    "nextElse": "emilia_m07_route_active_check_B"
+  },
+  "emilia_m07_route_active_check_B": {
+    "id": "emilia_m07_route_active_check_B", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "",
+    "condition": "flag:m07_emilia_comforted",
+    "choices": [
+      { "label": "Sí. Tengo su collar. Tomás quiere que lo tengas.", "next": "emilia_m07_closure_B" },
+      { "label": "Todavía estoy investigando.", "next": null }
+    ],
+    "nextElse": null
+  },
+  "emilia_m07_route_hub": {
+    "id": "emilia_m07_route_hub", "speaker": "Sra. Emilia", "portrait": "emilia_worried",
+    "text": "...",
+    "condition": "mission:cemetery_child:active",
+    "next": "emilia_m07_route_active",
+    "nextElse": "emilia_m07_route"
+  },
   "emilia_m07_ally_route": {
     "id": "emilia_m07_ally_route", "speaker": "Sra. Emilia", "portrait": "emilia_warm",
     "text": "Mateo. ¿Has visto alguna otra grieta últimamente? Hay un lugar en la escuela donde los niños lloraban en silencio.",
@@ -1749,7 +1782,8 @@
       { "label": "Gracias, Emilia. Lo tendré en cuenta.", "next": null },
       { "label": "¿Algo más que hayas notado?", "next": "emilia_m07_ally_hint_02" }
     ],
-    "next": null
+    "next": null,
+    "nextElse": null
   },
   "emilia_m07_ally_hint_02": {
     "id": "emilia_m07_ally_hint_02", "speaker": "Sra. Emilia", "portrait": "emilia_thoughtful",

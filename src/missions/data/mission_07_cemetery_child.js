@@ -20,10 +20,10 @@ export class Mission07CemeteryChild extends MissionBase {
     this._saveSystem?.setFlag('rift_G_cemetery_child_sealed', true);
     const res = this._saveSystem?.getFlag('m07_resolution');
     if (res === 'A') {
-      this._saveSystem?.setFlag('m07_tree_flowered', true);
+      // m07_tree_flowered ya fue seteado en tomas_echo_res_A_04
       this._saveSystem?.setFlag('echo_location_unlocked', true);
     } else if (res === 'B') {
-      this._saveSystem?.setFlag('m07_emilia_comforted', true);
+      // m07_emilia_comforted ya fue seteado en tomas_echo_res_B_end
       this._saveSystem?.setFlag('memory_share_upgraded', true);
     }
   }
@@ -82,7 +82,7 @@ export class Mission07CemeteryChild extends MissionBase {
         break;
 
       case 'rift:sealed':
-        if (data.riftId === 'G_cemetery_child' && this.currentStep >= 4) {
+        if (data.riftId === 'G_cemetery_child' && this.currentStep >= 4 && this._saveSystem?.getFlag('m07_resolution')) {
           this.complete();
         }
         break;
