@@ -37,6 +37,7 @@ import { Mission03Garden }     from './missions/data/mission_03_garden.js';
 import { Mission04Dogs }       from './missions/data/mission_04_dogs.js';
 import { Mission05Brothers }   from './missions/data/mission_05_brothers.js';
 import { Mission06Library }    from './missions/data/mission_06_library.js';
+import { Mission07CemeteryChild } from './missions/data/mission_07_cemetery_child.js';
 
 // Zone definitions
 import { ZoneR_HOME }        from './world/zones/ZoneR_HOME.js';
@@ -121,6 +122,7 @@ missions.register(new Mission03Garden());
 missions.register(new Mission04Dogs());
 missions.register(new Mission05Brothers());
 missions.register(new Mission06Library());
+missions.register(new Mission07CemeteryChild());
 
 dimension.inject({ transitionFX: transition, lightingSystem: lighting, riftSystem: rifts, audioSystem: audio, eventBus: events });
 rifts.inject({ saveSystem: save, missionManager: missions, audioSystem: audio, eventBus: events });
@@ -250,6 +252,38 @@ events.on('zone:loaded', data => {
     if (diegoSprite) {
       world.getNPC('diego')?.setMateoSprite(diegoSprite, { drawW: 28, drawH: 28 });
     }
+  }
+
+  // M07 — Emilia aparece en R_HUB si M05 está completada y M07 no está hecha
+  if (data.zoneId === 'R_HUB' &&
+      save.getFlag('mission_brothers_done') &&
+      !save.getFlag('mission_cemetery_child_done') &&
+      !save.getFlag('mission_cemetery_child_active') &&
+      !world.getNPC('emilia')) {
+    const emiliaNPC = new NPC('emilia', 4 * 16, 10 * 16, {
+      color:      '#A08060',
+      label:      'Sra. Emilia',
+      dialogueId: 'emilia_m07_route',
+    });
+    world.addNPC(emiliaNPC);
+  }
+
+  // M07 — Si el jugador tiene la piedra de Emilia, los guardianes de culpa se desactivan
+  if (data.zoneId === 'V_CEMETERY' && save.hasItem('I_piedra_emilia')) {
+    for (const id of ['guard_guilt_1', 'guard_guilt_2', 'guard_guilt_3', 'guard_guilt_4']) {
+      const echo = echoes.get(id);
+      if (echo) echo.active = false;
+    }
+  }
+
+  // M07 — Emilia como aliada en R_CEMETERY (resolución B)
+  if (data.zoneId === 'R_CEMETERY' && save.getFlag('emilia_ally') && !world.getNPC('emilia_cemetery')) {
+    const emiliaCem = new NPC('emilia_cemetery', 16 * 16, 3 * 16, {
+      color:      '#A08060',
+      label:      'Sra. Emilia',
+      dialogueId: 'cemetery_child_emilia_at_tree',
+    });
+    world.addNPC(emiliaCem);
   }
 
   // Diego acompañante en R_LIBRARY — solo con resolución C (diego_resolution = 'C')
@@ -383,6 +417,18 @@ events.on('zone:loaded', data => {
     save.setFlag('ending_seen', true);
     if (!save.getFlag('attic_discovery_done')) {
       setTimeout(() => dialogue.start('attic_discovery_01'), 800);
+    }
+  }
+
+  // M07 — Detectar grieta oculta en R_CEMETERY con visión felina activa
+  if (data.zoneId === 'R_CEMETERY' &&
+      missions.isActive('cemetery_child') &&
+      vision.active &&
+      !save.getFlag('rift_G_cemetery_child_discovered')) {
+    // La grieta está en el muro norte (tile 16, 3 = 256, 48)
+    const gx = 16 * 16, gy = 3 * 16;
+    if (Math.hypot(mateo.centerX() - gx, mateo.centerY() - gy) < 60) {
+      setTimeout(() => dialogue.start('cemetery_child_rift_discovered'), 400);
     }
   }
 
@@ -566,18 +612,20 @@ function _determineEnding() {
   const missions_done = [
     'mission_lighthouse_done', 'mission_melody_done', 'mission_garden_done',
     'mission_dogs_done', 'mission_brothers_done', 'mission_library_done',
+    'mission_cemetery_child_done',
   ].filter(f => save.getFlag(f)).length;
 
-  const deepResolution = save.getFlag('diego_resolution') !== 'A' &&
-                         save.getFlag('diego_resolution') !== null;
+  const deepResolution = (save.getFlag('diego_resolution') !== 'A' &&
+                          save.getFlag('diego_resolution') !== null) ||
+                         save.getFlag('m07_resolution') === 'B';
   const secretsFound   = save.getFlag('abuelo_connection_unlocked');
   const bondHealthy    = bond.normalized() > 0.6 && bond.bondCriticalCount < 2;
 
-  if (missions_done === 6 && deepResolution && secretsFound && bondHealthy) {
+  if (missions_done === 7 && deepResolution && secretsFound && bondHealthy) {
     return 'ENDING_COMPLETE';
-  } else if (missions_done >= 4 && bondHealthy) {
+  } else if (missions_done >= 5 && bondHealthy) {
     return 'ENDING_STANDARD';
-  } else if (missions_done >= 2) {
+  } else if (missions_done >= 3) {
     return 'ENDING_MINIMAL';
   }
   return 'ENDING_HARD';
@@ -646,6 +694,8 @@ async function init() {
     archivist: _makePortrait('#C8A9FF', 'A'),
     weaver:    _makePortrait('#2A1A4E', 'T'),
     abuelo:    _makePortrait('#8B6030', 'G'),
+    emilia:    _makePortrait('#A08060', 'E'),
+    tomas:     _makePortrait('#7FB8D0', 'T'),
   };
   const npcPortraitMap = {
     vera:      ['vera_confused','vera_sad','vera_hopeful','vera_excited','vera_peaceful'],
@@ -663,6 +713,12 @@ async function init() {
                 'archivist_breaking','archivist_fading','archivist_relieved'],
     weaver:    ['weaver_shadow','weaver_curious','weaver_enigmatic'],
     abuelo:    ['abuelo_confused','abuelo_sad','abuelo_hopeful','abuelo_fading'],
+    emilia:    ['emilia_worried','emilia_sad','emilia_hopeful','emilia_pleading',
+                'emilia_grateful','emilia_at_tree','emilia_crying_warm','emilia_resolved',
+                'emilia_warm','emilia_thoughtful'],
+    tomas:     ['tomas_curious','tomas_confused','tomas_hopeful','tomas_sad',
+                'tomas_scared','tomas_peaceful','tomas_realizing','tomas_crying',
+                'tomas_crying_soft','tomas_fading'],
   };
   for (const [key, ids] of Object.entries(npcPortraitMap)) {
     for (const id of ids) dialogue.loadPortrait(id, npcPortraits[key]);
@@ -763,14 +819,15 @@ const worldUpdate = {
           events.emit('item:combined', { resultId: 'I_documentos_reconstruidos' });
         }
 
-        // Ending trigger — all 6 missions done
+        // Ending trigger — all 7 missions done
         if (!save.getFlag('ending_triggered') &&
             save.getFlag('mission_lighthouse_done') &&
             save.getFlag('mission_melody_done') &&
             save.getFlag('mission_garden_done') &&
             save.getFlag('mission_dogs_done') &&
             save.getFlag('mission_brothers_done') &&
-            save.getFlag('mission_library_done')) {
+            save.getFlag('mission_library_done') &&
+            save.getFlag('mission_cemetery_child_done')) {
           save.setFlag('ending_triggered', true);
           save.setFlag('ending_type', _determineEnding());
           save.setFlag('rosa_ending_invite_active', true);
@@ -889,7 +946,7 @@ function _renderHUD(ctx) {
   ctx.fillText(ZONE_NAMES[zoneId] ?? zoneId ?? '…', 6, 24);
 
   // Active mission + step
-  const active = ['lighthouse','melody','garden','dogs','brothers','library']
+  const active = ['lighthouse','melody','garden','dogs','brothers','library','cemetery_child']
     .find(id => missions.isActive(id));
   if (active) {
     const m    = missions.get(active);

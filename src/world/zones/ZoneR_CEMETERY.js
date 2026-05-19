@@ -53,11 +53,22 @@ export const ZoneR_CEMETERY = {
 
   npcs:    [],
   echoes:  [],
-  objects: [],
+  objects: [
+    {
+      id:          'arbol_tomas',
+      x:           16 * 16,
+      y:            2 * 16,
+      color:       '#5A7A40',
+      dialogueId:  'cemetery_child_placa_inspect',
+      unlockFlag:  'm07_tree_flowered',
+    },
+  ],
 
   rifts: [
     // La grieta de la capilla no es visible en el mundo real
     { id: 'G_cemetery_chapel', x: 10 * 16, y: 4 * 16, size: 'major', emotion: 'grief', visible: false },
+    // Grieta oculta de Tomás — solo visible con visión felina en el mundo real
+    { id: 'G_cemetery_child', x: 16 * 16, y: 3 * 16, size: 'major', emotion: 'guilt', visible: false, forceHiddenInReal: false },
   ],
 
   voidZoneId: 'V_CEMETERY',

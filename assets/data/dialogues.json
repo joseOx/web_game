@@ -1500,5 +1500,296 @@
     "id": "cemetery_combat_lose_01", "speaker": "Mateo", "portrait": "mateo_worried",
     "text": "El pesar de Diego es demasiado pesado hoy. Necesitamos fortalecer el vínculo antes de intentarlo de nuevo.",
     "next": null
+  },
+
+  "emilia_m07_trigger": {
+    "id": "emilia_m07_trigger", "speaker": "Sra. Emilia", "portrait": "emilia_worried",
+    "text": "Disculpa, muchacho... ¿has visto a un niño por aquí? Se llama Tomás. Tiene tu edad.",
+    "condition": "flag:mission_brothers_done",
+    "next": "emilia_m07_02"
+  },
+  "emilia_m07_02": {
+    "id": "emilia_m07_02", "speaker": "mateo", "portrait": "mateo_curious",
+    "text": "¿Tomás? No... no lo conozco. ¿Es nuevo en el pueblo?",
+    "next": "emilia_m07_03"
+  },
+  "emilia_m07_03": {
+    "id": "emilia_m07_03", "speaker": "Sra. Emilia", "portrait": "emilia_sad",
+    "text": "No, no es nuevo. Es mi hijo. Desapareció hace treinta años en el cementerio. La policía dijo que se perdió, que se cayó al acantilado... pero yo nunca encontré su cuerpo.",
+    "next": "emilia_m07_04"
+  },
+  "emilia_m07_04": {
+    "id": "emilia_m07_04", "speaker": "Sra. Emilia", "portrait": "emilia_hopeful",
+    "text": "Anoche soñé con él. Me dijo que estaba en un lugar frío, esperando a que alguien lo encontrara. Y esta mañana... esta mañana encontré esto en mi bolsillo.",
+    "next": "emilia_m07_show_item"
+  },
+  "emilia_m07_show_item": {
+    "id": "emilia_m07_show_item", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "Una piedra. Tiene algo escrito... 'T + E = siempre'.",
+    "next": "emilia_m07_choice"
+  },
+  "emilia_m07_choice": {
+    "id": "emilia_m07_choice", "speaker": "Sra. Emilia", "portrait": "emilia_pleading",
+    "text": "Sé que suena a locura de vieja. Pero tú tienes fama de encontrar cosas que otros no ven. ¿Puedes ir al cementerio y buscar?",
+    "choices": [
+      { "label": "Voy a buscar a Tomás.", "next": "emilia_m07_accept", "onExit": "missionManager.activate('cemetery_child'); inventory.addItem('I_piedra_emilia')" },
+      { "label": "Quizás solo fue un sueño.", "next": "emilia_m07_dismiss" }
+    ]
+  },
+  "emilia_m07_accept": {
+    "id": "emilia_m07_accept", "speaker": "Sra. Emilia", "portrait": "emilia_grateful",
+    "text": "Gracias, muchacho. Tomás siempre fue curioso. Si está en algún lado, seguro que encontraste la manera de llegar.",
+    "next": null
+  },
+  "emilia_m07_dismiss": {
+    "id": "emilia_m07_dismiss", "speaker": "Sra. Emilia", "portrait": "emilia_sad",
+    "text": "Puede ser. Pero una madre sabe cuando su hijo la está llamando.",
+    "next": null
+  },
+
+  "tomas_echo_encounter": {
+    "id": "tomas_echo_encounter", "speaker": "Tomás", "portrait": "tomas_curious",
+    "text": "¿Eres el que iba a venir? Mi mamá dijo que alguien vendría.",
+    "next": "tomas_echo_02"
+  },
+  "tomas_echo_02": {
+    "id": "tomas_echo_02", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Tu mamá me pidió que te buscara. ¿Cuánto tiempo llevas aquí?",
+    "next": "tomas_echo_03"
+  },
+  "tomas_echo_03": {
+    "id": "tomas_echo_03", "speaker": "Tomás", "portrait": "tomas_confused",
+    "text": "No sé. Mucho. Perdí la cuenta. Al principio venía gente a buscarme pero dejaron de venir. Ahora solo vienen las sombras.",
+    "next": "tomas_echo_04"
+  },
+  "tomas_echo_04": {
+    "id": "tomas_echo_04", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Tomás... ¿quieres volver a casa?",
+    "next": "tomas_echo_choice"
+  },
+  "tomas_echo_choice": {
+    "id": "tomas_echo_choice", "speaker": "Tomás", "portrait": "tomas_hopeful",
+    "text": "¿Puedo? Mi mamá me va a retar por llegar tarde.",
+    "choices": [
+      { "label": "Tu mamá te está esperando. Vamos.", "next": "tomas_echo_follow_A" },
+      { "label": "Necesito encontrar algo tuyo primero. ¿Recuerdas lo que traías?", "next": "tomas_echo_follow_B" }
+    ]
+  },
+  "tomas_echo_follow_A": {
+    "id": "tomas_echo_follow_A", "speaker": "Tomás", "portrait": "tomas_hopeful",
+    "text": "¿En serio? ¿Ahora? Le prometí a mi mamá que no me alejaría mucho...",
+    "next": "tomas_echo_A_02"
+  },
+  "tomas_echo_A_02": {
+    "id": "tomas_echo_A_02", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Ahora. Pero necesito algo tuyo para que el camino funcione. ¿Recuerdas lo que traías cuando llegaste aquí?",
+    "next": "tomas_echo_A_collar"
+  },
+  "tomas_echo_A_collar": {
+    "id": "tomas_echo_A_collar", "speaker": "Tomás", "portrait": "tomas_sad",
+    "text": "Mi collar. El de la concha. Mi mamá me lo dio. Lo perdí cuando las sombras me atraparon la primera vez.",
+    "next": "tomas_echo_A_collar_02"
+  },
+  "tomas_echo_A_collar_02": {
+    "id": "tomas_echo_A_collar_02", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "Voy a buscarlo. Espérame aquí.",
+    "next": null
+  },
+  "tomas_echo_follow_B": {
+    "id": "tomas_echo_follow_B", "speaker": "Tomás", "portrait": "tomas_confused",
+    "text": "¿Algo mío? Traía mi collar. El de la concha. Mi mamá dice que las conchas guardan el sonido del mar.",
+    "next": "tomas_echo_B_02"
+  },
+  "tomas_echo_B_02": {
+    "id": "tomas_echo_B_02", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "¿Dónde lo perdiste?",
+    "next": "tomas_echo_B_03"
+  },
+  "tomas_echo_B_03": {
+    "id": "tomas_echo_B_03", "speaker": "Tomás", "portrait": "tomas_scared",
+    "text": "Cerca de la entrada. Cuando las sombras me rodearon. Sentí frío y cuando desperté ya no lo tenía.",
+    "next": "tomas_echo_B_04"
+  },
+  "tomas_echo_B_04": {
+    "id": "tomas_echo_B_04", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "Voy a encontrarlo. Tú quédate aquí, ¿sí? No te muevas.",
+    "next": null
+  },
+  "tomas_echo_resolution_A": {
+    "id": "tomas_echo_resolution_A", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Tomás. Encontré tu collar. Y encontré el camino de vuelta. Tu mamá te está esperando.",
+    "next": "tomas_echo_res_A_02",
+    "condition": "has_item:I_collar_tomas"
+  },
+  "tomas_echo_res_A_02": {
+    "id": "tomas_echo_res_A_02", "speaker": "Tomás", "portrait": "tomas_hopeful",
+    "text": "¿De verdad? ¿Voy a ver a mi mamá?",
+    "next": "tomas_echo_res_A_03"
+  },
+  "tomas_echo_res_A_03": {
+    "id": "tomas_echo_res_A_03", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Vas a verla. Pero primero tengo que enterrar esto donde empezó todo. Para que el camino se abra.",
+    "next": "tomas_echo_res_A_04"
+  },
+  "tomas_echo_res_A_04": {
+    "id": "tomas_echo_res_A_04", "speaker": "Tomás", "portrait": "tomas_peaceful",
+    "text": "Está bien. Yo espero. Siempre espero.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('m07_resolution', 'A')"
+  },
+  "tomas_echo_resolution_B": {
+    "id": "tomas_echo_resolution_B", "speaker": "mateo", "portrait": "mateo_serious",
+    "text": "Tomás... tengo tu collar. Pero no puedo llevarte a casa.",
+    "next": "tomas_echo_res_B_02",
+    "condition": "has_item:I_collar_tomas"
+  },
+  "tomas_echo_res_B_02": {
+    "id": "tomas_echo_res_B_02", "speaker": "Tomás", "portrait": "tomas_confused",
+    "text": "¿Por qué? ¿Está roto el camino?",
+    "next": "tomas_echo_res_B_03"
+  },
+  "tomas_echo_res_B_03": {
+    "id": "tomas_echo_res_B_03", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "No. El camino está bien. Pero tú... Tomás, pasó mucho tiempo. Treinta años. Tu mamá te ha estado esperando todo este tiempo.",
+    "next": "tomas_echo_res_B_04"
+  },
+  "tomas_echo_res_B_04": {
+    "id": "tomas_echo_res_B_04", "speaker": "Tomás", "portrait": "tomas_realizing",
+    "text": "...¿Treinta años? Pero yo solo... solo estaba esperando.",
+    "next": "tomas_echo_res_B_05"
+  },
+  "tomas_echo_res_B_05": {
+    "id": "tomas_echo_res_B_05", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Lo sé. Y ella también te esperó. Todos los días. Pero tú no puedes volver, Tomás. No como antes.",
+    "next": "tomas_echo_res_B_06"
+  },
+  "tomas_echo_res_B_06": {
+    "id": "tomas_echo_res_B_06", "speaker": "Tomás", "portrait": "tomas_crying",
+    "text": "¿Entonces no voy a verla nunca más?",
+    "next": "tomas_echo_res_B_07"
+  },
+  "tomas_echo_res_B_07": {
+    "id": "tomas_echo_res_B_07", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Ella te va a ver a ti. En el collar. En el árbol donde esperabas. En cada concha que el mar traiga a la orilla. Y yo le voy a contar que estás bien. Que ya no hace frío.",
+    "next": "tomas_echo_res_B_08"
+  },
+  "tomas_echo_res_B_08": {
+    "id": "tomas_echo_res_B_08", "speaker": "Tomás", "portrait": "tomas_crying_soft",
+    "text": "...¿Se lo vas a decir? ¿Que esperé?",
+    "next": "tomas_echo_res_B_09"
+  },
+  "tomas_echo_res_B_09": {
+    "id": "tomas_echo_res_B_09", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Se lo voy a decir. Y ella va a saber que no dejaste de esperarla ni un segundo.",
+    "next": "tomas_echo_res_B_10"
+  },
+  "tomas_echo_res_B_10": {
+    "id": "tomas_echo_res_B_10", "speaker": "Tomás", "portrait": "tomas_peaceful",
+    "text": "Está bien. Entonces... llévale el collar. Dile que lo usé todo el tiempo. Hasta que las sombras me lo quitaron.",
+    "next": "tomas_echo_res_B_end"
+  },
+  "tomas_echo_res_B_end": {
+    "id": "tomas_echo_res_B_end", "speaker": "Tomás", "portrait": "tomas_fading",
+    "text": "Y dile que el mar sí se acordó de mí.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('m07_resolution', 'B'); inventory.addItem('I_collar_tomas')"
+  },
+  "emilia_m07_closure_A": {
+    "id": "emilia_m07_closure_A", "speaker": "Sra. Emilia", "portrait": "emilia_at_tree",
+    "text": "Encontré la placa esta mañana. Debajo del árbol. 'Siempre en el corazón de Miraloma'.",
+    "next": "emilia_m07_closure_A_02",
+    "condition": "flag:m07_tree_flowered"
+  },
+  "emilia_m07_closure_A_02": {
+    "id": "emilia_m07_closure_A_02", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Él está bien. Ya no está perdido.",
+    "next": "emilia_m07_closure_A_03"
+  },
+  "emilia_m07_closure_A_03": {
+    "id": "emilia_m07_closure_A_03", "speaker": "Sra. Emilia", "portrait": "emilia_crying_warm",
+    "text": "Lo sé. El árbol floreció anoche. No florecía desde que él desapareció. Gracias, Mateo.",
+    "next": null,
+    "onExit": "missionManager.complete('cemetery_child'); saveSystem.setFlag('mission_cemetery_child_done', true)"
+  },
+  "emilia_m07_closure_B": {
+    "id": "emilia_m07_closure_B", "speaker": "Sra. Emilia", "portrait": "emilia_at_tree",
+    "text": "Esto es suyo. Es su collar. Lo reconocería en cualquier lado.",
+    "next": "emilia_m07_closure_B_02",
+    "condition": "flag:m07_emilia_comforted"
+  },
+  "emilia_m07_closure_B_02": {
+    "id": "emilia_m07_closure_B_02", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Me pidió que se lo diera. Dijo que el mar sí se acordó de usted.",
+    "next": "emilia_m07_closure_B_03"
+  },
+  "emilia_m07_closure_B_03": {
+    "id": "emilia_m07_closure_B_03", "speaker": "Sra. Emilia", "portrait": "emilia_crying_warm",
+    "text": "Siempre supe que no estaba muerto. No como los demás dicen. Estaba esperando. Mi niño estaba esperando.",
+    "next": "emilia_m07_closure_B_04"
+  },
+  "emilia_m07_closure_B_04": {
+    "id": "emilia_m07_closure_B_04", "speaker": "Sra. Emilia", "portrait": "emilia_resolved",
+    "text": "Ahora puedo descansar. Los dos podemos.",
+    "next": null,
+    "onExit": "missionManager.complete('cemetery_child'); saveSystem.setFlag('mission_cemetery_child_done', true); saveSystem.setFlag('emilia_ally', true)"
+  },
+
+  "emilia_m07_route": {
+    "id": "emilia_m07_route", "speaker": "Sra. Emilia", "portrait": "emilia_worried",
+    "text": "Disculpa, muchacho... ¿has visto a un niño por aquí? Se llama Tomás. Tiene tu edad.",
+    "condition": "flag:mission_brothers_done",
+    "next": "emilia_m07_02",
+    "nextElse": "emilia_m07_ally_route"
+  },
+  "emilia_m07_ally_route": {
+    "id": "emilia_m07_ally_route", "speaker": "Sra. Emilia", "portrait": "emilia_warm",
+    "text": "Mateo. ¿Has visto alguna otra grieta últimamente? Hay un lugar en la escuela donde los niños lloraban en silencio.",
+    "condition": "flag:emilia_ally",
+    "choices": [
+      { "label": "Gracias, Emilia. Lo tendré en cuenta.", "next": null },
+      { "label": "¿Algo más que hayas notado?", "next": "emilia_m07_ally_hint_02" }
+    ],
+    "next": null
+  },
+  "emilia_m07_ally_hint_02": {
+    "id": "emilia_m07_ally_hint_02", "speaker": "Sra. Emilia", "portrait": "emilia_thoughtful",
+    "text": "El faro guarda más secretos de los que Antonio se llevó. Y en la biblioteca, en el fondo... hay un rincón que siempre está más frío.",
+    "next": null
+  },
+
+  "cemetery_child_rift_discovered": {
+    "id": "cemetery_child_rift_discovered", "speaker": "", "portrait": null, "style": "narrative_float",
+    "text": "Con la visión felina activa, ves una grieta oculta en el muro norte. Es pequeña, violeta, palpitante. Como si hubiera estado esperando a que alguien la encontrara.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('rift_G_cemetery_child_discovered', true)"
+  },
+  "cemetery_child_placa_inspect": {
+    "id": "cemetery_child_placa_inspect", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Tomás — 1987–1995 — Siempre en el corazón de Miraloma.",
+    "condition": "flag:m07_tree_flowered",
+    "next": "cemetery_child_placa_inspect_02"
+  },
+  "cemetery_child_placa_inspect_02": {
+    "id": "cemetery_child_placa_inspect_02", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "El árbol floreció. Emilia tenía razón. Él está en paz.",
+    "next": null
+  },
+  "cemetery_child_emilia_at_tree": {
+    "id": "cemetery_child_emilia_at_tree", "speaker": "Sra. Emilia", "portrait": "emilia_at_tree",
+    "text": "Vengo aquí cada tarde. A veces siento que él está sentado a mi lado.",
+    "condition": "flag:emilia_ally",
+    "next": "cemetery_child_emilia_at_tree_02"
+  },
+  "cemetery_child_emilia_at_tree_02": {
+    "id": "cemetery_child_emilia_at_tree_02", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Quizás lo está.",
+    "next": null
+  },
+
+  "collar_tomas_pickup": {
+    "id": "collar_tomas_pickup", "speaker": "", "portrait": null, "style": "narrative_float",
+    "text": "Un collar con una concha marina. La cuerda está desgastada, pero la concha está intacta. Todavía guarda el sonido del mar.",
+    "next": null,
+    "onExit": "inventory.addItem('I_collar_tomas'); eventBus.emit('item:picked', 'itemId', 'I_collar_tomas')"
   }
 }
