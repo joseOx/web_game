@@ -25,10 +25,11 @@ export class SceneManager {
     this._transition = null;
     this._save       = null;
     this._eventBus   = null;
+    this._heartAnchor = null;
   }
 
   inject({ world, mateo, luna, echoes, rifts, camera, collision, dimension,
-           lighting, audio, dialogue, transition, save, eventBus } = {}) {
+           lighting, audio, dialogue, transition, save, eventBus, heartAnchorSystem } = {}) {
     if (world)      this._world      = world;
     if (mateo)      this._mateo      = mateo;
     if (luna)       this._luna       = luna;
@@ -43,6 +44,7 @@ export class SceneManager {
     if (transition) this._transition = transition;
     if (save)       this._save       = save;
     if (eventBus)   this._eventBus   = eventBus;
+    if (heartAnchorSystem) this._heartAnchor = heartAnchorSystem;
   }
 
   register(zoneDef) {
@@ -191,7 +193,8 @@ export class SceneManager {
       const em   = new EchoMinor(def.id, def.x, def.y, { emotion: def.emotion });
       const emAI = new EchoMinorAI();
       emAI.inject({ echo: em, luna: this._luna, mateo: this._mateo,
-        riftSystem: this._rifts, dimensionManager: this._dimension });
+        riftSystem: this._rifts, dimensionManager: this._dimension,
+        heartAnchorSystem: this._heartAnchor });
       if (def.guard) emAI.setGuard();
       em.setAI(emAI);
       this._echoes.register(em);

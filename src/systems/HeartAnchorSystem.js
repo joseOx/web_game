@@ -59,7 +59,14 @@ export class HeartAnchorSystem {
    * Se llama al cargar partida y cada vez que se completa una misión.
    */
   checkUnlock() {
-    if (this.unlocked) return true;
+    if (this.unlocked) {
+      // Re-emitir evento de tutorial si ya está desbloqueado pero
+      // el jugador nunca vio el tutorial (ej: cargó partida antes de verlo).
+      if (this._saveSystem && !this._saveSystem.getFlag('heart_anchor_tutorial_seen')) {
+        this._eventBus?.emit('heart_anchor:unlocked');
+      }
+      return true;
+    }
     if (!this._saveSystem || !this._missions) return false;
 
     const done = [

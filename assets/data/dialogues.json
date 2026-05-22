@@ -846,7 +846,9 @@
   "rosa_root_d": {
     "id": "rosa_root_d", "speaker": "Rosa", "portrait": "rosa_warm",
     "text": "Siéntate, Mateo. Hay cosas de este pueblo que deberías saber.",
-    "next": "rosa_root_e"
+    "condition": "flag:mateo_heart_anchor_unlocked",
+    "next": "rosa_heart_anchor_comment",
+    "nextElse": "rosa_root_e"
   },
 
   "diego_route": {
@@ -1883,6 +1885,6 @@
     "id": "rosa_heart_anchor_comment", "speaker": "Rosa", "portrait": "rosa_warm",
     "text": "Mateo, noto que caminas distinto. Más firme. Como si hubieras encontrado algo que no sabías que tenías.",
     "condition": "flag:mateo_heart_anchor_unlocked",
-    "next": null
+    "next": "rosa_root_e"
   }
 }

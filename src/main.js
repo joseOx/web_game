@@ -145,6 +145,7 @@ heartAnchor.inject({
 scenes.inject({
   world, mateo, luna, echoes, rifts, camera, collision,
   dimension, lighting, audio, dialogue, transition, save, eventBus: events,
+  heartAnchorSystem: heartAnchor,
 });
 scenes.register(ZoneR_HOME);
 scenes.register(ZoneR_HOME_ATTIC);
@@ -215,7 +216,7 @@ events.on('echo:separated', data => {
       for (const gd of guardDefs) {
         const em   = new EchoMinor(gd.id, gd.x, gd.y, { emotion: 'fear' });
         const emAI = new EchoMinorAI();
-        emAI.inject({ echo: em, luna, mateo, riftSystem: rifts, dimensionManager: dimension });
+        emAI.inject({ echo: em, luna, mateo, riftSystem: rifts, dimensionManager: dimension, heartAnchorSystem: heartAnchor });
         emAI.setGuard();
         em.setAI(emAI);
         echoes.register(em);
@@ -365,7 +366,7 @@ events.on('zone:loaded', data => {
     for (const gd of beachGuardDefs) {
       const em   = new EchoMinor(gd.id, gd.x, gd.y, { emotion: 'fear' });
       const emAI = new EchoMinorAI();
-      emAI.inject({ echo: em, luna, mateo, riftSystem: rifts, dimensionManager: dimension });
+      emAI.inject({ echo: em, luna, mateo, riftSystem: rifts, dimensionManager: dimension, heartAnchorSystem: heartAnchor });
       emAI.setGuard();
       em.setAI(emAI);
       echoes.register(em);

@@ -34,17 +34,19 @@ export class EchoMinorAI {
     this._wanderDirX  = 1;
     this._wanderDirY  = 0;
 
-    this._fleeTimer   = 0;
-    this._targetRift  = null;
-    this._wasGuard    = false;
+    this._fleeTimer    = 0;
+    this._targetRift   = null;
+    this._wasGuard     = false;
+    this._heartAnchor  = null;  // HeartAnchorSystem for passive debuffs
   }
 
-  inject({ echo, luna, mateo, riftSystem, dimensionManager } = {}) {
+  inject({ echo, luna, mateo, riftSystem, dimensionManager, heartAnchorSystem } = {}) {
     if (echo)             this._echo       = echo;
     if (luna)             this._luna       = luna;
     if (mateo)            this._mateo      = mateo;
     if (riftSystem)       this._riftSystem = riftSystem;
     if (dimensionManager) this._dimension  = dimensionManager;
+    if (heartAnchorSystem) this._heartAnchor = heartAnchorSystem;
   }
 
   setGuard() { this._state = STATE.GUARD; this._wasGuard = true; }
@@ -92,8 +94,9 @@ export class EchoMinorAI {
       this._wanderTimer = 1500 + Math.random() * 2000;
 
       // 30 % chance to drift toward a rift instead
+      const accumulateChance = this._heartAnchor?.accumulateChanceDebuff ?? 1.0;
       const rift = this._findNearestRift(RIFT_DETECT_RANGE);
-      if (rift && Math.random() < 0.3) {
+      if (rift && Math.random() < 0.3 * accumulateChance) {
         this._targetRift = rift;
         this._transition(STATE.ACCUMULATE);
         return;
@@ -194,6 +197,13 @@ export class EchoMinorAI {
 
     if (dist < GUARD_STOP_RANGE) {
       // Close enough — drift to a halt near Mateo
+      const debuff = this._heartAnchor?.detectionRangeDebuff ?? 0;
+      if (debuff > 0 && dist < GUARD_STOP_RANGE - debuff) {
+        // With HeartAnchor passive active, echoes stop earlier (less aggressive)
+        this._echo.vx *= 0.85;
+        this._echo.vy *= 0.85;
+        return;
+      }
       this._echo.vx *= 0.85;
       this._echo.vy *= 0.85;
       return;
