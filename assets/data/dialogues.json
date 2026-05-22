@@ -1886,5 +1886,235 @@
     "text": "Mateo, noto que caminas distinto. Más firme. Como si hubieras encontrado algo que no sabías que tenías.",
     "condition": "flag:mateo_heart_anchor_unlocked",
     "next": "rosa_root_e"
+  },
+
+  "umbral_espejo_trigger_01": {
+    "id": "umbral_espejo_trigger_01", "speaker": "", "portrait": null,
+    "text": "El marco de madera del espejo vibra en tu mochila. No lo habías notado antes. Los grabados del abuelo brillan con una luz violeta tenue.",
+    "next": "umbral_espejo_02",
+    "style": "narrative_float",
+    "condition": "flag:ending_screen_shown"
+  },
+  "umbral_espejo_02": {
+    "id": "umbral_espejo_02", "speaker": "mateo", "portrait": "mateo_surprised",
+    "text": "¿Esto... siempre estuvo aquí? Los grabados... son los mismos que vi en los documentos de la biblioteca.",
+    "next": null
+  },
+
+  "umbral_espejo_attic_01": {
+    "id": "umbral_espejo_attic_01", "speaker": "", "portrait": null,
+    "text": "El marco encaja perfectamente en las marcas del suelo. La madera cruje. Una luz blanca comienza a emanar de las grietas del piso.",
+    "next": "umbral_espejo_attic_02",
+    "style": "narrative_float"
+  },
+  "umbral_espejo_attic_02": {
+    "id": "umbral_espejo_attic_02", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "Luna... ¿estás ahí? ¿Del otro lado?",
+    "next": "umbral_abuelo_eco_01"
+  },
+
+  "umbral_abuelo_eco_01": {
+    "id": "umbral_abuelo_eco_01", "speaker": "", "portrait": null,
+    "text": "Al tocar el marco, el frío de la madera se vuelve tibio. No es calor de sol — es calor de manos que sostuvieron esto durante muchas noches.",
+    "next": "umbral_abuelo_eco_02",
+    "style": "narrative_float",
+    "condition": "NOT:flag:abuelo_eco_umbral_activated",
+    "onEnter": "saveSystem.setFlag('abuelo_eco_umbral_activated', true)"
+  },
+  "umbral_abuelo_eco_02": {
+    "id": "umbral_abuelo_eco_02", "speaker": "", "portrait": null,
+    "text": "Por un instante, el desván se duplica: ves el cuarto vacío que conoces y, superpuesto, el mismo desván pero más antiguo. Una vela. Un banco de trabajo. Un hombre inclinado sobre la madera.",
+    "next": "umbral_abuelo_eco_03",
+    "style": "narrative_float"
+  },
+  "umbral_abuelo_eco_03": {
+    "id": "umbral_abuelo_eco_03", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Eres tú... Eres el abuelo. Abuela Rosa dijo que desapareciste buscando algo. Pero no desapareciste, ¿verdad? Encontraste lo que buscabas y dejaste esto para mí.",
+    "next": "umbral_abuelo_eco_04",
+    "style": "umbral"
+  },
+  "umbral_abuelo_eco_04": {
+    "id": "umbral_abuelo_eco_04", "speaker": "", "portrait": null,
+    "text": "El eco responde sin sonido. Una sensación: manos que sostienen las tuyas. Manos mayores, más grandes, que guían las tuyas sobre la madera. Un recorrido. Un patrón. Un mapa grabado en la madera que tus dedos entienden antes que tus ojos.",
+    "next": "umbral_abuelo_eco_05",
+    "style": "narrative_float"
+  },
+  "umbral_abuelo_eco_05": {
+    "id": "umbral_abuelo_eco_05", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "Los grabados. No son decoración. Son instrucciones. Sabías que yo iba a necesitar esto.",
+    "next": null,
+    "style": "umbral",
+    "onExit": "saveSystem.setFlag('marco_grabados_abuelo_revelados', true)"
+  },
+
+  "umbral_luna_01": {
+    "id": "umbral_luna_01", "speaker": "Luna", "portrait": null,
+    "text": "Mateo.",
+    "next": "umbral_luna_02",
+    "style": "umbral"
+  },
+  "umbral_luna_02": {
+    "id": "umbral_luna_02", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Luna... ¿esto es real?",
+    "next": null,
+    "style": "umbral",
+    "choices": [
+      { "label": "¿Estás bien?", "next": "umbral_luna_03a" },
+      { "label": "¿Dónde estamos?", "next": "umbral_luna_03b" },
+      { "label": "Te he estado buscando.", "next": "umbral_luna_03c" }
+    ]
+  },
+  "umbral_luna_03a": {
+    "id": "umbral_luna_03a", "speaker": "Luna", "portrait": null,
+    "text": "Estoy donde siempre estuve. Entre los dos lados. Pero ahora puedes oírme. Las siete puertas están cerradas. El camino está despejado.",
+    "next": "umbral_luna_04",
+    "style": "umbral"
+  },
+  "umbral_luna_03b": {
+    "id": "umbral_luna_03b", "speaker": "Luna", "portrait": null,
+    "text": "El lugar donde las dimensiones se tocan. Tu abuelo lo llamaba 'la costura del mundo'. Dejó esto para ti.",
+    "next": "umbral_luna_04",
+    "style": "umbral"
+  },
+  "umbral_luna_03c": {
+    "id": "umbral_luna_03c", "speaker": "Luna", "portrait": null,
+    "text": "Lo sé. (Silencio. Luna da un paso hacia Mateo.) Siempre supe que vendrías.",
+    "next": "umbral_luna_04",
+    "style": "umbral"
+  },
+  "umbral_luna_04": {
+    "id": "umbral_luna_04", "speaker": "Luna", "portrait": null,
+    "text": "Las grietas están selladas. El Tejedor se ha retirado. Pero hay algo que necesito decirte. Algo que no te dije antes.",
+    "next": "umbral_luna_05",
+    "style": "umbral"
+  },
+  "umbral_luna_05": {
+    "id": "umbral_luna_05", "speaker": "Luna", "portrait": null,
+    "text": "La noche que te encontré... no fue casualidad. No buscaba a alguien brillante. Buscaba a alguien que se estaba apagando.",
+    "next": "umbral_luna_06",
+    "style": "umbral"
+  },
+  "umbral_luna_06": {
+    "id": "umbral_luna_06", "speaker": "mateo", "portrait": "mateo_sad",
+    "text": "¿Qué?",
+    "next": null,
+    "style": "umbral",
+    "choices": [
+      { "label": "No entiendo.", "next": "umbral_luna_07a" },
+      { "label": "¿Te refieres a cuando mamá se fue?", "next": "umbral_luna_07b" },
+      { "label": "Y sin embargo me salvaste.", "next": "umbral_luna_07c" }
+    ]
+  },
+  "umbral_luna_07a": {
+    "id": "umbral_luna_07a", "speaker": "Luna", "portrait": null,
+    "text": "Tu dolor creó una abertura. Pequeña. Apenas un susurro. Los Ecos se acercaban. Yo los ahuyentaba. Pero esa noche eran demasiados.",
+    "next": "umbral_luna_08",
+    "style": "umbral"
+  },
+  "umbral_luna_07b": {
+    "id": "umbral_luna_07b", "speaker": "Luna", "portrait": null,
+    "text": "Su partida dejó un vacío dentro de ti. No emocional. Real. Un espacio por donde el Vacío podía filtrarse. Y se filtró.",
+    "next": "umbral_luna_08",
+    "style": "umbral"
+  },
+  "umbral_luna_07c": {
+    "id": "umbral_luna_07c", "speaker": "Luna", "portrait": null,
+    "text": "Tú también me salvaste a mí esa noche. (Silencio. Luna parpadea.) Si no hubieras salido al jardín, los Ecos me habrían vencido.",
+    "next": "umbral_luna_08",
+    "style": "umbral"
+  },
+  "umbral_luna_08": {
+    "id": "umbral_luna_08", "speaker": "Luna", "portrait": null,
+    "text": "He estado contigo seis años. Cada noche. Cada sombra. No porque tuviera que hacerlo. Porque quise.",
+    "next": "umbral_luna_09",
+    "style": "umbral"
+  },
+  "umbral_luna_09": {
+    "id": "umbral_luna_09", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "¿Te vas a quedar?",
+    "next": null,
+    "style": "umbral",
+    "choices": [
+      { "label": "Quédate conmigo.", "next": "umbral_luna_res_A" },
+      { "label": "Si tienes que irte... entiendo.", "next": "umbral_luna_res_B" },
+      { "label": "¿Puedo ir contigo?", "next": "umbral_luna_res_C" }
+    ]
+  },
+  "umbral_luna_res_A": {
+    "id": "umbral_luna_res_A", "speaker": "Luna", "portrait": null,
+    "text": "Siempre. No puedo estar en ningún otro lado. Este es mi lugar. Contigo.",
+    "next": "umbral_luna_final",
+    "style": "umbral",
+    "onExit": "saveSystem.setFlag('umbral_resolution', 'A')"
+  },
+  "umbral_luna_res_B": {
+    "id": "umbral_luna_res_B", "speaker": "Luna", "portrait": null,
+    "text": "No puedo irme del todo. El vínculo no se rompe. Pero necesito descansar. Entre las dimensiones. No para siempre. Solo... hasta que me necesites.",
+    "next": "umbral_luna_final",
+    "style": "umbral",
+    "onExit": "saveSystem.setFlag('umbral_resolution', 'B')"
+  },
+  "umbral_luna_res_C": {
+    "id": "umbral_luna_res_C", "speaker": "Luna", "portrait": null,
+    "text": "Todavía no. Tu lugar está aquí. Hay personas que te necesitan. Pero el umbral queda abierto. Para ti. Siempre. (Silencio. Luna sonríe felinamente.) Y cuando quieras verme... sabes dónde encontrarme.",
+    "next": "umbral_luna_final",
+    "style": "umbral",
+    "onExit": "saveSystem.setFlag('umbral_resolution', 'C')"
+  },
+  "umbral_luna_final": {
+    "id": "umbral_luna_final", "speaker": "Luna", "portrait": null,
+    "text": "Mateo. Gracias. (Silencio. Luna se acerca y apoya su cabeza contra el pecho de Mateo.) Ronroneo.",
+    "next": null,
+    "style": "umbral",
+    "onExit": "saveSystem.setFlag('umbral_espejo_visto', true); saveSystem.setFlag('chapter_umbral_unlocked', true)"
+  },
+
+  "inspect_marco_post_umbral": {
+    "id": "inspect_marco_post_umbral", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Las figuras nuevas... es a nosotros. A Luna y a mí. La noche que nos encontramos. El marco lo guardó.",
+    "next": null,
+    "style": "narrative_float",
+    "condition": "flag:umbral_espejo_visto",
+    "onExit": "saveSystem.setFlag('inspect_marco_post_text_seen', true)"
+  },
+
+  "capitulo0_intro_01": {
+    "id": "capitulo0_intro_01", "speaker": "", "portrait": null,
+    "text": "Seis años atrás. La lluvia golpea los tejados de Miraloma. La casa de Rosa está en silencio.",
+    "next": "capitulo0_intro_02",
+    "style": "narrative_float"
+  },
+  "capitulo0_intro_02": {
+    "id": "capitulo0_intro_02", "speaker": "", "portrait": null,
+    "text": "En la oscuridad del jardín, algo acecha. Algo que huele el dolor de un niño que duerme solo.",
+    "next": "capitulo0_intro_03",
+    "style": "narrative_float"
+  },
+  "capitulo0_intro_03": {
+    "id": "capitulo0_intro_03", "speaker": "", "portrait": null,
+    "text": "Y desde los tejados, una sombra pequeña observa. Dos ojos brillan en la noche. Luna ya está aquí.",
+    "next": null,
+    "style": "narrative_float",
+    "onExit": "saveSystem.setFlag('chapter_0_started', true)"
+  },
+
+  "umbral_epilogue_narrativa": {
+    "id": "umbral_epilogue_narrativa", "speaker": "", "portrait": null,
+    "text": "El marco del espejo ya no vibra. Los grabados del abuelo han desaparecido, como si hubieran cumplido su propósito.",
+    "next": "umbral_epilogue_narrativa_02",
+    "style": "narrative_float",
+    "condition": "flag:umbral_espejo_visto"
+  },
+  "umbral_epilogue_narrativa_02": {
+    "id": "umbral_epilogue_narrativa_02", "speaker": "", "portrait": null,
+    "text": "Luna duerme en tu cama. O lo que queda de ella en este lado.",
+    "next": "umbral_epilogue_narrativa_03",
+    "style": "narrative_float"
+  },
+  "umbral_epilogue_narrativa_03": {
+    "id": "umbral_epilogue_narrativa_03", "speaker": "", "portrait": null,
+    "text": "Pero el otro lado... ahora sabes que existe. Y que siempre has tenido la llave.",
+    "next": null,
+    "style": "narrative_float"
   }
 }

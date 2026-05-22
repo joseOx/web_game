@@ -19,6 +19,7 @@ const BINDINGS = {
   'KeyE':       'interact',
   'KeyQ':       'call_luna',
   'KeyF':       'heart_anchor',
+  'KeyM':       'chapter_menu',
   'ShiftLeft':  'feline_vision',
   'Escape':     'pause',
 };

@@ -39,9 +39,10 @@ export class TitleScreen {
     this._initRift();
   }
 
-  inject({ input, hasSave = false } = {}) {
+  inject({ input, hasSave = false, saveSystem = null } = {}) {
     if (input) this._input = input;
     this._hasSave = hasSave;
+    this._saveSystem = saveSystem;
   }
 
   // Returns a promise that resolves with 'new_game' | 'continue' | 'luna_mode'
@@ -160,9 +161,14 @@ export class TitleScreen {
 
   // Returns the list of menu options based on save state
   _options() {
-    return this._hasSave
+    const opts = this._hasSave
       ? ['Nueva partida', 'Continuar', 'Modo Luna']
       : ['Nueva partida', 'Modo Luna'];
+    // Add Capítulo 0 post-ending if unlocked
+    if (this._saveSystem?.getFlag('chapter_umbral_unlocked', false)) {
+      opts.push('Capítulo 0 — El Eco Inicial');
+    }
+    return opts;
   }
 
   _confirm() {
@@ -170,6 +176,7 @@ export class TitleScreen {
     const label = opts[this._selected];
     if (label === 'Continuar')    { this._finish('continue');  return; }
     if (label === 'Modo Luna')    { this._finish('luna_mode'); return; }
+    if (label === 'Capítulo 0 — El Eco Inicial') { this._finish('chapter0'); return; }
     this._finish('new_game');
   }
 
@@ -288,14 +295,15 @@ export class TitleScreen {
       const text       = (i === this._selected ? '▶ ' : '  ') + label;
       const isSelected = i === this._selected;
       const isLuna     = label === 'Modo Luna';
+      const isCh0      = label === 'Capítulo 0 — El Eco Inicial';
       ctx.save();
       ctx.font = '10px VT323, monospace';
       if (isSelected) {
-        ctx.fillStyle   = isLuna ? '#C8F5FF' : '#C8A9FF';
-        ctx.shadowColor = isLuna ? 'rgba(100,200,255,0.5)' : 'rgba(155,127,232,0.5)';
+        ctx.fillStyle   = isLuna ? '#C8F5FF' : isCh0 ? '#FFD97D' : '#C8A9FF';
+        ctx.shadowColor = isLuna ? 'rgba(100,200,255,0.5)' : isCh0 ? 'rgba(255,217,125,0.5)' : 'rgba(155,127,232,0.5)';
         ctx.shadowBlur  = 6;
       } else {
-        ctx.fillStyle = 'rgba(200,169,255,0.42)';
+        ctx.fillStyle = isCh0 ? 'rgba(255,217,125,0.5)' : 'rgba(200,169,255,0.42)';
       }
       const w = ctx.measureText(text).width;
       const baseY = BASE_HEIGHT / 2 + 14;

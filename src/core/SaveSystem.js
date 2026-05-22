@@ -142,4 +142,40 @@ export class SaveSystem {
     this._flags     = {};
     this._inventory = new Set();
   }
+
+  // ── Chapter 0 persistence ─────────────────────────────────────────────────
+
+  saveChapter0() {
+    const data = {
+      version:   SAVE_VERSION,
+      timestamp: Date.now(),
+      flags:     { ...this._flags },
+    };
+    try {
+      localStorage.setItem('grietas_chapter0_v1', JSON.stringify(data));
+      return true;
+    } catch {
+      console.warn('SaveSystem: failed to write chapter0 save');
+      return false;
+    }
+  }
+
+  loadChapter0() {
+    try {
+      const raw = localStorage.getItem('grietas_chapter0_v1');
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      console.warn('SaveSystem: failed to read chapter0 save');
+      return null;
+    }
+  }
+
+  hasChapter0Save() {
+    return localStorage.getItem('grietas_chapter0_v1') !== null;
+  }
+
+  deleteChapter0Save() {
+    localStorage.removeItem('grietas_chapter0_v1');
+  }
 }

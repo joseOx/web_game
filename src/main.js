@@ -30,6 +30,7 @@ import { NPC } from './entities/NPC.js';
 import { EchoMinor } from './entities/EchoMinor.js';
 import { EchoMinorAI } from './systems/EchoMinorAI.js';
 import { LunaCombatMode } from './modes/LunaCombatMode.js';
+import { ChapterManager } from './systems/ChapterManager.js';
 
 // Missions
 import { Mission01Lighthouse } from './missions/data/mission_01_lighthouse.js';
@@ -39,6 +40,7 @@ import { Mission04Dogs }       from './missions/data/mission_04_dogs.js';
 import { Mission05Brothers }   from './missions/data/mission_05_brothers.js';
 import { Mission06Library }    from './missions/data/mission_06_library.js';
 import { Mission07CemeteryChild } from './missions/data/mission_07_cemetery_child.js';
+import { MissionUmbralEspejo } from './missions/data/mission_umbral_espejo.js';
 
 // Zone definitions
 import { ZoneR_HOME }        from './world/zones/ZoneR_HOME.js';
@@ -56,6 +58,11 @@ import { ZoneR_LIBRARY }     from './world/zones/ZoneR_LIBRARY.js';
 import { ZoneV_LIBRARY }     from './world/zones/ZoneV_LIBRARY.js';
 import { ZoneV_HUB }         from './world/zones/ZoneV_HUB.js';
 import { ZoneV_HOME }        from './world/zones/ZoneV_HOME.js';
+
+// Umbral + Chapter 0 zones
+import { ZoneV_UMBRAL }        from './world/zones/ZoneV_UMBRAL.js';
+import { ZoneR_CHAPTER0_HOUSE } from './world/zones/ZoneR_CHAPTER0_HOUSE.js';
+import { ZoneR_CHAPTER0_GARDEN } from './world/zones/ZoneR_CHAPTER0_GARDEN.js';
 
 const canvas = document.getElementById('game-canvas');
 
@@ -83,6 +90,7 @@ export const prologue  = new PrologueScreen();
 export const titleScreen = new TitleScreen();
 export const lunaMode   = new LunaCombatMode();
 export const heartAnchor = new HeartAnchorSystem();
+export const chapterMgr  = new ChapterManager();
 export const world     = new World();
 export const scenes    = new SceneManager();
 export const game      = new Game(canvas);
@@ -125,6 +133,7 @@ missions.register(new Mission04Dogs());
 missions.register(new Mission05Brothers());
 missions.register(new Mission06Library());
 missions.register(new Mission07CemeteryChild());
+missions.register(new MissionUmbralEspejo());
 
 dimension.inject({ transitionFX: transition, lightingSystem: lighting, riftSystem: rifts, audioSystem: audio, eventBus: events });
 rifts.inject({ saveSystem: save, missionManager: missions, audioSystem: audio, eventBus: events });
@@ -134,7 +143,8 @@ dialogue.inject({ input, saveSystem: save, missionManager: missions, riftSystem:
 hints.inject({ rifts, dimension, vision, dialogue, mateo, world });
 piano.inject({ audio, eventBus: events });
 prologue.inject({ input });
-titleScreen.inject({ input, hasSave: save.hasSave() });
+titleScreen.inject({ input, hasSave: save.hasSave(), saveSystem: save });
+chapterMgr.inject({ saveSystem: save, eventBus: events, sceneManager: scenes, dialogue, transition });
 lunaMode.inject({ input, particles, audio });
 heartAnchor.inject({
   mateo, visionSystem: vision, echoManager: echoes, luna,
@@ -162,6 +172,9 @@ scenes.register(ZoneR_LIBRARY);
 scenes.register(ZoneV_LIBRARY);
 scenes.register(ZoneV_HUB);
 scenes.register(ZoneV_HOME);
+scenes.register(ZoneV_UMBRAL);
+scenes.register(ZoneR_CHAPTER0_HOUSE);
+scenes.register(ZoneR_CHAPTER0_GARDEN);
 
 // ── EventBus wiring ───────────────────────────────────────────────────────────
 events.on('dimension:changed', ({ dim }) => {
@@ -197,6 +210,31 @@ events.on('dialogue:node_exit', data => {
   // M02 — Piano mini-game después de entregar la partitura a Vera
   if (data.nodeId === 'vera_echo_end_02' && !save.getFlag('mission_melody_done')) {
     setTimeout(() => piano.start(), 800);
+  }
+
+  // Umbral — activar misión al ver el primer diálogo
+  if (data.nodeId === 'umbral_espejo_02') {
+    save.setFlag('umbral_espejo_trigger_01_seen', true);
+    missions.activate('umbral_espejo');
+  }
+
+  // Umbral — al terminar el eco del abuelo, abrir el umbral luminoso y cargar V_UMBRAL
+  if (data.nodeId === 'umbral_abuelo_eco_05') {
+    (async () => {
+      await transition.playFull('light_pillar');
+      await scenes.load('V_UMBRAL');
+      // La escena con Luna se inicia desde la misión al detectar zone:loaded
+    })();
+  }
+
+  // Umbral — al despedirse de Luna, volver a R_HOME
+  if (data.nodeId === 'umbral_luna_final') {
+    (async () => {
+      await transition.playFull('fade_white');
+      await scenes.load('R_HOME');
+      await transition.playFull('fade_black');
+      dialogue.start('umbral_epilogue_narrativa');
+    })();
   }
 });
 events.on('echo:separated', data => {
@@ -296,6 +334,12 @@ events.on('zone:loaded', data => {
       const echo = echoes.get(id);
       if (echo) echo.active = false;
     }
+  }
+
+  // M07 — Grieta de Tomás solo visible en el vacío cuando la misión está activa
+  if (data.zoneId === 'V_CEMETERY' && !save.getFlag('mission_cemetery_child_active')) {
+    const childRift = rifts.get('G_cemetery_child');
+    if (childRift) { childRift.active = false; childRift._currentlyVisible = false; }
   }
 
   // M07 — Emilia como aliada en R_CEMETERY (resolución B)
@@ -451,8 +495,8 @@ events.on('zone:loaded', data => {
       missions.isActive('cemetery_child') &&
       vision.active &&
       !save.getFlag('rift_G_cemetery_child_discovered')) {
-    // La grieta está en el muro norte (tile 16, 3 = 256, 48)
-    const gx = 16 * 16, gy = 3 * 16;
+    // La grieta está en el rincón noreste (tile 18, 2 = 288, 32)
+    const gx = 18 * 16, gy = 2 * 16;
     if (Math.hypot(mateo.centerX() - gx, mateo.centerY() - gy) < 60) {
       setTimeout(() => dialogue.start('cemetery_child_rift_discovered'), 400);
     }
@@ -470,6 +514,28 @@ events.on('zone:loaded', data => {
 
   // Auto-save on every zone transition
   save.save();
+
+  // Umbral del Espejo — trigger post-ending en R_HOME
+  if (data.zoneId === 'R_HOME' &&
+      save.getFlag('ending_screen_shown') &&
+      !save.getFlag('umbral_espejo_visto')) {
+    setTimeout(() => dialogue.start('umbral_espejo_trigger_01'), 1500);
+  }
+
+  // Umbral del Espejo — activación al subir al desván con el marco activo
+  if (data.zoneId === 'R_HOME_ATTIC' &&
+      save.getFlag('ending_screen_shown') &&
+      !save.getFlag('umbral_espejo_visto') &&
+      save.getFlag('umbral_espejo_trigger_01_seen') &&
+      !save.getFlag('umbral_espejo_attic_triggered')) {
+    save.setFlag('umbral_espejo_attic_triggered', true);
+    setTimeout(() => dialogue.start('umbral_espejo_attic_01'), 800);
+  }
+
+  // Umbral — al entrar al plano abstracto, iniciar conversación con Luna
+  if (data.zoneId === 'V_UMBRAL') {
+    setTimeout(() => dialogue.start('umbral_luna_01'), 1500);
+  }
 
   // Corazón Firme — monólogo de introspección al entrar a R_HOME después del desbloqueo
   if (data.zoneId === 'R_HOME' &&
@@ -635,6 +701,9 @@ const ZONE_NAMES = {
   V_BEACH:       'El Naufragio',
   V_CEMETERY:    'La Cripta',
   V_LIBRARY:     'Archivo Borrado',
+  V_UMBRAL:      'El Umbral',
+  R_CHAPTER0_HOUSE: 'Casa de Rosa (hace 6 años)',
+  R_CHAPTER0_GARDEN: 'Jardín Nocturno',
 };
 
 // ── HUD state ─────────────────────────────────────────────────────────────────
@@ -765,6 +834,11 @@ async function init() {
     return;
   }
 
+  if (mode === 'chapter0') {
+    await chapterMgr.startChapter0();
+    return;
+  }
+
   if (mode === 'continue' && save.hasSave()) {
     const data = save.load();
     save.applyLoad(data);
@@ -828,6 +902,13 @@ const worldUpdate = {
         if (!dialogueOpen) heartAnchor.activate();
       }
 
+      // Capítulo 0 / menú de capítulos (M key)
+      if (input.wasPressed('chapter_menu')) {
+        if (save.getFlag('chapter_umbral_unlocked')) {
+          dialogue.start('capitulo0_intro_01');
+        }
+      }
+
       if (world.loaded) {
         // Reencuentro con Luna — por proximidad, solo después de que el tutorial de Vacío completó
         if (scenes.currentZoneId === 'V_LIGHTHOUSE' &&
@@ -886,7 +967,7 @@ const worldUpdate = {
         // Interact (E key)
         if (input.wasPressed('interact') && !dimension.transitioning && !piano.active) {
           const nearRift = rifts.nearestUnsealedInRange(
-            mateo.centerX(), mateo.centerY(), 48);
+            mateo.centerX(), mateo.centerY(), 24);
 
           if (nearRift) {
             // If zone has a linked dimension counterpart, do a zone+dim switch

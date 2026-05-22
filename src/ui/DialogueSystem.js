@@ -20,6 +20,8 @@ export class DialogueSystem {
     this._textDone   = false;
     this._elapsed    = 0;
 
+    this._narrativeFloatTimer = 0;
+
     // Choice selection
     this._selectedChoice = 0;
     this._choices        = [];
@@ -99,6 +101,16 @@ export class DialogueSystem {
       return;
     }
 
+    // narrative_float auto-advances 2.5 s after text finishes (no button required)
+    if (this._current?.style === 'narrative_float' && this._textDone) {
+      this._narrativeFloatTimer += dt;
+      if (this._narrativeFloatTimer >= 2500) {
+        this._narrativeFloatTimer = 0;
+        this._advance();
+        return;
+      }
+    }
+
     // Advance (skip typewriter or go to next node)
     if (this._input.wasPressed('interact')) {
       if (!this._textDone) {
@@ -123,24 +135,36 @@ export class DialogueSystem {
       return;
     }
 
+    // Umbral style — abstract plane, centered text with glow, no box
+    if (node.style === 'umbral') {
+      this._renderUmbral(ctx, node);
+      return;
+    }
+
     this._renderBox(ctx, node);
   }
 
   _renderBox(ctx, node) {
+    // Dynamic height: expand box when many choices would overflow fixed BOX_H.
+    // With BOX_H=68 and choices starting at offset 38, 4 choices need 38+4×12=86px.
+    const choiceH  = this._choices.length > 0 ? 38 + this._choices.length * 12 + 6 : 0;
+    const boxH     = Math.max(BOX_H, choiceH);
+    const boxY     = BASE_HEIGHT - boxH - 2;
+
     // Box background
     ctx.fillStyle   = 'rgba(10, 8, 18, 0.92)';
     ctx.strokeStyle = '#3B2D6E';
     ctx.lineWidth   = 1;
-    ctx.fillRect(PAD, BOX_Y, BASE_WIDTH - PAD * 2, BOX_H);
-    ctx.strokeRect(PAD + 0.5, BOX_Y + 0.5, BASE_WIDTH - PAD * 2 - 1, BOX_H - 1);
+    ctx.fillRect(PAD, boxY, BASE_WIDTH - PAD * 2, boxH);
+    ctx.strokeRect(PAD + 0.5, boxY + 0.5, BASE_WIDTH - PAD * 2 - 1, boxH - 1);
 
     // Portrait
     const portrait = node.portrait ? this._portraits.get(node.portrait) : null;
     if (portrait) {
-      ctx.drawImage(portrait, PAD + 1, BOX_Y + 3, PORTRAIT_S, PORTRAIT_S);
+      ctx.drawImage(portrait, PAD + 1, boxY + 3, PORTRAIT_S, PORTRAIT_S);
     } else if (node.portrait) {
       ctx.fillStyle = '#2A2240';
-      ctx.fillRect(PAD + 1, BOX_Y + 3, PORTRAIT_S, PORTRAIT_S);
+      ctx.fillRect(PAD + 1, boxY + 3, PORTRAIT_S, PORTRAIT_S);
     }
 
     this._setShadow(ctx);
@@ -149,18 +173,18 @@ export class DialogueSystem {
     if (node.speaker) {
       ctx.fillStyle = '#9B7FE8';
       ctx.font      = '10px VT323, monospace';
-      ctx.fillText(node.speaker.toUpperCase(), TEXT_X, BOX_Y + 13);
+      ctx.fillText(node.speaker.toUpperCase(), TEXT_X, boxY + 13);
     }
 
     // Dialogue text (typewriter)
     const shown = this._fullText.slice(0, this._shownChars);
     ctx.fillStyle = '#EEE8FF';
     ctx.font      = '10px VT323, monospace';
-    this._drawWrappedText(ctx, shown, TEXT_X, BOX_Y + 24, TEXT_W, 11);
+    this._drawWrappedText(ctx, shown, TEXT_X, boxY + 24, TEXT_W, 11);
 
     // Choices
     if (this._choices.length > 0 && this._textDone) {
-      const startY = BOX_Y + 38;
+      const startY = boxY + 38;
       this._choices.forEach((c, i) => {
         const y = startY + i * 12;
         ctx.fillStyle = i === this._selectedChoice ? '#9B7FE8' : '#7A6AA0';
@@ -171,7 +195,7 @@ export class DialogueSystem {
       // Advance hint
       ctx.fillStyle = 'rgba(155,127,232,0.6)';
       ctx.font      = '10px VT323, monospace';
-      ctx.fillText('▶', BASE_WIDTH - PAD * 2 - 4, BOX_Y + BOX_H - 5);
+      ctx.fillText('▶', BASE_WIDTH - PAD * 2 - 4, boxY + boxH - 5);
     }
 
     this._clearShadow(ctx);
@@ -188,6 +212,79 @@ export class DialogueSystem {
     this._drawWrappedText(ctx, shown, floatX, BASE_HEIGHT / 2 - 20, floatMaxW, 11, BASE_HEIGHT - PAD);
     ctx.globalAlpha = 1;
     this._clearShadow(ctx);
+  }
+
+  _renderUmbral(ctx, node) {
+    // Fondo translúcido violeta oscuro en toda la pantalla
+    ctx.fillStyle = 'rgba(20, 10, 40, 0.7)';
+    ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+
+    // Partículas doradas sutiles (opcional, sin bucle)
+    ctx.globalAlpha = 0.15;
+    for (let i = 0; i < 8; i++) {
+      const px = (Math.sin(Date.now() / 2000 + i * 1.3) * 0.5 + 0.5) * BASE_WIDTH;
+      const py = (Math.cos(Date.now() / 2500 + i * 1.7) * 0.5 + 0.5) * BASE_HEIGHT;
+      ctx.fillStyle = '#FFD97D';
+      ctx.beginPath();
+      ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Speaker flotando arriba
+    if (node.speaker) {
+      ctx.fillStyle = '#FFD97D';
+      ctx.font      = '12px VT323, monospace';
+      ctx.textAlign = 'center';
+      const speakerName = node.speaker.toUpperCase();
+      ctx.fillText(speakerName, BASE_WIDTH / 2, BASE_HEIGHT / 2 - 36);
+      ctx.textAlign = 'left';
+    }
+
+    // Texto centrado con brillo dorado
+    const shown = this._fullText.slice(0, this._shownChars);
+    ctx.save();
+    ctx.shadowColor   = 'rgba(255, 217, 125, 0.6)';
+    ctx.shadowBlur    = 6;
+    ctx.fillStyle     = '#FFE8B0';
+    ctx.font          = '10px VT323, monospace';
+    ctx.textAlign     = 'center';
+    const lineH = 12;
+    const words = shown.split(' ');
+    let line = '';
+    let curY  = BASE_HEIGHT / 2 - 14;
+    const maxW = BASE_WIDTH - 40;
+    for (const word of words) {
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line, BASE_WIDTH / 2, curY);
+        line = word;
+        curY += lineH;
+      } else {
+        line = test;
+      }
+    }
+    if (line) ctx.fillText(line, BASE_WIDTH / 2, curY);
+    ctx.restore();
+    ctx.textAlign = 'left';
+
+    // Choices (mismo estilo que el normal pero sobre fondo oscuro)
+    if (this._choices.length > 0 && this._textDone) {
+      const startY = Math.min(curY + 18, BASE_HEIGHT - 40);
+      this._choices.forEach((c, i) => {
+        const y = startY + i * 12;
+        ctx.fillStyle = i === this._selectedChoice ? '#FFD97D' : '#A080A0';
+        ctx.font      = '10px VT323, monospace';
+        ctx.fillText((i === this._selectedChoice ? '▶ ' : '  ') + c.label, BASE_WIDTH / 2 - 40, y);
+      });
+    } else if (this._textDone && !this._current.choices) {
+      // Avance (auto o manual)
+      if (this._current.next) {
+        ctx.fillStyle = 'rgba(255, 217, 125, 0.5)';
+        ctx.font      = '10px VT323, monospace';
+        ctx.fillText('▶', BASE_WIDTH - 16, BASE_HEIGHT - 10);
+      }
+    }
   }
 
   _setShadow(ctx) {
@@ -241,6 +338,7 @@ export class DialogueSystem {
     this._shownChars = 0;
     this._textDone   = this._fullText.length === 0;
     this._elapsed    = 0;
+    this._narrativeFloatTimer = 0;
 
     // Build available choices (filter by condition)
     this._choices        = [];

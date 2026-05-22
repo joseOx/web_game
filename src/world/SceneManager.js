@@ -137,8 +137,14 @@ export class SceneManager {
     this._world.load(zoneDef, this._save);
 
     const tm = this._world.tilemap;
-    this._collision.setTilemap(tm);
-    this._camera.setBounds(tm.widthPx, tm.heightPx);
+    if (tm) {
+      this._collision.setTilemap(tm);
+      this._camera.setBounds(tm.widthPx, tm.heightPx);
+    } else {
+      // Zona abstracta (sin tilemap) — usar dimensiones por defecto
+      this._collision.setTilemap(null);
+      this._camera.setBounds(BASE_WIDTH, BASE_HEIGHT);
+    }
 
     // ── Spawn entities ────────────────────────────────────────────────────────
     const spawn = zoneDef.spawns?.[spawnName] ?? zoneDef.spawns?.default ?? { x: 80, y: 80 };

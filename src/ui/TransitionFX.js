@@ -5,6 +5,7 @@ const EFFECTS = {
   fade_black:      { duration: 400, color: '#000000' },
   fade_white:      { duration: 300, color: '#ffffff' },
   scene_enter:     { duration: 300, color: '#000000' },
+  light_pillar:    { duration: 2000, color: '#FFECD6' }, // luz blanca ascendente — Umbral
 };
 
 export class TransitionFX {
