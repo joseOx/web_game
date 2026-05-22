@@ -73,6 +73,13 @@ export class EchoBoundAI {
     this._echo.vx = 0;
     this._echo.vy = 0;
 
+    // If a system-level dialogue (tutorial, combat intro) overwrote this echo's
+    // dialogue before it could finish, the callback that sets DISMISSED never ran.
+    // Reset to IDLE so proximity can re-trigger on the next frame.
+    if (this._state === STATE.TRIGGERED && !this._dialogue?.isVisible()) {
+      this._state = STATE.IDLE;
+    }
+
     if (this._state === STATE.IDLE) {
       this._checkProximity();
       if (this._separateByLuna) this._checkLunaSeparation(dt);
@@ -82,6 +89,11 @@ export class EchoBoundAI {
   dismiss() {
     this._state = STATE.DISMISSED;
     this._echo.active = false;
+  }
+
+  revive() {
+    this._baseY = this._echo ? this._echo.y : this._baseY;
+    this._state = STATE.IDLE;
   }
 
   // ── Private ───────────────────────────────────────────────────────────────────

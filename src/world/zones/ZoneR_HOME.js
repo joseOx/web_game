@@ -69,9 +69,9 @@ export const ZoneR_HOME = {
     },
   ],
 
-  // Rift oculta del jardín — solo visible con visión felina (M03)
+  // Rift del jardín — no visible en el mundo real (ni con visión felina)
   rifts: [
-    { id: 'G_home_garden', x: 15 * 16, y: 9 * 16, size: 'minor', emotion: 'grief', visible: false },
+    { id: 'G_home_garden', x: 15 * 16, y: 9 * 16, size: 'minor', emotion: 'grief', forceHiddenInReal: true },
   ],
 
   // EchoMinor / EchoBound defs for this zone

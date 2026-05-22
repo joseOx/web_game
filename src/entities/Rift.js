@@ -25,7 +25,7 @@ const PULSE_SPEED = {
 };
 
 export class Rift extends Entity {
-  constructor({ id, x, y, size = 'minor', emotion = 'grief', anchorId = null, visible }) {
+  constructor({ id, x, y, size = 'minor', emotion = 'grief', anchorId = null, visible, forceHiddenInReal }) {
     const dims = SIZE_DIMS[size] ?? SIZE_DIMS.minor;
     super(id, x, y);
     this.width  = dims.w;
@@ -45,7 +45,9 @@ export class Rift extends Entity {
     // Visibility — controlled by RiftSystem depending on dimension / feline vision
     this.visibleInReal      = false;  // only visible with feline vision in real world
     this.visibleInVoid      = true;   // always visible in the Void
-    this._forceHiddenInReal = visible === false; // never shown in real, not even with feline vision
+    // forceHiddenInReal: true = never visible in real even with feline vision.
+    // Explicit forceHiddenInReal prop takes precedence; fall back to visible===false.
+    this._forceHiddenInReal = forceHiddenInReal !== undefined ? !!forceHiddenInReal : (visible === false);
     this._currentlyVisible  = false;
   }
 

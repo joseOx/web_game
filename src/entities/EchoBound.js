@@ -16,6 +16,13 @@ export class EchoBound extends Echo {
 
   setAI(ai) { this._ai = ai; }
 
+  // Re-activates a dismissed echo with an optional new dialogue
+  revive(dialogueId = null) {
+    this.active = true;
+    if (dialogueId) this.dialogueId = dialogueId;
+    this._ai?.revive();
+  }
+
   // Mismo formato que Mateo: cuadrícula 4×4 de frames
   setMateoSprite(img, { drawW = 28, drawH = 28 } = {}) {
     const fw = img.naturalWidth  / 4;

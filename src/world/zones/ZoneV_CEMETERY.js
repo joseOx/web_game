@@ -56,7 +56,7 @@ export const ZoneV_CEMETERY = {
 
   rifts: [
     { id: 'G_cemetery_chapel', x: 10 * 16, y: 4 * 16, size: 'major', emotion: 'grief' },
-    { id: 'G_cemetery_child', x: 16 * 16, y: 3 * 16, size: 'major', emotion: 'guilt' },
+    { id: 'G_cemetery_child', x: 18 * 16, y: 2 * 16, size: 'major', emotion: 'guilt' },
   ],
 
   echoes: [

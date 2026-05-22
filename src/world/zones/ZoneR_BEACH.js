@@ -61,8 +61,8 @@ export const ZoneR_BEACH = {
   ],
 
   rifts: [
-    // La grieta submarina no es visible en el mundo real
-    { id: 'G_beach_submarine', x: 12 * 16, y: 3 * 16, size: 'major', emotion: 'fear', visible: false },
+    // La grieta submarina no es visible en el mundo real ni con visión felina
+    { id: 'G_beach_submarine', x: 12 * 16, y: 3 * 16, size: 'major', emotion: 'fear', forceHiddenInReal: true },
   ],
 
   echoes:  [],
