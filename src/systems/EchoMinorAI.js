@@ -61,6 +61,13 @@ export class EchoMinorAI {
       return;
     }
 
+    // Stunned by HeartAnchor — stand still
+    if (this._echo._stunned) {
+      this._echo.vx = 0;
+      this._echo.vy = 0;
+      return;
+    }
+
     // Luna proximity is highest priority
     if (this._isLunaClose() && this._state !== STATE.FLEE) {
       this._fleeTimer = FLEE_LINGER;

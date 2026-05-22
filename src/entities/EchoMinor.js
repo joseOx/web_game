@@ -7,6 +7,8 @@ export class EchoMinor extends Echo {
     this.spawnX  = x;
     this.spawnY  = y;
     this.fleeing = false;  // LunaAI reads this to know when the echo has fled
+    this._stunned = false;
+    this._stunnedTimer = 0;
 
     this._ai = null;
   }

@@ -18,6 +18,7 @@ const BINDINGS = {
   'Space':      'interact',
   'KeyE':       'interact',
   'KeyQ':       'call_luna',
+  'KeyF':       'heart_anchor',
   'ShiftLeft':  'feline_vision',
   'Escape':     'pause',
 };
@@ -30,6 +31,7 @@ const GAMEPAD_BINDINGS = {
   0:  'interact',
   2:  'call_luna',
   4:  'feline_vision',
+  5:  'heart_anchor',
   9:  'pause',
 };
 

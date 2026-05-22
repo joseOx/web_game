@@ -1615,6 +1615,19 @@
     "text": "Voy a encontrarlo. Tú quédate aquí, ¿sí? No te muevas.",
     "next": null
   },
+  "tomas_echo_return": {
+    "id": "tomas_echo_return", "speaker": "Tomás", "portrait": "tomas_hopeful",
+    "text": "¡Volviste! ¿Lo encontraste?",
+    "next": "tomas_echo_return_02"
+  },
+  "tomas_echo_return_02": {
+    "id": "tomas_echo_return_02", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "Sí. Aquí está tu collar.",
+    "choices": [
+      { "label": "Tu mamá te está esperando. Podemos volver.", "next": "tomas_echo_resolution_A" },
+      { "label": "Tomás, tengo que contarte algo difícil.", "next": "tomas_echo_resolution_B" }
+    ]
+  },
   "tomas_echo_resolution_A": {
     "id": "tomas_echo_resolution_A", "speaker": "mateo", "portrait": "mateo_gentle",
     "text": "Tomás. Encontré tu collar. Y encontré el camino de vuelta. Tu mamá te está esperando.",
@@ -1825,5 +1838,51 @@
     "text": "Un collar con una concha marina. La cuerda está desgastada, pero la concha está intacta. Todavía guarda el sonido del mar.",
     "next": null,
     "onExit": "inventory.addItem('I_collar_tomas'); eventBus.emit('item:picked', 'itemId', 'I_collar_tomas')"
+  },
+
+  "heart_anchor_tutorial_01": {
+    "id": "heart_anchor_tutorial_01", "speaker": "", "portrait": null,
+    "text": "Algo cambió. El aire alrededor de Mateo se espesó. Luna levanta la cabeza y lo mira — no con sorpresa, sino con reconocimiento.",
+    "next": "heart_anchor_tutorial_02",
+    "condition": "NOT:flag:heart_anchor_tutorial_seen",
+    "style": "narrative_float"
+  },
+  "heart_anchor_tutorial_02": {
+    "id": "heart_anchor_tutorial_02", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "Siento algo en el pecho. Como si hubiera un latido extra. O uno más profundo que los demás.",
+    "next": "heart_anchor_tutorial_03"
+  },
+  "heart_anchor_tutorial_03": {
+    "id": "heart_anchor_tutorial_03", "speaker": "", "portrait": null,
+    "text": "Luna ronronea contra tu pierna. No es un ronroneo de consuelo — es de confirmación. Esto es tuyo. Siempre lo fue.",
+    "next": "heart_anchor_tutorial_04",
+    "style": "narrative_float"
+  },
+  "heart_anchor_tutorial_04": {
+    "id": "heart_anchor_tutorial_04", "speaker": "", "portrait": null,
+    "text": "[F] Corazón Firme — emite un pulso de presencia que inmoviliza Ecos y restaura tu Visión Felina.",
+    "next": null,
+    "style": "narrative_float",
+    "onExit": "saveSystem.setFlag('heart_anchor_tutorial_seen', true)"
+  },
+
+  "heart_anchor_introspection_01": {
+    "id": "heart_anchor_introspection_01", "speaker": "mateo", "portrait": "mateo_calm",
+    "text": "Cada persona que ayudé sumó. No lo sabía en el momento. Pero ahora lo siento.",
+    "next": "heart_anchor_introspection_02",
+    "condition": "flag:mateo_heart_anchor_unlocked"
+  },
+  "heart_anchor_introspection_02": {
+    "id": "heart_anchor_introspection_02", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "El abuelo escribió que el corazón late con fuerza cuando sabe a quién sostiene. Creo que empiezo a entenderlo.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('heart_anchor_introspection_seen', true)"
+  },
+
+  "rosa_heart_anchor_comment": {
+    "id": "rosa_heart_anchor_comment", "speaker": "Rosa", "portrait": "rosa_warm",
+    "text": "Mateo, noto que caminas distinto. Más firme. Como si hubieras encontrado algo que no sabías que tenías.",
+    "condition": "flag:mateo_heart_anchor_unlocked",
+    "next": null
   }
 }

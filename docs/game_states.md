@@ -294,6 +294,7 @@ abuelo_connection_unlocked = true
 | `memory_share_unlocked` | bool | false | M05 completada | Ver memorias de objetos |
 | `resonant_objects_active` | bool | false | M02 completada | Objetos vibran cerca de Grietas |
 | `luna_detection_range_bonus` | int | 0 | M01 completada → +30px | Rango de detección de Luna |
+| `mateo_heart_anchor_unlocked` | bool | false | 3 misiones secundarias completadas | Corazón Firme — pulso inmoviliza ecos y restaura visión (tecla F) |
 
 ---
 
@@ -449,6 +450,36 @@ El `DialogueSystem` evalúa condiciones usando el registro de flags. Sintaxis us
 
 ---
 
+## 10.5 Flags de Corazón Firme
+
+| Flag | Tipo | Default | Descripción | Set by |
+|------|------|---------|-------------|--------|
+| `mateo_heart_anchor_unlocked` | bool | false | Corazón Firme desbloqueado (3 misiones completadas) | HeartAnchorSystem.checkUnlock() |
+| `heart_anchor_tutorial_seen` | bool | false | Tutorial de Corazón Firme ya mostrado | heart_anchor_tutorial_04 onExit |
+| `heart_anchor_introspection_seen` | bool | false | Mateo ya tuvo el monólogo interno de reflexión | heart_anchor_introspection_02 onExit |
+
+**Efectos en el mundo según flags de Corazón Firme:**
+
+```
+mateo_heart_anchor_unlocked = true
+  → HUD: icono [F] pulso aparece en la parte inferior central
+  → Tecla F: activa el pulso de inmovilización (cooldown 20s)
+  → Ecos menores en radio 80px quedan inmóviles 3s
+  → Visión Felina: +20 de energía al activar el pulso
+  → Bond: +5 temporal si Luna está cerca (≤100px)
+  → Efecto visual: onda expansiva cálida #FFD97D
+
+mateo_heart_anchor_unlocked + bond HEALTHY (≥70)
+  → Pasivo: Ecos menores tienen 30% menos probabilidad de ACCUMULATE
+  → Pasivo: Ecos menores detectan a Mateo a 20px menos de distancia
+  → Pasivo (visual): partículas doradas sutiles alrededor de Mateo en el Vacío
+
+heart_anchor_tutorial_seen = true
+  → Tutorial de desbloqueo no se repite al cargar partida
+```
+
+---
+
 ## 11. Tabla de dependencias entre misiones
 
 Algunas misiones requieren que otras estén activas o completadas.
@@ -466,6 +497,7 @@ Habilidades:
   luna_whistle     → requiere M04 completa
   memory_share     → requiere M05 completa
   resonant_objects → requiere M02 completa
+  heart_anchor     → requiere 3 misiones completadas (cualquier combinación)
 
 Lore máximo (todo visible):
   → M01 secreta + M03 resolución C + M05 resolución C + M06 completa

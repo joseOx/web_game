@@ -34,6 +34,11 @@ export class VisionSystem {
     this._voidOverlayIntensity = Math.max(0, Math.min(1, v));
   }
 
+  // Shorthand for EnergySystem / HeartAnchorSystem to restore energy
+  addEnergy(amount) {
+    this.energy = Math.min(MAX_ENERGY, this.energy + amount);
+  }
+
   // Called by LightingSystem / bond system
   activate()   { this.active = true; }
   deactivate() { this.active = false; }

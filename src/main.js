@@ -11,6 +11,7 @@ import { RiftSystem } from './world/RiftSystem.js';
 import { BondSystem } from './systems/BondSystem.js';
 import { VisionSystem } from './systems/VisionSystem.js';
 import { LunaAI } from './systems/LunaAI.js';
+import { HeartAnchorSystem } from './systems/HeartAnchorSystem.js';
 import { EchoManager } from './systems/EchoManager.js';
 import { TransitionFX } from './ui/TransitionFX.js';
 import { LightingSystem } from './renderer/LightingSystem.js';
@@ -81,6 +82,7 @@ export const particles = new ParticleSystem();
 export const prologue  = new PrologueScreen();
 export const titleScreen = new TitleScreen();
 export const lunaMode   = new LunaCombatMode();
+export const heartAnchor = new HeartAnchorSystem();
 export const world     = new World();
 export const scenes    = new SceneManager();
 export const game      = new Game(canvas);
@@ -134,6 +136,11 @@ piano.inject({ audio, eventBus: events });
 prologue.inject({ input });
 titleScreen.inject({ input, hasSave: save.hasSave() });
 lunaMode.inject({ input, particles, audio });
+heartAnchor.inject({
+  mateo, visionSystem: vision, echoManager: echoes, luna,
+  bondSystem: bond, eventBus: events, saveSystem: save,
+  input, missionManager: missions,
+});
 
 scenes.inject({
   world, mateo, luna, echoes, rifts, camera, collision,
@@ -217,9 +224,24 @@ events.on('echo:separated', data => {
     }
   }
 });
-events.on('item:picked',       data => { missions.dispatchEvent('item:picked', data);   audio.playTone(660, 0.2, 'triangle', 0.10); });
+events.on('item:picked', data => {
+  missions.dispatchEvent('item:picked', data);
+  audio.playTone(660, 0.2, 'triangle', 0.10);
+  // M07 — Al recoger el collar, reactivar el eco de Tomás para la resolución
+  if (data?.itemId === 'I_collar_tomas') {
+    echoes.get('echo_tomas')?.revive('tomas_echo_return');
+  }
+});
 events.on('item:combined',     data => { missions.dispatchEvent('item:combined', data); audio.playTone(880, 0.4, 'sine',     0.15); });
 events.on('piano:melody_complete', () => { rifts.completeSealing('G_school_piano'); });
+events.on('mission:completed', () => {
+  heartAnchor.checkUnlock();
+});
+events.on('heart_anchor:unlocked', () => {
+  if (!save.getFlag('heart_anchor_tutorial_seen')) {
+    setTimeout(() => dialogue.start('heart_anchor_tutorial_01'), 600);
+  }
+});
 events.on('zone:loaded', data => {
   // Auto-activate missions that start on first zone entry
   if ((data.zoneId === 'R_SCHOOL' || data.zoneId === 'V_SCHOOL') &&
@@ -311,6 +333,10 @@ events.on('zone:loaded', data => {
     // Narrativa de barrera — avisa al jugador que hay algo bloqueando al hermano
     if (missions.isActive('brothers') && !save.getFlag('mission_brothers_done')) {
       setTimeout(() => dialogue.start('brothers_barrier_01'), 1000);
+    }
+    // M07 — Si el collar ya fue recuperado, el eco de Tomás espera con la resolución
+    if (save.getFlag('collar_tomas_found') && !save.getFlag('m07_resolution')) {
+      echoes.get('echo_tomas')?.revive('tomas_echo_return');
     }
   }
 
@@ -443,6 +469,14 @@ events.on('zone:loaded', data => {
 
   // Auto-save on every zone transition
   save.save();
+
+  // Corazón Firme — monólogo de introspección al entrar a R_HOME después del desbloqueo
+  if (data.zoneId === 'R_HOME' &&
+      heartAnchor.unlocked &&
+      !save.getFlag('heart_anchor_introspection_seen') &&
+      save.getFlag('heart_anchor_tutorial_seen')) {
+    setTimeout(() => dialogue.start('heart_anchor_introspection_01'), 1500);
+  }
 });
 
 events.on('ending:show_screen', () => {
@@ -733,11 +767,15 @@ async function init() {
   if (mode === 'continue' && save.hasSave()) {
     const data = save.load();
     save.applyLoad(data);
+    // Restaurar estado de Corazón Firme desde el save
+    heartAnchor.restoreUnlocked(save.getFlag('mateo_heart_anchor_unlocked', false));
   } else {
     save.deleteSave();
   }
   await prologue.start();
   save.setFlag('game_started', true);
+  // Verificar desbloqueo de Corazón Firme al inicio
+  heartAnchor.checkUnlock();
   await scenes.load('R_HOME');
 }
 
@@ -776,6 +814,7 @@ const worldUpdate = {
     transition.update(dt);
     dialogue.update(dt);
     missions.update(dt);
+    heartAnchor.update(dt);
     hints.update(dt);
     piano.update(dt);
 
@@ -783,6 +822,10 @@ const worldUpdate = {
     if (!dialogueOpen) {
       // Call Luna (Q key)
       if (input.wasPressed('call_luna')) events.emit('luna:called');
+      // Corazón Firme (F key)
+      if (input.wasPressed('heart_anchor')) {
+        if (!dialogueOpen) heartAnchor.activate();
+      }
 
       if (world.loaded) {
         // Reencuentro con Luna — por proximidad, solo después de que el tutorial de Vacío completó
@@ -900,6 +943,7 @@ const worldRender = {
 
     lighting.renderDarkness(ctx);
     vision.render(ctx, alpha);
+    heartAnchor.render(ctx, alpha);
     transition.render(ctx, alpha);
 
     dialogue.render(ctx);
@@ -959,7 +1003,8 @@ function _renderHUD(ctx) {
   if (_controlsAlpha > 0) {
     ctx.globalAlpha = _controlsAlpha * 0.45;
     ctx.fillStyle = '#ffffff'; ctx.font = '8px VT323, monospace';
-    ctx.fillText('[E] interactuar   [Q] llamar Luna   [Shift] visión felina', 6, BASE_HEIGHT - 4);
+    const fText = heartAnchor.unlocked ? '   [F] pulso' : '';
+    ctx.fillText('[E] interactuar   [Q] llamar Luna   [Shift] visión felina' + fText, 6, BASE_HEIGHT - 4);
     ctx.globalAlpha = 1;
   }
 
