@@ -248,6 +248,34 @@ events.on('dialogue:node_exit', data => {
     })();
   }
 
+  // M08 — Al terminar los diálogos de memoria, iniciar minijuego de observación
+  if (data.nodeId === 'm08_memory_04' &&
+      missions.isActive('grandfather_chronicle') &&
+      !save.getFlag('m08_objects_found')) {
+    // Iniciar minijuego de objetos ocultos
+    const targets = [
+      { id: 'seal', x: 180, y: 140, dialogueId: 'abuelo_memory_obj_01', desc: 'Sello de metal' },
+      { id: 'mark', x: 50,  y: 80,  dialogueId: 'abuelo_memory_obj_02', desc: 'Marca tallada' },
+      { id: 'echo', x: 120, y: 110, dialogueId: 'abuelo_memory_obj_03', desc: 'Eco dormido' },
+    ];
+    minigameObs.startObservation('V_LIGHTHOUSE', targets, () => {
+      dialogue.start('m08_memory_objects_complete');
+    });
+  }
+
+  // M08 — Al terminar el diálogo de objetos completos, iniciar minijuego de patrón
+  if (data.nodeId === 'm08_memory_objects_complete' &&
+      missions.isActive('grandfather_chronicle')) {
+    const symbols = [
+      { id: 'eye',     label: '👁' },
+      { id: 'curve',   label: '◠' },
+      { id: 'triangle',label: '△' },
+    ];
+    minigameObs.startPatternPuzzle(symbols, ['eye', 'curve', 'triangle'], () => {
+      dialogue.start('m08_pattern_solved');
+    });
+  }
+
   // M08 — Al completar la memoria, volver al presente
   if (data.nodeId === 'm08_memory_end') {
     (async () => {
@@ -364,6 +392,22 @@ events.on('heart_anchor:unlocked', () => {
   if (!save.getFlag('heart_anchor_tutorial_seen')) {
     setTimeout(() => dialogue.start('heart_anchor_tutorial_01'), 600);
   }
+});
+
+// Forward memory events to missions (M08 los necesita)
+events.on('memory:entered', data => {
+  missions.dispatchEvent('memory:entered', data);
+});
+events.on('memory:exited', data => {
+  missions.dispatchEvent('memory:exited', data);
+});
+
+// Forward minigame events to missions (M08 los necesita)
+events.on('minigame:observation_complete', data => {
+  missions.dispatchEvent('minigame:observation_complete', data);
+});
+events.on('minigame:pattern_solved', data => {
+  missions.dispatchEvent('minigame:pattern_solved', data);
 });
 
 // Verificar desbloqueo de Ecolectura cuando se carga una zona
@@ -1043,6 +1087,11 @@ const worldUpdate = {
     echoReading.update(dt);
     hints.update(dt);
     piano.update(dt);
+    minigameObs.update(dt);
+    // Alimentar posición del jugador al minigame de observación si está activo
+    if (minigameObs.isObservationActive()) {
+      minigameObs.updateObservation(mateo.centerX(), mateo.centerY());
+    }
 
 
     if (!dialogueOpen) {
@@ -1116,7 +1165,7 @@ const worldUpdate = {
         }
 
         // Interact (E key)
-        if (input.wasPressed('interact') && !dimension.transitioning && !piano.active) {
+        if (input.wasPressed('interact') && !dimension.transitioning && !piano.active && !minigameObs.isObservationActive() && !minigameObs.isPatternActive()) {
           const nearRift = rifts.nearestUnsealedInRange(
             mateo.centerX(), mateo.centerY(), 24);
 
@@ -1184,6 +1233,7 @@ const worldRender = {
     hints.render(ctx);
     _renderHUD(ctx);
     piano.render(ctx);
+    minigameObs.render(ctx, alpha);
     input.renderTouchControls(ctx);
   },
 };
