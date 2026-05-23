@@ -20,7 +20,7 @@ export const ZoneV_HEART = {
   palette: {},
 
   spawns: {
-    default: { x: 60, y: 80 },
+    default: { x: 160, y: 100 },
   },
 
   exits: [

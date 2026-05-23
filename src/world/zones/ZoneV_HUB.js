@@ -38,8 +38,9 @@ export const ZoneV_HUB = {
   },
 
   spawns: {
-    default:  { x: 12 * 16, y: 9 * 16 },
-    from_hub: { x: 12 * 16, y: 9 * 16 },
+    default:      { x: 12 * 16, y: 9 * 16 },
+    from_hub:     { x: 12 * 16, y: 9 * 16 },
+    heart_return: { x: 12 * 16, y: 3 * 16 },
   },
 
   exits: [
@@ -61,8 +62,8 @@ export const ZoneV_HUB = {
     },
     {
       id:          'to_heart',
-      x:    0,          y: 0,
-      width:  8,        height: 8,
+      x:    10 * 16,    y: 1 * 16,
+      width:  5 * 16,   height: 16,
       targetZone:  'V_HEART',
       targetSpawn: 'default',
       condition:   'flag:abuelo_connection_unlocked',
