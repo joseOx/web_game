@@ -1724,7 +1724,7 @@
     "id": "emilia_m07_closure_A_03", "speaker": "Sra. Emilia", "portrait": "emilia_crying_warm",
     "text": "Lo sé. El árbol floreció anoche. No florecía desde que él desapareció. Gracias, Mateo.",
     "next": null,
-    "onExit": "missionManager.complete('cemetery_child'); saveSystem.setFlag('mission_cemetery_child_done', true)"
+    "onExit": "missionManager.complete('cemetery_child'); saveSystem.setFlag('mission_cemetery_child_done', true); riftSystem.completeSealing('G_cemetery_child')"
   },
   "emilia_m07_closure_B": {
     "id": "emilia_m07_closure_B", "speaker": "Sra. Emilia", "portrait": "emilia_at_tree",
@@ -1746,7 +1746,7 @@
     "id": "emilia_m07_closure_B_04", "speaker": "Sra. Emilia", "portrait": "emilia_resolved",
     "text": "Ahora puedo descansar. Los dos podemos.",
     "next": null,
-    "onExit": "saveSystem.setFlag('m07_emilia_comforted', true); missionManager.complete('cemetery_child'); saveSystem.setFlag('mission_cemetery_child_done', true); saveSystem.setFlag('emilia_ally', true)"
+    "onExit": "saveSystem.setFlag('m07_emilia_comforted', true); missionManager.complete('cemetery_child'); saveSystem.setFlag('mission_cemetery_child_done', true); saveSystem.setFlag('emilia_ally', true); riftSystem.completeSealing('G_cemetery_child')"
   },
 
   "emilia_m07_route": {
@@ -2116,5 +2116,217 @@
     "text": "Pero el otro lado... ahora sabes que existe. Y que siempre has tenido la llave.",
     "next": null,
     "style": "narrative_float"
+  },
+
+  "corazon_vacio_entrance_01": {
+    "id": "corazon_vacio_entrance_01", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Algo cambió en esta pared desde la última vez. Luna se sienta frente a ella y no se mueve. Una luz violeta tenue emana de una abertura que antes era sólida.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('corazon_vacio_entrance_seen', true)"
+  },
+
+  "corazon_vacio_fragment_01": {
+    "id": "corazon_vacio_fragment_01", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Esta piedra estaba aquí antes que el pueblo. Antes que las casas. Antes que el dolor. El Vacío no siempre existió.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('corazon_vacio_frag_01_done', true)"
+  },
+  "corazon_vacio_fragment_02": {
+    "id": "corazon_vacio_fragment_02", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Luna frota su cabeza contra tu mano. Te muestra una imagen: una aldea entera, casas de madera, gente reunida en la plaza. Luego humo. Luego silencio.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('corazon_vacio_frag_02_done', true)"
+  },
+  "corazon_vacio_fragment_03": {
+    "id": "corazon_vacio_fragment_03", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Alguien estuvo aquí antes que tú. Las marcas en el metal coinciden con los grabados del espejo del abuelo. Él también encontró este lugar.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('corazon_vacio_frag_03_done', true)"
+  },
+
+  "corazon_vacio_luna_01": {
+    "id": "corazon_vacio_luna_01", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "¿Sabes por qué hay tantas grietas aquí? No es casualidad. No es el Tejedor. Es el lugar.",
+    "next": "corazon_vacio_luna_02",
+    "condition": "flag:corazon_vacio_fragments_done"
+  },
+  "corazon_vacio_luna_02": {
+    "id": "corazon_vacio_luna_02", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "¿Qué quieres decir?",
+    "style": "umbral",
+    "choices": [
+      { "label": "¿El lugar dónde?", "next": "corazon_vacio_luna_03a" },
+      { "label": "¿El Tejedor no crea las grietas?", "next": "corazon_vacio_luna_03b" },
+      { "label": "¿Esto tiene que ver con el abuelo?", "next": "corazon_vacio_luna_03c" }
+    ]
+  },
+  "corazon_vacio_luna_03a": {
+    "id": "corazon_vacio_luna_03a", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Aquí. Miraloma. El suelo sobre el que caminas. Hace mucho tiempo — antes de que existiera el nombre del pueblo — esto era una sola herida.",
+    "next": "corazon_vacio_luna_04"
+  },
+  "corazon_vacio_luna_03b": {
+    "id": "corazon_vacio_luna_03b", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "El Tejedor no crea las grietas. Las encuentra. Como un jardinero que riega maleza. Pero la semilla ya estaba aquí, en la tierra.",
+    "next": "corazon_vacio_luna_04"
+  },
+  "corazon_vacio_luna_03c": {
+    "id": "corazon_vacio_luna_03c", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Tu abuelo estuvo aquí. No lo encontró por casualidad. Buscaba el origen. Y lo encontró — el Corazón del Vacío, justo donde estás parado.",
+    "next": "corazon_vacio_luna_04"
+  },
+  "corazon_vacio_luna_04": {
+    "id": "corazon_vacio_luna_04", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Hace siglos, una plaga arrasó este valle. No una enfermedad. Algo peor: un dolor que no encontró salida. La gente perdió todo. Casas. Familias. Esperanza. Y ese dolor fue tan inmenso, tan denso, que rompió el mundo.",
+    "next": "corazon_vacio_luna_05"
+  },
+  "corazon_vacio_luna_05": {
+    "id": "corazon_vacio_luna_05", "speaker": "mateo", "portrait": "mateo_serious",
+    "text": "¿Rompió el mundo?",
+    "style": "umbral",
+    "choices": [
+      { "label": "¿Por eso existe el Vacío?", "next": "corazon_vacio_luna_06a" },
+      { "label": "¿Esa rotura sigue aquí?", "next": "corazon_vacio_luna_06b" },
+      { "label": "¿El abuelo supo todo esto?", "next": "corazon_vacio_luna_06c" }
+    ]
+  },
+  "corazon_vacio_luna_06a": {
+    "id": "corazon_vacio_luna_06a", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "El Vacío es la cicatriz de esa rotura. No es otro mundo. Es lo que quedó cuando el dolor fue tanto que la realidad no pudo sostener su propia forma.",
+    "next": "corazon_vacio_luna_07"
+  },
+  "corazon_vacio_luna_06b": {
+    "id": "corazon_vacio_luna_06b", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Las cicatrices no desaparecen. Se vuelven parte de ti. Miraloma creció sobre esa herida. Y cada vez que alguien siente algo tan intenso que no puede procesarlo, la herida se reabre un poco.",
+    "next": "corazon_vacio_luna_07"
+  },
+  "corazon_vacio_luna_06c": {
+    "id": "corazon_vacio_luna_06c", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Tu abuelo lo descubrió solo, sin ayuda de nadie. Pasó semanas buscando, preguntando, midiendo. Hasta que llegó aquí. Al Corazón. Y entendió lo que había que hacer.",
+    "next": "corazon_vacio_luna_07"
+  },
+  "corazon_vacio_luna_07": {
+    "id": "corazon_vacio_luna_07", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Las grietas no son el problema, Mateo. Son el síntoma. El Vacío es la herida. Cada vez que ayudas a alguien a resolver su dolor, la herida se cierra un poco más.",
+    "next": "corazon_vacio_luna_08"
+  },
+  "corazon_vacio_luna_08": {
+    "id": "corazon_vacio_luna_08", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "¿Y el Tejedor?",
+    "style": "umbral",
+    "choices": [
+      { "label": "¿Él quiere mantener la herida abierta?", "next": "corazon_vacio_luna_09a" },
+      { "label": "¿Por qué alguien haría eso?", "next": "corazon_vacio_luna_09b" }
+    ]
+  },
+  "corazon_vacio_luna_09a": {
+    "id": "corazon_vacio_luna_09a", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "El Tejedor nació de la herida. Es su primer habitante. No quiere destruir el mundo real — quiere expandir el Vacío porque es su hogar. No lo hace por maldad. Lo hace porque no conoce otra cosa.",
+    "next": "corazon_vacio_luna_10"
+  },
+  "corazon_vacio_luna_09b": {
+    "id": "corazon_vacio_luna_09b", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Hay quienes crecen en la oscuridad y aprenden a amarla. El Tejedor es el Vacío hecho voluntad. No sabe lo que es cerrar. Solo sabe abrir.",
+    "next": "corazon_vacio_luna_10"
+  },
+  "corazon_vacio_luna_10": {
+    "id": "corazon_vacio_luna_10", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Ahora tú también lo sabes. El Corazón te ha mostrado lo que vio tu abuelo. Y lo que yo veo desde que llegué aquí.",
+    "next": "corazon_vacio_luna_11"
+  },
+  "corazon_vacio_luna_11": {
+    "id": "corazon_vacio_luna_11", "speaker": "Luna", "portrait": null,
+    "style": "umbral",
+    "text": "Cada grieta que sellaste, cada persona que ayudaste a descansar... eso es cerrar la herida. No con poder. Con presencia.",
+    "next": "corazon_vacio_luna_12"
+  },
+  "corazon_vacio_luna_12": {
+    "id": "corazon_vacio_luna_12", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Luna apoya su frente contra la tuya. Por un instante, ves lo que ella ve: el mundo real, pero con capas. Debajo de cada persona, una sombra de color. Debajo de cada Grieta, una raíz que llega hasta este lugar. Y debajo de todo, un latido. El Corazón del Vacío.",
+    "next": "corazon_vacio_luna_end"
+  },
+  "corazon_vacio_luna_end": {
+    "id": "corazon_vacio_luna_end", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Al abrir los ojos, algo cambió. Ahora puedes ver el color de lo que sienten. No con palabras — con presencia.",
+    "next": "corazon_vacio_tutorial",
+    "onExit": "saveSystem.setFlag('corazon_vacio_completed', true); saveSystem.setFlag('mateo_echo_reading_unlocked', true); saveSystem.setFlag('corazon_vacio_tutorial_seen', true)"
+  },
+  "corazon_vacio_tutorial": {
+    "id": "corazon_vacio_tutorial", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Ecolectura desbloqueada — ahora puedes percibir la emoción de los Ecos y las Grietas a simple vista. El color te dice lo que sienten antes de que hablen.",
+    "next": null
+  },
+
+  "corazon_vacio_post_rosa": {
+    "id": "corazon_vacio_post_rosa", "speaker": "Rosa", "portrait": "rosa_thoughtful",
+    "text": "Has vuelto distinto, Mateo. No sé si son los años o la luz, pero tus ojos miran más hondo que antes.",
+    "next": "corazon_vacio_post_rosa_02",
+    "condition": "flag:corazon_vacio_completed"
+  },
+  "corazon_vacio_post_rosa_02": {
+    "id": "corazon_vacio_post_rosa_02", "speaker": "mateo", "portrait": "mateo_thoughtful",
+    "text": "Abuela... ¿tú también ves colores en las personas? A veces como si tuvieran una luz alrededor.",
+    "next": "corazon_vacio_post_rosa_03"
+  },
+  "corazon_vacio_post_rosa_03": {
+    "id": "corazon_vacio_post_rosa_03", "speaker": "Rosa", "portrait": "rosa_warm",
+    "text": "No, hijo. Pero conocí a alguien que sí. Tu abuelo decía lo mismo. \"Las personas son como ventanas, Rosa. Algunas dejan pasar el color.\"",
+    "next": null,
+    "onExit": "saveSystem.setFlag('rosa_trust_level', 2); eventBus.emit('corazon_vacio:rosa_understands')"
+  },
+
+  "corazon_vacio_post_diego": {
+    "id": "corazon_vacio_post_diego", "speaker": "Diego", "portrait": "diego_awkward",
+    "text": "Oye. Me está pasando algo raro. Desde que hablamos... siento que ves cosas en mí que ni yo mismo veo.",
+    "next": "corazon_vacio_post_diego_02",
+    "condition": "flag:diego_ally"
+  },
+  "corazon_vacio_post_diego_02": {
+    "id": "corazon_vacio_post_diego_02", "speaker": "mateo", "portrait": "mateo_gentle",
+    "text": "Solo veo lo que todos tenemos. Algunos lo esconden mejor que otros.",
+    "next": null
+  },
+
+  "corazon_vacio_post_antonio_echo": {
+    "id": "corazon_vacio_post_antonio_echo", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Antonio ya no está triste. Su color cambió. Ahora es violeta... como cuando alguien encuentra paz.",
+    "next": null,
+    "condition": "flag:rift_lighthouse_lantern_sealed",
+    "style": "narrative_float"
+  },
+
+  "corazon_vacio_post_alma_mundo": {
+    "id": "corazon_vacio_post_alma_mundo", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Por primera vez, el mundo no es solo un lugar. Es un mapa de emociones. Cada persona que pasa deja un rastro de color. Y Mateo empieza a entender que las Grietas no son monstruos. Son raíces.",
+    "next": null,
+    "condition": "flag:corazon_vacio_completed"
+  },
+
+  "corazon_vacio_post_luna_mirada": {
+    "id": "corazon_vacio_post_luna_mirada", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Luna te mira desde el borde de la luz. Ya no es la misma gata que encontraste en el jardín aquella noche. O tal vez siempre fue así y tú apenas estás aprendiendo a verla.",
+    "next": null,
+    "condition": "flag:corazon_vacio_completed"
   }
 }

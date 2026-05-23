@@ -59,6 +59,14 @@ export const ZoneV_HUB = {
       targetSpawn: 'from_v_hub',
       switchDim:   'real',
     },
+    {
+      id:          'to_heart',
+      x:    0,          y: 0,
+      width:  8,        height: 8,
+      targetZone:  'V_HEART',
+      targetSpawn: 'default',
+      condition:   'flag:abuelo_connection_unlocked',
+    },
   ],
 
   // El Tejedor como NPC — desaparece una vez que ya fue visto (doneFlag = weaver_first_seen)

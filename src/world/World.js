@@ -43,7 +43,12 @@ export class World {
     });
 
     this._objects      = (zoneDef.objects ?? []).map(o => ({ ...o }));
-    this._exits        = (zoneDef.exits ?? []).map(e => ({ ...e }));
+    // Filter exits by condition — similar to NPC spawnFlag logic
+    this._exits = (zoneDef.exits ?? []).filter(e => {
+      if (!e.condition) return true;
+      if (e.condition.startsWith('flag:')) return !!save?.getFlag(e.condition.slice(5));
+      return true;
+    }).map(e => ({ ...e, id: e.id }));
     this._itemTriggers = (zoneDef.items ?? []).map(i => ({ ...i }));
 
     this.loaded = true;

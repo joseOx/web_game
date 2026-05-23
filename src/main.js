@@ -12,6 +12,7 @@ import { BondSystem } from './systems/BondSystem.js';
 import { VisionSystem } from './systems/VisionSystem.js';
 import { LunaAI } from './systems/LunaAI.js';
 import { HeartAnchorSystem } from './systems/HeartAnchorSystem.js';
+import { EchoReadingSystem } from './systems/EchoReadingSystem.js';
 import { EchoManager } from './systems/EchoManager.js';
 import { TransitionFX } from './ui/TransitionFX.js';
 import { LightingSystem } from './renderer/LightingSystem.js';
@@ -58,6 +59,7 @@ import { ZoneR_LIBRARY }     from './world/zones/ZoneR_LIBRARY.js';
 import { ZoneV_LIBRARY }     from './world/zones/ZoneV_LIBRARY.js';
 import { ZoneV_HUB }         from './world/zones/ZoneV_HUB.js';
 import { ZoneV_HOME }        from './world/zones/ZoneV_HOME.js';
+import { ZoneV_HEART }       from './world/zones/ZoneV_HEART.js';
 
 // Umbral + Chapter 0 zones
 import { ZoneV_UMBRAL }        from './world/zones/ZoneV_UMBRAL.js';
@@ -89,7 +91,8 @@ export const particles = new ParticleSystem();
 export const prologue  = new PrologueScreen();
 export const titleScreen = new TitleScreen();
 export const lunaMode   = new LunaCombatMode();
-export const heartAnchor = new HeartAnchorSystem();
+export const heartAnchor   = new HeartAnchorSystem();
+export const echoReading   = new EchoReadingSystem();
 export const chapterMgr  = new ChapterManager();
 export const world     = new World();
 export const scenes    = new SceneManager();
@@ -152,6 +155,13 @@ heartAnchor.inject({
   input, missionManager: missions,
 });
 
+echoReading.inject({
+  saveSystem: save, bondSystem: bond, visionSystem: vision,
+  eventBus: events, echoManager: echoes, riftSystem: rifts,
+});
+echoReading.setMateo(mateo);
+echoReading.setWorld(world);
+
 scenes.inject({
   world, mateo, luna, echoes, rifts, camera, collision,
   dimension, lighting, audio, dialogue, transition, save, eventBus: events,
@@ -173,6 +183,7 @@ scenes.register(ZoneV_LIBRARY);
 scenes.register(ZoneV_HUB);
 scenes.register(ZoneV_HOME);
 scenes.register(ZoneV_UMBRAL);
+scenes.register(ZoneV_HEART);
 scenes.register(ZoneR_CHAPTER0_HOUSE);
 scenes.register(ZoneR_CHAPTER0_GARDEN);
 
@@ -210,6 +221,20 @@ events.on('dialogue:node_exit', data => {
   // M02 — Piano mini-game después de entregar la partitura a Vera
   if (data.nodeId === 'vera_echo_end_02' && !save.getFlag('mission_melody_done')) {
     setTimeout(() => piano.start(), 800);
+  }
+
+  // Corazón del Vacío — al inspeccionar cada fragmento, verificar si ya están todos
+  if (data.nodeId === 'corazon_vacio_fragment_01' ||
+      data.nodeId === 'corazon_vacio_fragment_02' ||
+      data.nodeId === 'corazon_vacio_fragment_03') {
+    if (save.getFlag('corazon_vacio_frag_01_done') &&
+        save.getFlag('corazon_vacio_frag_02_done') &&
+        save.getFlag('corazon_vacio_frag_03_done') &&
+        !save.getFlag('corazon_vacio_fragments_done')) {
+      save.setFlag('corazon_vacio_fragments_done', true);
+      // Iniciar diálogo de Luna después de un breve silencio
+      setTimeout(() => dialogue.start('corazon_vacio_luna_01'), 1500);
+    }
   }
 
   // Umbral — activar misión al ver el primer diálogo
@@ -280,6 +305,11 @@ events.on('heart_anchor:unlocked', () => {
   if (!save.getFlag('heart_anchor_tutorial_seen')) {
     setTimeout(() => dialogue.start('heart_anchor_tutorial_01'), 600);
   }
+});
+
+// Verificar desbloqueo de Ecolectura cuando se carga una zona
+events.on('zone:loaded', () => {
+  echoReading.checkUnlock();
 });
 events.on('zone:loaded', data => {
   // Auto-activate missions that start on first zone entry
@@ -544,6 +574,18 @@ events.on('zone:loaded', data => {
       save.getFlag('heart_anchor_tutorial_seen')) {
     setTimeout(() => dialogue.start('heart_anchor_introspection_01'), 1500);
   }
+
+  // V_HEART — entrada al Corazón del Vacío con narración
+  if (data.zoneId === 'V_HEART' && !save.getFlag('corazon_vacio_entrance_seen')) {
+    setTimeout(() => dialogue.start('corazon_vacio_entrance_01'), 800);
+  }
+
+  // V_HEART — si el jugador vuelve con fragmentos pendientes, sigue explorando
+  if (data.zoneId === 'V_HEART' &&
+      save.getFlag('corazon_vacio_fragments_done') &&
+      !save.getFlag('corazon_vacio_completed')) {
+    setTimeout(() => dialogue.start('corazon_vacio_luna_01'), 1200);
+  }
 });
 
 events.on('ending:show_screen', () => {
@@ -702,6 +744,7 @@ const ZONE_NAMES = {
   V_CEMETERY:    'La Cripta',
   V_LIBRARY:     'Archivo Borrado',
   V_UMBRAL:      'El Umbral',
+  V_HEART:       'Corazón del Vacío',
   R_CHAPTER0_HOUSE: 'Casa de Rosa (hace 6 años)',
   R_CHAPTER0_GARDEN: 'Jardín Nocturno',
 };
@@ -721,7 +764,7 @@ function _determineEnding() {
   const deepResolution = (save.getFlag('diego_resolution') !== 'A' &&
                           save.getFlag('diego_resolution') !== null) ||
                          save.getFlag('m07_resolution') === 'B';
-  const secretsFound   = save.getFlag('abuelo_connection_unlocked');
+  const secretsFound   = save.getFlag('abuelo_connection_unlocked') || save.getFlag('corazon_vacio_completed');
   const bondHealthy    = bond.normalized() > 0.6 && bond.bondCriticalCount < 2;
 
   if (missions_done === 7 && deepResolution && secretsFound && bondHealthy) {
@@ -844,6 +887,7 @@ async function init() {
     save.applyLoad(data);
     // Restaurar estado de Corazón Firme desde el save
     heartAnchor.restoreUnlocked(save.getFlag('mateo_heart_anchor_unlocked', false));
+    echoReading.restoreUnlocked(save.getFlag('mateo_echo_reading_unlocked', false));
   } else {
     save.deleteSave();
   }
@@ -890,6 +934,7 @@ const worldUpdate = {
     dialogue.update(dt);
     missions.update(dt);
     heartAnchor.update(dt);
+    echoReading.update(dt);
     hints.update(dt);
     piano.update(dt);
 
@@ -1026,6 +1071,7 @@ const worldRender = {
     lighting.renderDarkness(ctx);
     vision.render(ctx, alpha);
     heartAnchor.render(ctx, alpha);
+    echoReading.render(ctx, alpha, camera);
     transition.render(ctx, alpha);
 
     dialogue.render(ctx);
@@ -1071,7 +1117,7 @@ function _renderHUD(ctx) {
   ctx.fillText(ZONE_NAMES[zoneId] ?? zoneId ?? '…', 6, 24);
 
   // Active mission + step
-  const active = ['lighthouse','melody','garden','dogs','brothers','library','cemetery_child']
+  const active = ['lighthouse','melody','garden','dogs','brothers','library','cemetery_child','umbral_espejo']
     .find(id => missions.isActive(id));
   if (active) {
     const m    = missions.get(active);
