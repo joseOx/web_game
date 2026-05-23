@@ -26,7 +26,8 @@ export const ZoneR_CHAPTER0_HOUSE = {
   },
 
   spawns: {
-    default: { x: 80, y: 72 },
+    default:    { x: 80, y: 72 },
+    from_garden: { x: 80, y: 72 },
   },
 
   exits: [

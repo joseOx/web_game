@@ -38,8 +38,6 @@ export const ZoneR_LIGHTHOUSE = {
     'd': '#C8B48A',   // salida (misma arena)
   },
 
-  solidChars: '#l',
-
   spawns: {
     default:   { x: 9 * 16, y: 13 * 16 },
     from_hub:  { x: 9 * 16, y: 13 * 16 },

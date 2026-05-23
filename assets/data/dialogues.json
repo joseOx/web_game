@@ -2310,7 +2310,7 @@
     "id": "corazon_vacio_post_antonio_echo", "speaker": "mateo", "portrait": "mateo_soft",
     "text": "Antonio ya no está triste. Su color cambió. Ahora es violeta... como cuando alguien encuentra paz.",
     "next": null,
-    "condition": "flag:rift_lighthouse_lantern_sealed",
+    "condition": "flag:rift_G_lighthouse_lantern_sealed",
     "style": "narrative_float"
   },
 

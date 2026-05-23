@@ -209,12 +209,14 @@ export class EchoReadingSystem {
     let nearestD = Infinity;
     let nearestType = null;
 
+    if (!this._mateoRef) return;
+
     if (this._echoManager) {
       for (const echo of this._echoManager.getAll()) {
         if (!echo.active || !echo.emotion) continue;
         const d = Math.hypot(
-          echo.centerX() - this._mateoRef?.centerX() ?? 0,
-          echo.centerY() - this._mateoRef?.centerY() ?? 0
+          echo.centerX() - this._mateoRef.centerX(),
+          echo.centerY() - this._mateoRef.centerY()
         );
         if (d < UI_DISTANCE && d < nearestD) {
           nearest = echo;
@@ -228,8 +230,8 @@ export class EchoReadingSystem {
       for (const rift of this._riftSystem.getAll()) {
         if (!rift.active || rift.sealed || !rift.emotion) continue;
         const d = Math.hypot(
-          rift.x - this._mateoRef?.centerX() ?? 0,
-          rift.y - this._mateoRef?.centerY() ?? 0
+          rift.x - this._mateoRef.centerX(),
+          rift.y - this._mateoRef.centerY()
         );
         if (d < UI_DISTANCE && d < nearestD) {
           nearest = rift;

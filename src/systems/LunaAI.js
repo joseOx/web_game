@@ -139,10 +139,17 @@ export class LunaAI {
       if (AUTO_SEAL_SIZES.has(this._targetRift.size) && !hiddenInReal) {
         this._transition(LUNA_STATE.PURR_SEAL);
       } else {
-        // Major/hidden rift: sit near it as a hint, do not seal
+        // Major rift — sit near it as hint; keep scanning for echoes to hiss
         this._luna.vx *= 0.85;
         this._luna.vy *= 0.85;
         this._setAnim('idle');
+        const nearEcho = this._echoManager?.nearestMinorInRange(
+          this._luna.centerX(), this._luna.centerY(), DETECT_ECHO_RANGE);
+        if (nearEcho) {
+          this._targetEcho = nearEcho;
+          this._hissTimer  = 0;
+          this._transition(LUNA_STATE.HISS_ECHO);
+        }
       }
       return;
     }
@@ -152,7 +159,7 @@ export class LunaAI {
 
     // Echo in the way — hiss it off
     const echo = this._echoManager?.nearestMinorInRange(
-      this._luna.centerX(), this._luna.centerY(), DETECT_ECHO_RANGE * 0.7);
+      this._luna.centerX(), this._luna.centerY(), DETECT_ECHO_RANGE);
     if (echo) {
       this._targetEcho = echo;
       this._hissTimer  = 0;

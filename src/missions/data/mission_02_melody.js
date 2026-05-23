@@ -15,7 +15,7 @@ export class Mission02Melody extends MissionBase {
   }
 
   onComplete() {
-    this._saveSystem?.setFlag('rift_school_piano_sealed', true);
+    this._saveSystem?.setFlag('rift_G_school_piano_sealed', true);
     this._saveSystem?.setFlag('school_piano_silent', true);
     this._saveSystem?.setFlag('melody_ability_unlocked', true);
     this._saveSystem?.setFlag('resonant_objects_active', true);

@@ -15,7 +15,7 @@ export class Mission01Lighthouse extends MissionBase {
   }
 
   onComplete() {
-    this._saveSystem?.setFlag('rift_lighthouse_lantern_sealed', true);
+    this._saveSystem?.setFlag('rift_G_lighthouse_lantern_sealed', true);
     this._saveSystem?.setFlag('faro_night_light_off', true);
     // Luna's detection range bonus: handled by LunaAI reading luna_detection_range_bonus flag
     this._saveSystem?.setFlag('luna_detection_range_bonus',
