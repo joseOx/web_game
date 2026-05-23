@@ -2328,5 +2328,343 @@
     "text": "Luna te mira desde el borde de la luz. Ya no es la misma gata que encontraste en el jardín aquella noche. O tal vez siempre fue así y tú apenas estás aprendiendo a verla.",
     "next": null,
     "condition": "flag:corazon_vacio_completed"
+  },
+
+  "m08_trigger_01": {
+    "id": "m08_trigger_01", "speaker": "mateo", "portrait": "mateo_curious",
+    "text": "Hay una tabla suelta en el piso del desván. No se notaba antes. Como si alguien la hubiera movido recientemente.",
+    "next": "m08_trigger_02",
+    "condition": "flag:m08_diary_ready"
+  },
+  "m08_trigger_02": {
+    "id": "m08_trigger_02", "speaker": "mateo", "portrait": "mateo_surprised",
+    "text": "Un cuaderno de cuero gastado. La tapa tiene una 'M' grabada. No es mi letra. Es de él. Del abuelo.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('m08_diary_found', true)"
+  },
+  "m08_memory_start": {
+    "id": "m08_memory_start", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Al abrir el diario, la tinta se desprende de las páginas. El cuarto se vuelve sepia. Ya no estás en el desván. Estás en la memoria.",
+    "next": "m08_memory_02"
+  },
+  "m08_memory_02": {
+    "id": "m08_memory_02", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Eres el abuelo. Tienes treinta y cinco años. Una linterna de aceite. Y dos semanas para encontrar lo que sea que está bajo el faro.",
+    "next": "m08_memory_03"
+  },
+  "m08_memory_03": {
+    "id": "m08_memory_03", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "El Vacío de hace cuarenta años es igual al de ahora. Pero no hay Cortesanos. No hay Reina despierta. Solo silencio. Y algo durmiendo en el fondo.",
+    "next": "m08_memory_04",
+    "onExit": "events.emit('memory:entered', 'memoryId', 'grandfather')"
+  },
+  "m08_memory_04": {
+    "id": "m08_memory_04", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Encuentra lo que el abuelo encontró. Busca en las sombras. El Vacío guarda sus secretos donde la luz no llega.",
+    "next": null
+  },
+
+  "abuelo_memory_obj_01": {
+    "id": "abuelo_memory_obj_01", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Un sello de metal. Tiene grabado un ojo con una línea curva. Es el mismo símbolo que vi en el marco del espejo. Esto estaba aquí antes que yo.",
+    "next": null
+  },
+  "abuelo_memory_obj_02": {
+    "id": "abuelo_memory_obj_02", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Una marca en la pared. No es natural. Alguien la talló a propósito. Parece un ojo vigilando. O esperando.",
+    "next": null
+  },
+  "abuelo_memory_obj_03": {
+    "id": "abuelo_memory_obj_03", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Un Eco dormido. Respira. Los Ecos no respiran a menos que algo los mantenga vivos. Algo está vivo aquí abajo.",
+    "next": null
+  },
+  "m08_memory_objects_complete": {
+    "id": "m08_memory_objects_complete", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Tres objetos. Tres piezas de un mapa que no entiendo del todo. Pero hay un patrón. Los símbolos del marco del espejo.",
+    "next": "m08_memory_puzzle_start"
+  },
+  "m08_memory_puzzle_start": {
+    "id": "m08_memory_puzzle_start", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Una pared que no debería estar aquí. Tiene tres símbolos grabados. El diario de Antonio decía algo sobre el orden. Ojo. Línea. Triángulo.",
+    "next": null
+  },
+  "m08_pattern_solved": {
+    "id": "m08_pattern_solved", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "La pared se disuelve. Detrás, un pasaje que no lleva a ningún lado conocido. El aire cambia. Huele a electricidad y a algo más. A presencia.",
+    "next": "abuelo_reina_01"
+  },
+
+  "abuelo_reina_01": {
+    "id": "abuelo_reina_01", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Nunca había visto algo así en el Vacío. No es un Eco. No es un Atado. Es... otra cosa. Una presencia. Como si el Vacío mismo hubiera tomado forma.",
+    "next": "abuelo_reina_02"
+  },
+  "abuelo_reina_02": {
+    "id": "abuelo_reina_02", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Se mueve. No está despierta. Sueña. Los fragmentos sobre su cabeza giran lentamente, como planetas alrededor de un sol dormido.",
+    "next": "abuelo_reina_03"
+  },
+  "abuelo_reina_03": {
+    "id": "abuelo_reina_03", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "No sé qué eres. Pero no eres el Tejedor. No eres peligro. Eres... hermosa. Como una reina en su trono.",
+    "next": "abuelo_reina_04",
+    "onExit": "saveSystem.setFlag('m08_reina_seen', true)"
+  },
+  "abuelo_reina_04": {
+    "id": "abuelo_reina_04", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Los fragmentos sobre su cabeza giran más rápido un instante, como si hubiera escuchado. Como si la palabra 'reina' le hubiera llegado en el sueño.",
+    "next": "abuelo_reina_05"
+  },
+  "abuelo_reina_05": {
+    "id": "abuelo_reina_05", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Te llamaré Reina. Porque incluso dormida, se nota. Eres la dueña de este lugar. Espero no tener que despertarte nunca.",
+    "next": "abuelo_reina_05b",
+    "onExit": "saveSystem.setFlag('m08_reina_named', true)"
+  },
+  "abuelo_reina_05b": {
+    "id": "abuelo_reina_05b", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Los fragmentos sobre su cabeza giran más rápido un instante, como si hubiera escuchado. Como si la palabra 'reina' le hubiera llegado en el sueño.",
+    "next": "m08_memory_legacy"
+  },
+  "m08_memory_legacy": {
+    "id": "m08_memory_legacy", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Hoy encontré el corazón del Vacío. No el lugar. Su habitante. La llamé Reina. No sé si hice bien.",
+    "next": "m08_memory_legacy_02"
+  },
+  "m08_memory_legacy_02": {
+    "id": "m08_memory_legacy_02", "speaker": "", "portrait": null,
+    "style": "abuelo_memory",
+    "text": "Sabía que alguien lo encontraría. Sabía que quien lo encontrara entendería. Y si ese alguien eras tú, Mateo, entonces también sabrías qué hacer.",
+    "next": "m08_memory_end"
+  },
+  "m08_memory_end": {
+    "id": "m08_memory_end", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "La memoria se pliega como un libro que se cierra. El desván vuelve a ser el desván. Pero algo cambió.",
+    "next": "m08_memory_end_02",
+    "onExit": "events.emit('memory:exited', 'memoryId', 'grandfather')"
+  },
+  "m08_memory_end_02": {
+    "id": "m08_memory_end_02", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "El diario yace abierto en tus manos. Supiste que la memoria no era tuya. Pero viviste cada segundo como propia.",
+    "next": null
+  },
+  "m08_present_01": {
+    "id": "m08_present_01", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Vi todo. Lo que encontró. Lo que nombró. Reina.",
+    "next": "m08_present_01b"
+  },
+  "m08_present_01b": {
+    "id": "m08_present_01b", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "El abuelo la encontró hace cuarenta años. Estaba dormida. Y él la llamó Reina. Ahora está despierta.",
+    "next": "m08_present_02"
+  },
+  "m08_present_02": {
+    "id": "m08_present_02", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Luna ronronea desde la puerta del desván. Ella sabe que despertó. Y sabe que tienes que ir.",
+    "next": null,
+    "onExit": "missionManager.complete('grandfather_chronicle')"
+  },
+
+  "throne_inspect_01": {
+    "id": "throne_inspect_01", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Una estructura de fragmentos de realidad solidificada. Parece un trono. Está vacío. Pero su forma espera a alguien.",
+    "next": null
+  },
+  "throne_floor_fragment": {
+    "id": "throne_floor_fragment", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Un fragmento de realidad en el suelo. Al tocarlo, sientes un eco de voz: 'Reina.' Es la voz del abuelo. Este lugar lo recuerda.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('throne_fragment_floor_seen', true)"
+  },
+
+  "cortesano_guardian_01": {
+    "id": "cortesano_guardian_01", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Una silueta alta de capa de sombras. No se mueve. Solo observa. Espera que demuestres que mereces pasar.",
+    "next": null
+  },
+  "cortesano_whisperer_01": {
+    "id": "cortesano_whisperer_01", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Una forma flotante con brazos de sombra. Susurra sin boca: 'El que nombra... viene.'",
+    "next": null
+  },
+  "cortesano_architect_01": {
+    "id": "cortesano_architect_01", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "Una silueta sostiene fragmentos de realidad. Está reconstruyendo algo. Al acercarte, deja caer uno: muestra la imagen de un hombre joven con una linterna. El abuelo.",
+    "next": null
+  },
+
+  "reina_encounter_01": {
+    "id": "reina_encounter_01", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Mateo.",
+    "next": "reina_encounter_02",
+    "onEnter": "saveSystem.setFlag('reina_met', true)"
+  },
+  "reina_encounter_02": {
+    "id": "reina_encounter_02", "speaker": "mateo", "portrait": "mateo_curious",
+    "text": "¿Sabes mi nombre?",
+    "style": "umbral",
+    "next": "reina_encounter_03"
+  },
+  "reina_encounter_03": {
+    "id": "reina_encounter_03", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Sé muchas cosas. Sé que tu abuelo me llamó Reina. Sé que sellaste siete grietas. Sé que Luna te acompaña. Pero no sé por qué has venido.",
+    "next": "reina_encounter_A_01",
+    "condition": "flag:m08_reina_named"
+  },
+
+  "reina_encounter_A_01": {
+    "id": "reina_encounter_A_01", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "Encontré su diario. El de mi abuelo. Leyó sobre ti. Te buscó. Él no quería despertarte. Pero yo necesito saber: ¿qué eres? ¿por qué despertaste ahora?",
+    "condition": "flag:mission_grandfather_done",
+    "style": "umbral",
+    "next": "reina_encounter_A_02"
+  },
+  "reina_encounter_A_02": {
+    "id": "reina_encounter_A_02", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Tu abuelo fue el primero en verme. El primero en darme un nombre. Nadie había nombrado nada en el Vacío. Antes de él, yo era solo... posibilidad.",
+    "next": "reina_encounter_A_03"
+  },
+  "reina_encounter_A_03": {
+    "id": "reina_encounter_A_03", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Desperté porque él se fue. Mientras estuvo en el mundo real, su presencia me mantenía dormida. Cuando murió, el eco de su nombre se apagó. Y el Vacío me llamó.",
+    "next": "reina_encounter_A_04"
+  },
+  "reina_encounter_A_04": {
+    "id": "reina_encounter_A_04", "speaker": "mateo", "portrait": "mateo_serious",
+    "text": "",
+    "style": "umbral",
+    "choices": [
+      { "label": "El Tejedor está expandiendo las Grietas. ¿Tú también?", "next": "reina_encounter_A_05a" },
+      { "label": "¿Puedes ayudarnos a sellar el Vacío para siempre?", "next": "reina_encounter_A_05b" },
+      { "label": "Luna dice que los guardianes protegen el equilibrio. ¿Eres una guardiana?", "next": "reina_encounter_A_05c" }
+    ]
+  },
+  "reina_encounter_A_05a": {
+    "id": "reina_encounter_A_05a", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "El Tejedor y yo somos diferentes. Él quiere expandir el Vacío porque no conoce otra cosa. Yo quiero que el Vacío tenga un orden. Sin Grietas abiertas. Sin Ecos sueltos. Un Vacío en paz.",
+    "next": "reina_encounter_A_06"
+  },
+  "reina_encounter_A_05b": {
+    "id": "reina_encounter_A_05b", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "El Vacío no se sella. Es como una habitación. Puedes cerrar la puerta, pero la habitación sigue ahí. Lo que podemos hacer es mantener la puerta cerrada. Yo puedo asegurar que del otro lado, nadie la abra.",
+    "next": "reina_encounter_A_06"
+  },
+  "reina_encounter_A_05c": {
+    "id": "reina_encounter_A_05c", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Tu abuelo también preguntó eso. Me llamó guardiana y luego se rió de sí mismo. Dijo: 'No, tú no eres guardiana. Eres la casa.' Y tenía razón. El Vacío es mi cuerpo. Las Grietas son mis heridas. Y tú, Mateo, eres quien las cura.",
+    "next": "reina_encounter_A_06"
+  },
+  "reina_encounter_A_06": {
+    "id": "reina_encounter_A_06", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Has venido con el diario de quien me nombró. Eso te da derecho a pedir. Pide.",
+    "next": "reina_encounter_A_07"
+  },
+  "reina_encounter_A_07": {
+    "id": "reina_encounter_A_07", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "",
+    "style": "umbral",
+    "choices": [
+      { "label": "Protege Miraloma. No dejes que el Vacío lastime a nadie más.", "next": "reina_final_A_pacto" },
+      { "label": "Ayúdame a detener al Tejedor. Juntos.", "next": "reina_final_A_aliada" },
+      { "label": "Déjame ir. Yo protegeré el mundo real. Tú protege el Vacío.", "next": "reina_final_A_confianza" }
+    ]
+  },
+
+  "reina_encounter_B_01": {
+    "id": "reina_encounter_B_01", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "No traes el diario. No traes el nombre. Eres solo un niño que cruzó donde no debía. El Tejedor ha estado alimentando Grietas durante décadas. Y yo he estado despierta todo ese tiempo. Mirando. Esperando. Y tú llegas sin entender nada.",
+    "condition": "NOT:flag:mission_grandfather_done",
+    "next": "reina_encounter_B_02"
+  },
+  "reina_encounter_B_02": {
+    "id": "reina_encounter_B_02", "speaker": "mateo", "portrait": "mateo_determined",
+    "text": "Entonces enséñame. No vine a pelear. Vine a entender.",
+    "style": "umbral",
+    "next": "reina_encounter_B_03"
+  },
+  "reina_encounter_B_03": {
+    "id": "reina_encounter_B_03", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "No puedes entender el Vacío sin haberlo visto nacer. Y tú solo ves lo que queda. Pero hay algo que sí puedes hacer. Demuéstrame que eres digno del nombre que llevas. El nombre de tu abuelo.",
+    "next": "reina_encounter_B_trial"
+  },
+  "reina_encounter_B_trial": {
+    "id": "reina_encounter_B_trial", "speaker": "", "portrait": null,
+    "style": "narrative_float",
+    "text": "El vacío a tu alrededor se vuelve más denso. Reina levanta una mano. Tres Ecos emergen de las sombras. No quieren atacar. Quieren probarte.",
+    "next": null
+  },
+
+  "reina_final_A_pacto": {
+    "id": "reina_final_A_pacto", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Que así sea. Miraloma no será tocada por el Vacío mientras yo reine. El Tejedor será contenido. Los Ecos no cruzarán. Es mi palabra. Y la palabra de una reina no se rompe.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('reina_resolution', 'pacto'); eventBus.emit('reina:pacto_established')"
+  },
+  "reina_final_A_aliada": {
+    "id": "reina_final_A_aliada", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "El Tejedor no sabe que existo. No sabe que soy anterior a él. Eso es una ventaja. Ve, Mateo. Yo prepararé el camino. Y cuando llegue el momento, el Vacío no lo protegerá.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('reina_resolution', 'aliada'); saveSystem.setFlag('reina_fragment_item', true); inventory.addItem('I_fragmento_reina')"
+  },
+  "reina_final_A_confianza": {
+    "id": "reina_final_A_confianza", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Confiar en un niño de doce años. No es lo que esperaba de mi despertar. Pero tu abuelo confió en mí cuando no era nada. Es justo que yo confíe en ti ahora.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('reina_resolution', 'confianza'); saveSystem.setFlag('reina_ally', true)"
+  },
+  "reina_final_B_respeto": {
+    "id": "reina_final_B_respeto", "speaker": "", "portrait": null,
+    "style": "reina",
+    "text": "Sobreviviste. No es poca cosa para un niño. No tienes el diario de tu abuelo, pero llevas su misma mirada. Ve. El Vacío no te hará daño mientras yo reine. Pero vuelve cuando tengas algo que mostrarme.",
+    "next": null,
+    "onExit": "saveSystem.setFlag('reina_resolution', 'respeto_condicional')"
+  },
+
+  "inspect_diario_post_reina": {
+    "id": "inspect_diario_post_reina", "speaker": "mateo", "portrait": "mateo_soft",
+    "text": "La última página del diario tiene una línea que no estaba ahí. Dice: 'Ella recuerda. Todo va a estar bien.' La letra es de mi abuelo. Pero esto no lo escribió hace cuarenta años. Lo escribió ahora. Mientras yo estaba en el Vacío.",
+    "style": "narrative_float",
+    "next": null,
+    "condition": "flag:reina_met",
+    "onExit": "saveSystem.setFlag('diario_post_reina_entry', true)"
   }
 }

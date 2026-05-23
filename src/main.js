@@ -42,6 +42,7 @@ import { Mission05Brothers }   from './missions/data/mission_05_brothers.js';
 import { Mission06Library }    from './missions/data/mission_06_library.js';
 import { Mission07CemeteryChild } from './missions/data/mission_07_cemetery_child.js';
 import { MissionUmbralEspejo } from './missions/data/mission_umbral_espejo.js';
+import { Mission08Grandfather } from './missions/data/mission_08_grandfather.js';
 
 // Zone definitions
 import { ZoneR_HOME }        from './world/zones/ZoneR_HOME.js';
@@ -65,6 +66,12 @@ import { ZoneV_HEART }       from './world/zones/ZoneV_HEART.js';
 import { ZoneV_UMBRAL }        from './world/zones/ZoneV_UMBRAL.js';
 import { ZoneR_CHAPTER0_HOUSE } from './world/zones/ZoneR_CHAPTER0_HOUSE.js';
 import { ZoneR_CHAPTER0_GARDEN } from './world/zones/ZoneR_CHAPTER0_GARDEN.js';
+
+// Reina del Vacío
+import { ZoneV_THRONE } from './world/zones/ZoneV_THRONE.js';
+import { Reina } from './entities/Reina.js';
+import { Cortesano } from './entities/Cortesano.js';
+import { MinigameObservationSystem } from './ui/MinigameObservationSystem.js';
 
 const canvas = document.getElementById('game-canvas');
 
@@ -94,6 +101,7 @@ export const lunaMode   = new LunaCombatMode();
 export const heartAnchor   = new HeartAnchorSystem();
 export const echoReading   = new EchoReadingSystem();
 export const chapterMgr  = new ChapterManager();
+export const minigameObs = new MinigameObservationSystem();
 export const world     = new World();
 export const scenes    = new SceneManager();
 export const game      = new Game(canvas);
@@ -137,11 +145,13 @@ missions.register(new Mission05Brothers());
 missions.register(new Mission06Library());
 missions.register(new Mission07CemeteryChild());
 missions.register(new MissionUmbralEspejo());
+missions.register(new Mission08Grandfather());
 
 dimension.inject({ transitionFX: transition, lightingSystem: lighting, riftSystem: rifts, audioSystem: audio, eventBus: events });
 rifts.inject({ saveSystem: save, missionManager: missions, audioSystem: audio, eventBus: events });
 vision.inject({ input, riftSystem: rifts, eventBus: events, luna });
 dialogue.inject({ input, saveSystem: save, missionManager: missions, riftSystem: rifts, audioSystem: audio, visionSystem: vision, eventBus: events });
+minigameObs.inject({ input, eventBus: events, dialogue });
 
 hints.inject({ rifts, dimension, vision, dialogue, mateo, world });
 piano.inject({ audio, eventBus: events });
@@ -186,6 +196,7 @@ scenes.register(ZoneV_UMBRAL);
 scenes.register(ZoneV_HEART);
 scenes.register(ZoneR_CHAPTER0_HOUSE);
 scenes.register(ZoneR_CHAPTER0_GARDEN);
+scenes.register(ZoneV_THRONE);
 
 // ── EventBus wiring ───────────────────────────────────────────────────────────
 events.on('dimension:changed', ({ dim }) => {
@@ -221,6 +232,30 @@ events.on('dialogue:node_exit', data => {
   // M02 — Piano mini-game después de entregar la partitura a Vera
   if (data.nodeId === 'vera_echo_end_02' && !save.getFlag('mission_melody_done')) {
     setTimeout(() => piano.start(), 800);
+  }
+
+  // M08 — Al encontrar el diario, activar la misión y entrar a la memoria
+  if (data.nodeId === 'm08_trigger_02' && !save.getFlag('mission_grandfather_active')) {
+    save.setFlag('m08_diary_found', true);
+    missions.activate('grandfather_chronicle');
+    (async () => {
+      await transition.playFull('diary_open');
+      events.emit('memory:entered', { memoryId: 'grandfather' });
+      // Iniciar minijuego de observación
+      save.setFlag('m08_memory_entered', true);
+      // La escena de memoria se maneja desde el flujo de diálogo
+      dialogue.start('m08_memory_start');
+    })();
+  }
+
+  // M08 — Al completar la memoria, volver al presente
+  if (data.nodeId === 'm08_memory_end') {
+    (async () => {
+      await transition.playFull('diary_close');
+      events.emit('memory:exited', { memoryId: 'grandfather' });
+      save.setFlag('m08_memory_exited', true);
+      dialogue.start('m08_present_01');
+    })();
   }
 
   // Corazón del Vacío — al inspeccionar cada fragmento, verificar si ya están todos
@@ -260,6 +295,30 @@ events.on('dialogue:node_exit', data => {
       await transition.playFull('fade_black');
       dialogue.start('umbral_epilogue_narrativa');
     })();
+  }
+
+  // Reina — resoluciones del encuentro
+  if (data.nodeId === 'reina_final_A_pacto') {
+    save.setFlag('reina_resolution', 'pacto');
+    save.setFlag('reina_throne_lit', true);
+    events.emit('reina:pacto_established');
+    // Cortesanos se arrodillan
+  }
+  if (data.nodeId === 'reina_final_A_aliada') {
+    save.setFlag('reina_resolution', 'aliada');
+    save.setFlag('reina_fragment_item', true);
+    save.addItem('I_fragmento_reina');
+    events.emit('reina:aliada');
+  }
+  if (data.nodeId === 'reina_final_A_confianza') {
+    save.setFlag('reina_resolution', 'confianza');
+    save.setFlag('reina_ally', true);
+    save.setFlag('reina_throne_empty', true);
+    events.emit('reina:confianza');
+  }
+  if (data.nodeId === 'reina_final_B_respeto') {
+    save.setFlag('reina_resolution', 'respeto_condicional');
+    events.emit('reina:respeto');
   }
 });
 events.on('echo:separated', data => {
@@ -380,6 +439,17 @@ events.on('zone:loaded', data => {
       dialogueId: 'cemetery_child_emilia_at_tree',
     });
     world.addNPC(emiliaCem);
+  }
+
+  // M08 — Trigger del diario del abuelo en R_HOME_ATTIC
+  // Solo visible si M06 y M07 completadas + abuelo_connection_unlocked
+  if (data.zoneId === 'R_HOME_ATTIC' &&
+      save.getFlag('mission_library_done') &&
+      save.getFlag('mission_cemetery_child_done') &&
+      save.getFlag('abuelo_connection_unlocked') &&
+      !save.getFlag('mission_grandfather_done') &&
+      !save.getFlag('m08_diary_found')) {
+    save.setFlag('m08_diary_ready', true);
   }
 
   // Diego acompañante en R_LIBRARY — solo con resolución C (diego_resolution = 'C')
@@ -586,6 +656,39 @@ events.on('zone:loaded', data => {
       !save.getFlag('corazon_vacio_completed')) {
     setTimeout(() => dialogue.start('corazon_vacio_luna_01'), 1200);
   }
+
+  // V_THRONE — Reina encuentro al entrar por primera vez
+  if (data.zoneId === 'V_THRONE' && !save.getFlag('reina_met') && save.getFlag('reina_vacio_unlocked')) {
+    save.setFlag('reina_throne_visited', true);
+    // Spawnear Reina como NPC en el trono
+    const reinaEntity = new Reina(170, 90);
+    const reinaSprite = assets.getImage('reina_sprite');
+    if (reinaSprite) {
+      reinaEntity.setSprite(reinaSprite);
+    }
+    world.addCustomEntity(reinaEntity);
+    // Spawnear Cortesanos
+    const guardian = new Cortesano('cortesano_guardian', 120, 130, 'guardian');
+    const whisperer = new Cortesano('cortesano_whisperer', 90, 110, 'whisperer');
+    const architect = new Cortesano('cortesano_architect', 190, 115, 'architect');
+    world.addCustomEntity(guardian);
+    world.addCustomEntity(whisperer);
+    world.addCustomEntity(architect);
+    // Iniciar diálogo de encuentro
+    setTimeout(() => dialogue.start('reina_encounter_01'), 1200);
+  }
+
+  // V_THRONE — Reina ya conocida, mostrar estado según resolución
+  if (data.zoneId === 'V_THRONE' && save.getFlag('reina_met')) {
+    const resolution = save.getFlag('reina_resolution');
+    if (resolution === 'pacto') {
+      // Trono iluminado
+      save.setFlag('reina_throne_lit', true);
+    } else if (resolution === 'confianza') {
+      // Trono vacío — Reina prepara el camino
+      save.setFlag('reina_throne_empty', true);
+    }
+  }
 });
 
 events.on('ending:show_screen', () => {
@@ -766,8 +869,11 @@ function _determineEnding() {
                          save.getFlag('m07_resolution') === 'B';
   const secretsFound   = save.getFlag('abuelo_connection_unlocked') || save.getFlag('corazon_vacio_completed');
   const bondHealthy    = bond.normalized() > 0.6 && bond.bondCriticalCount < 2;
+  const reinaResolved  = save.getFlag('reina_resolution') !== null &&
+                         save.getFlag('reina_resolution') !== false;
 
-  if (missions_done === 7 && deepResolution && secretsFound && bondHealthy) {
+  if ((missions_done === 7 || (missions_done >= 6 && reinaResolved)) &&
+      deepResolution && secretsFound && bondHealthy) {
     return 'ENDING_COMPLETE';
   } else if (missions_done >= 5 && bondHealthy) {
     return 'ENDING_STANDARD';
@@ -988,7 +1094,7 @@ const worldUpdate = {
           events.emit('item:combined', { resultId: 'I_documentos_reconstruidos' });
         }
 
-        // Ending trigger — all 7 missions done
+        // Ending trigger — all 7 (or 8 with M08) missions done
         if (!save.getFlag('ending_triggered') &&
             save.getFlag('mission_lighthouse_done') &&
             save.getFlag('mission_melody_done') &&
@@ -1117,7 +1223,7 @@ function _renderHUD(ctx) {
   ctx.fillText(ZONE_NAMES[zoneId] ?? zoneId ?? '…', 6, 24);
 
   // Active mission + step
-  const active = ['lighthouse','melody','garden','dogs','brothers','library','cemetery_child','umbral_espejo']
+  const active = ['lighthouse','melody','garden','dogs','brothers','library','cemetery_child','umbral_espejo','grandfather_chronicle']
     .find(id => missions.isActive(id));
   if (active) {
     const m    = missions.get(active);

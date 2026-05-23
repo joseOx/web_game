@@ -373,6 +373,7 @@ El inventario no es persistente entre dimensiones — los ítems del Vacío no p
 | `I_fragmento_doc_3` | Fragmento de documento | false (Vacío only) | M06 |
 | `I_documentos_reconstruidos` | Documentos completos | true | M06 |
 | `I_shipwreck_box` | Caja del barco hundido | true | M04 secreto |
+| `I_fragmento_reina` | Fragmento de Reina | true (Vacío only) | Reina — resolución aliada |
 
 ---
 
@@ -480,6 +481,65 @@ heart_anchor_tutorial_seen = true
 
 ---
 
+## 9.5 Flags de M08 — El diario del abuelo y Reina
+
+Controlan la misión precuela y el encuentro con Reina en el Vacío profundo.
+
+| Flag | Tipo | Default | Descripción | Set by |
+|------|------|---------|-------------|--------|
+| `m08_diary_ready` | bool | false | Condición cumplida para encontrar el diario | M06+M07 completadas + abuelo_connection_unlocked |
+| `m08_diary_found` | bool | false | Mateo encontró el diario del abuelo | m08_trigger_02 |
+| `mission_grandfather_active` | bool | false | M08 activada | Al encontrar el diario |
+| `mission_grandfather_done` | bool | false | M08 completada | m08_present_02 onExit |
+| `m08_memory_entered` | bool | false | Mateo entró a la memoria del abuelo | memory:entered event |
+| `m08_objects_found` | int | 0 | Objetos encontrados en minijuego 1 (0–3) | Cada objeto encontrado |
+| `m08_pattern_solved` | bool | false | Patrón de símbolos resuelto | m08_pattern_solved onExit |
+| `m08_reina_seen` | bool | false | El abuelo vio a Reina dormida | abuelo_reina_03 onExit |
+| `m08_reina_named` | bool | false | El abuelo la llamó Reina | abuelo_reina_05 onExit |
+| `m08_memory_exited` | bool | false | Mateo salió de la memoria | memory:exited event |
+| `reina_vacio_unlocked` | bool | false | Acceso a V_THRONE desbloqueado | mission_grandfather_done |
+| `reina_met` | bool | false | Mateo se encontró con Reina | reina_encounter_01 onEnter |
+| `reina_resolution` | enum | null | Resolución: `pacto`/`aliada`/`confianza`/`respeto_condicional` | Nodo final del encuentro |
+| `reina_fragment_item` | bool | false | Mateo tiene el Fragmento de Reina | reina_final_A_aliada |
+| `reina_ally` | bool | false | Reina es aliada (resolución confianza) | reina_final_A_confianza |
+| `reina_throne_visited` | bool | false | Mateo visitó V_THRONE al menos una vez | zone:loaded V_THRONE |
+| `reina_throne_lit` | bool | false | El Trono está iluminado (resolución pacto) | reina_final_A_pacto onExit |
+| `reina_throne_empty` | bool | false | Reina no está en el Trono (resolución confianza) | reina_final_A_confianza onExit |
+| `diario_post_reina_entry` | bool | false | Apareció entrada póstuma del abuelo en el diario | inspect_diario_post_reina |
+| `throne_inspected` | bool | false | Mateo inspeccionó la estructura del trono | throne_inspect_01 |
+| `throne_fragment_floor_seen` | bool | false | Mateo vio el fragmento del suelo | throne_floor_fragment |
+| `cortesano_guardian_passed` | bool | false | Guardián del Umbral superado | Lógica de paso en Game |
+| `cortesano_whisperer_heard` | bool | false | Mateo escuchó al Susurrante | Al acercarse al Cortesano |
+| `cortesano_architect_fragment` | bool | false | Mateo vio el fragmento del Arquitecto | Al acercarse |
+
+**Efectos en el mundo según flags M08/Reina:**
+
+```
+mission_grandfather_done = true
+  → Desván: el diario del abuelo es un objeto permanente
+  → V_HUB: nueva salida a V_THRONE visible
+  → Mundo: el jugador sabe que Reina existe
+
+reina_resolution = 'pacto'
+  → V_THRONE: trono iluminado, Cortesanos se arrodillan
+  → Ending COMPLETE mejorado: Miraloma protegida
+  → BondSystem: +20 permanente
+
+reina_resolution = 'aliada'
+  → Inventario: I_fragmento_reina (usable contra Tejedor)
+  → V_THRONE: un fragmento de la corona falta en el trono
+
+reina_resolution = 'confianza'
+  → Reina como aliada en Acto 5 (aparece en enfrentamiento final)
+  → V_THRONE: trono vacío, Reina prepara el camino
+
+reina_resolution = 'respeto_condicional'
+  → V_THRONE: accesible pero sin cambios visuales
+  → Permite completar M08 después si no se había hecho antes
+```
+
+---
+
 ## 11. Tabla de dependencias entre misiones
 
 Algunas misiones requieren que otras estén activas o completadas.
@@ -491,6 +551,9 @@ M03 (Garden)      → sin requisitos — disponible desde Acto 1
 M04 (Dogs)        → requiere: hablar con Carmen (cualquier momento)
 M05 (Brothers)    → requiere: mission_dogs_done = true
 M06 (Library)     → sin requisitos — pero se enriquece con antonio_notes_secret_active
+M07 (Cemetery)    → sin requisitos
+M08 (Grandfather) → requiere: M06 completada + M07 completada + abuelo_connection_unlocked
+Reina (V_THRONE)  → requiere: M08 completada (reina_vacio_unlocked)
 
 Habilidades:
   melody_ability   → requiere M02 completa

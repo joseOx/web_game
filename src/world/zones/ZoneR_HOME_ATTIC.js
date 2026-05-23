@@ -56,6 +56,20 @@ export const ZoneR_HOME_ATTIC = {
       label:              'Espejo antiguo',
       color:              '#7BAFD4',
     },
+    {
+      id:                 'diary_abuelo',
+      x:                  64,   // col 4
+      y:                  40,   // row 2
+      width:              10,
+      height:             12,
+      dialogueId:         'm08_trigger_01',
+      dialogueIdUnlocked: 'm08_trigger_01',
+      unlockFlag:         'm08_diary_ready',
+      label:              'Tabla suelta',
+      color:              '#8B6030',
+      // Solo visible si abuelo_connection_unlocked y M06+M07 completadas
+      condition:          'flag:abuelo_connection_unlocked',
+    },
   ],
 
   rifts:  [],
