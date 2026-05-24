@@ -29,6 +29,9 @@ export class DialogueSystem {
     // Portraits: map portrait-id → HTMLImageElement
     this._portraits = new Map();
 
+    // Scene images: full-size illustrations for special dialogue styles
+    this._sceneImages = new Map();
+
     // Injected singletons
     this._input          = null;
     this._saveSystem     = null;
@@ -58,6 +61,10 @@ export class DialogueSystem {
 
   loadPortrait(id, img) {
     this._portraits.set(id, img);
+  }
+
+  setSceneImage(id, img) {
+    if (img) this._sceneImages.set(id, img);
   }
 
   // ── Public API ─────────────────────────────────────────────────────────────
@@ -101,8 +108,9 @@ export class DialogueSystem {
       return;
     }
 
-    // narrative_float auto-advances 2.5 s after text finishes (no button required)
-    if ((this._current?.style === 'narrative_float' || this._current?.style === 'abuelo_memory') && this._textDone) {
+    // narrative_float / abuelo_memory / abuelo_reina_scene auto-advance 2.5 s after text finishes
+    if ((this._current?.style === 'narrative_float' || this._current?.style === 'abuelo_memory' ||
+         this._current?.style === 'abuelo_reina_scene') && this._textDone) {
       this._narrativeFloatTimer += dt;
       if (this._narrativeFloatTimer >= 2500) {
         this._narrativeFloatTimer = 0;
@@ -160,6 +168,12 @@ export class DialogueSystem {
     // Abuelo memory style — sepia background, brown text, cursive-like
     if (node.style === 'abuelo_memory') {
       this._renderAbueloMemory(ctx, node);
+      return;
+    }
+
+    // Abuelo finds Reina scene — void backdrop + grandfather block + large Reina image
+    if (node.style === 'abuelo_reina_scene') {
+      this._renderAbueloReinaScene(ctx, node);
       return;
     }
 
@@ -448,6 +462,104 @@ export class DialogueSystem {
         ctx.font      = '10px VT323, monospace';
         ctx.fillText('▶', BASE_WIDTH - 20, BASE_HEIGHT - 14);
       }
+    }
+  }
+
+  _renderAbueloReinaScene(ctx, node) {
+    // Fondo void oscuro
+    ctx.fillStyle = 'rgba(8, 4, 22, 0.95)';
+    ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+
+    // Partículas violetas sutiles (Reina dormida irradia energía)
+    ctx.globalAlpha = 0.10;
+    for (let i = 0; i < 8; i++) {
+      const px = (Math.sin(Date.now() / 2400 + i * 1.4) * 0.5 + 0.5) * BASE_WIDTH;
+      const py = (Math.cos(Date.now() / 2900 + i * 1.8) * 0.5 + 0.5) * (BASE_HEIGHT - 64);
+      ctx.fillStyle = '#8B5CF6';
+      ctx.beginPath();
+      ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // ── Reina (lado derecho, grande) ────────────────────────────────────────
+    const rX = 192, rY = 10, rW = 62, rH = 96;
+    const reinaImg = this._sceneImages.get('reina_scene_img');
+    if (reinaImg) {
+      // Spritesheet 2×2: 4 frames de idle leídos en orden (0,0)→(1,0)→(0,1)→(1,1)
+      const fW    = reinaImg.width  / 2;
+      const fH    = reinaImg.height / 2;
+      const frame = Math.floor(Date.now() / 200) % 4;
+      const col   = frame % 2;
+      const row   = Math.floor(frame / 2);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(reinaImg, col * fW, row * fH, fW, fH, rX, rY, rW, rH);
+    } else {
+      // Fallback: silueta violeta con corona
+      ctx.fillStyle = 'rgba(75, 35, 120, 0.85)';
+      ctx.fillRect(rX + 10, rY + 28, rW - 20, rH - 28);  // cuerpo
+      ctx.fillRect(rX + 15, rY + 6,  rW - 30, 24);        // cabeza
+      ctx.fillStyle = '#C4B5FD';
+      ctx.fillRect(rX + 13, rY - 2, 5, 12);               // corona izq
+      ctx.fillRect(rX + 25, rY - 8, 5, 18);               // corona centro
+      ctx.fillRect(rX + 37, rY - 2, 5, 12);               // corona der
+      // Fragmentos orbitando
+      const t = Date.now() / 1800;
+      ctx.fillStyle = 'rgba(196, 181, 253, 0.6)';
+      for (let f = 0; f < 3; f++) {
+        const fx = rX + rW / 2 + Math.cos(t + f * 2.1) * 18;
+        const fy = rY + 18     + Math.sin(t + f * 2.1) * 10;
+        ctx.fillRect(fx - 2, fy - 2, 5, 5);
+      }
+    }
+
+    // ── Abuelo placeholder (lado izquierdo, pequeño) ────────────────────────
+    const abX = 52, abY = 58;
+    // Cuerpo
+    ctx.fillStyle = '#7A5028';
+    ctx.fillRect(abX, abY + 11, 16, 22);
+    // Cabeza
+    ctx.fillStyle = '#9A7048';
+    ctx.fillRect(abX + 3, abY, 10, 11);
+    // Linterna (detalle cálido)
+    ctx.fillStyle = '#FFD97D';
+    ctx.fillRect(abX + 15, abY + 13, 4, 5);
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = '#FFD97D';
+    ctx.beginPath();
+    ctx.arc(abX + 17, abY + 16, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    // Etiqueta
+    ctx.fillStyle = '#9A7048';
+    ctx.font = '7px VT323, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Abuelo', abX + 8, abY + 38);
+    ctx.textAlign = 'left';
+
+    // ── Caja de texto inferior (sepia) ──────────────────────────────────────
+    const boxY = BASE_HEIGHT - 64;
+    ctx.fillStyle = 'rgba(34, 20, 8, 0.90)';
+    ctx.fillRect(4, boxY, BASE_WIDTH - 8, 60);
+    ctx.strokeStyle = '#6B4423';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(4, boxY, BASE_WIDTH - 8, 60);
+
+    // Texto del diálogo
+    const shown = this._fullText.slice(0, this._shownChars);
+    ctx.save();
+    ctx.shadowColor   = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur    = 1;
+    ctx.fillStyle     = '#C8A070';
+    ctx.font          = 'italic 10px VT323, monospace';
+    this._drawWrappedText(ctx, shown, 10, boxY + 14, BASE_WIDTH - 20, 12, boxY + 58);
+    ctx.restore();
+
+    // Indicador de avance
+    if (this._textDone && this._current?.next) {
+      ctx.fillStyle = 'rgba(139, 96, 48, 0.5)';
+      ctx.font = '10px VT323, monospace';
+      ctx.fillText('▶', BASE_WIDTH - 16, BASE_HEIGHT - 6);
     }
   }
 

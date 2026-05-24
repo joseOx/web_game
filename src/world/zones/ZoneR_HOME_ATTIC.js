@@ -58,16 +58,16 @@ export const ZoneR_HOME_ATTIC = {
     },
     {
       id:                 'diary_abuelo',
-      x:                  64,   // col 4
-      y:                  40,   // row 2
+      x:                  32,   // col 2 — esquina izquierda del suelo
+      y:                  80,   // row 5 — nivel del suelo, lejos del espejo
       width:              10,
-      height:             12,
+      height:             8,
       dialogueId:         'm08_trigger_01',
       dialogueIdUnlocked: 'm08_trigger_01',
       unlockFlag:         'm08_diary_ready',
+      doneFlag:           'mission_grandfather_done',
       label:              'Tabla suelta',
       color:              '#8B6030',
-      // Solo visible si abuelo_connection_unlocked y M06+M07 completadas
       condition:          'flag:abuelo_connection_unlocked',
     },
   ],

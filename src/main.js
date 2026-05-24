@@ -941,6 +941,7 @@ async function init() {
     assets.loadImage('vera',           'vera.png').catch(() => null),
     assets.loadImage('rosa_sprite',    'rosa_sprite.png').catch(() => null),
     assets.loadImage('antonio_sprite', 'antonio_sprite.png').catch(() => null),
+    assets.loadImage('reina_scene_img', 'reina.png').catch(() => null),
   ]);
   dialogue.loadDialogues(json);
   luna.setRealSprite(lunaImg);
@@ -1019,6 +1020,7 @@ async function init() {
   for (const [key, ids] of Object.entries(npcPortraitMap)) {
     for (const id of ids) dialogue.loadPortrait(id, npcPortraits[key]);
   }
+  dialogue.setSceneImage('reina_scene_img', assets.getImage('reina_scene_img'));
   const mode = await titleScreen.start();
 
   if (mode === 'luna_mode') {
@@ -1067,7 +1069,7 @@ const worldUpdate = {
     luna.visible = !save.getFlag('luna_missing') || dimension.isVoid();
 
     if (!dialogueOpen) {
-      if (piano.active) {
+      if (piano.active || minigameObs.isPatternActive()) {
         mateo.vx = 0; mateo.vy = 0;
       } else {
         mateo.update(dt);
@@ -1091,6 +1093,9 @@ const worldUpdate = {
     // Alimentar posición del jugador al minigame de observación si está activo
     if (minigameObs.isObservationActive()) {
       minigameObs.updateObservation(mateo.centerX(), mateo.centerY());
+    }
+    if (minigameObs.isPatternActive()) {
+      minigameObs.updatePattern();
     }
 
 
@@ -1190,7 +1195,7 @@ const worldUpdate = {
               dialogue.start(npc.dialogueId);
             } else {
               const obj = world.nearestObject(mateo.centerX(), mateo.centerY(), 32);
-              if (obj) {
+              if (obj && !(obj.doneFlag && save.getFlag(obj.doneFlag))) {
                 const nodeId = (obj.unlockFlag && save.getFlag(obj.unlockFlag))
                   ? (obj.dialogueIdUnlocked ?? obj.dialogueId)
                   : obj.dialogueId;

@@ -48,6 +48,7 @@ export class MinigameObservationSystem {
 
     // Estado de render
     this._symbolRects = [];    // posiciones de los símbolos en pantalla
+    this._cursorIdx   = 0;     // símbolo enfocado en el puzzle de patrón
   }
 
   inject({ input, eventBus, dialogue } = {}) {
@@ -167,6 +168,7 @@ export class MinigameObservationSystem {
     this._attempts     = 0;
     this._maxAttempts  = 3;
     this._onComplete   = onComplete;
+    this._cursorIdx    = 0;
 
     // Posiciones en pantalla de los símbolos
     this._symbolRects = this._computeSymbolPositions(symbols.length);
@@ -189,32 +191,28 @@ export class MinigameObservationSystem {
     if (this._state !== 'pattern') return;
     if (!this._input) return;
 
-    // Detectar clic en símbolo (usando interact key)
-    // En una implementación real se usarían coordenadas de mouse/touch
-    if (this._input.wasPressed(INTERACT_KEY)) {
-      // Selección por defecto del primer símbolo no seleccionado
-      // (En versión completa: detectar cuál está bajo el cursor)
-      const nextSymbol = this._symbols.find(s => !s.selected);
-      if (nextSymbol) {
-        this._selectSymbol(nextSymbol);
+    // Mover cursor entre símbolos no seleccionados
+    if (this._input.wasPressed('move_left') || this._input.wasPressed('move_right')) {
+      const dir = this._input.wasPressed('move_left') ? -1 : 1;
+      let next = (this._cursorIdx + dir + this._symbols.length) % this._symbols.length;
+      let safety = 0;
+      while (this._symbols[next].selected && safety < this._symbols.length) {
+        next = (next + dir + this._symbols.length) % this._symbols.length;
+        safety++;
       }
+      if (!this._symbols[next].selected) this._cursorIdx = next;
     }
 
-    // Navegación entre símbolos con teclas izquierda/derecha
-    if (this._input.wasPressed('move_left') || this._input.wasPressed('move_right')) {
-      const currentIdx = this._symbolRects.findIndex((r, i) =>
-        !this._symbols[i].selected
-      );
-      if (currentIdx >= 0) {
-        const dir = this._input.wasPressed('move_left') ? -1 : 1;
-        let newIdx = (currentIdx + dir + this._symbols.length) % this._symbols.length;
-        // Avanzar al siguiente no seleccionado
-        let safety = 0;
-        while (this._symbols[newIdx].selected && safety < this._symbols.length) {
-          newIdx = (newIdx + dir + this._symbols.length) % this._symbols.length;
-          safety++;
-        }
-      }
+    // Si el cursor apunta a un símbolo ya seleccionado, moverlo al primero libre
+    if (this._symbols[this._cursorIdx]?.selected) {
+      const firstFree = this._symbols.findIndex(s => !s.selected);
+      if (firstFree >= 0) this._cursorIdx = firstFree;
+    }
+
+    // Seleccionar el símbolo en el cursor con E
+    if (this._input.wasPressed(INTERACT_KEY)) {
+      const sym = this._symbols[this._cursorIdx];
+      if (sym && !sym.selected) this._selectSymbol(sym);
     }
   }
 
@@ -324,14 +322,15 @@ export class MinigameObservationSystem {
     for (let i = 0; i < this._symbols.length; i++) {
       const sym = this._symbols[i];
       const rect = this._symbolRects[i];
+      const isCursor = (i === this._cursorIdx && !sym.selected);
 
-      ctx.strokeStyle = sym.selected ? '#8B5CF6' : '#4A2D6E';
-      ctx.fillStyle = sym.selected ? 'rgba(139, 92, 246, 0.3)' : 'rgba(30, 20, 50, 0.5)';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = sym.selected ? '#8B5CF6' : (isCursor ? '#FFD97D' : '#4A2D6E');
+      ctx.fillStyle   = sym.selected ? 'rgba(139, 92, 246, 0.3)' : (isCursor ? 'rgba(255, 217, 125, 0.15)' : 'rgba(30, 20, 50, 0.5)');
+      ctx.lineWidth = isCursor ? 2 : 1.5;
       ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
       ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
 
-      ctx.fillStyle = sym.selected ? '#C4B5FD' : '#7A6AA0';
+      ctx.fillStyle = sym.selected ? '#C4B5FD' : (isCursor ? '#FFD97D' : '#7A6AA0');
       ctx.font = '10px VT323, monospace';
       ctx.fillText(sym.label, rect.x + rect.w / 2, rect.y + rect.h / 2 + 4);
     }
@@ -348,6 +347,10 @@ export class MinigameObservationSystem {
     ctx.fillStyle = '#5A4A7A';
     ctx.font = '8px VT323, monospace';
     ctx.fillText(`Intentos: ${this._attempts + 1}/${this._maxAttempts}`, BASE_WIDTH / 2, BASE_HEIGHT / 2 + 70);
+
+    // Hint de controles
+    ctx.fillStyle = '#3A2A5A';
+    ctx.fillText('← → mover   E seleccionar', BASE_WIDTH / 2, BASE_HEIGHT / 2 + 82);
 
     ctx.restore();
     ctx.textAlign = 'left';

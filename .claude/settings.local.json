@@ -1,12 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Mazaius\\\\Desktop\\\\mathi\\\\reina\\\\web_game\" | Where-Object { $_.Name -ne 'venv' -and $_.Name -ne '__pycache__' } | Format-Table Name -AutoSize)",
-      "Bash(venv\\\\Scripts\\\\python.exe -c \"import langchain_openai; print\\(langchain_openai.__version__\\)\")",
-      "Read(//mnt/c/Users/Mazaius/Desktop/mathi/reina/**)",
-      "Bash(venv/Scripts/python.exe -c \"import langchain_openai; print\\(langchain_openai.__version__\\)\")",
-      "PowerShell(& \"C:\\\\Users\\\\Mazaius\\\\Desktop\\\\mathi\\\\reina\\\\web_game\\\\venv\\\\Scripts\\\\pip.exe\" show langchain-openai langgraph)",
-      "Bash(powershell *)"
+      "Bash(powershell -Command ' *)",
+      "Bash(cd C:\\\\Users\\\\Mat-5\\\\Desktop\\\\claude\\\\github\\\\web_game *)",
+      "Bash(node --input-type=module)",
+      "Bash(node --input-type=module --eval ' *)",
+      "Bash(node -e ' *)",
+      "Bash(sed 's/\"//g')",
+      "Bash(node *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(git add *)",
+      "Bash(findstr /N \"\\\\\"text\\\\\":\" assets/data/dialogues.json)",
+      "Bash(findstr \"umbral_espejo\\\\|umbral_abuelo\\\\|umbral_luna\")",
+      "Bash(xargs grep -l \"reina_sprite\\\\|reina\\\\.png\")"
     ]
   }
 }

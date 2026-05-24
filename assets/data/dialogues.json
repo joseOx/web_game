@@ -2407,39 +2407,39 @@
 
   "abuelo_reina_01": {
     "id": "abuelo_reina_01", "speaker": "", "portrait": null,
-    "style": "narrative_float",
+    "style": "abuelo_reina_scene",
     "text": "Nunca había visto algo así en el Vacío. No es un Eco. No es un Atado. Es... otra cosa. Una presencia. Como si el Vacío mismo hubiera tomado forma.",
     "next": "abuelo_reina_02"
   },
   "abuelo_reina_02": {
     "id": "abuelo_reina_02", "speaker": "", "portrait": null,
-    "style": "narrative_float",
+    "style": "abuelo_reina_scene",
     "text": "Se mueve. No está despierta. Sueña. Los fragmentos sobre su cabeza giran lentamente, como planetas alrededor de un sol dormido.",
     "next": "abuelo_reina_03"
   },
   "abuelo_reina_03": {
     "id": "abuelo_reina_03", "speaker": "", "portrait": null,
-    "style": "abuelo_memory",
-    "text": "No sé qué eres. Pero no eres el Tejedor. No eres peligro. Eres... hermosa. Como una reina en su trono.",
+    "style": "abuelo_reina_scene",
+    "text": "No sé qué eres. Pero no eres peligro. Descansas. Te acicalas. Como si el Vacío entero fuera simplemente... tu hogar.",
     "next": "abuelo_reina_04",
     "onExit": "saveSystem.setFlag('m08_reina_seen', true)"
   },
   "abuelo_reina_04": {
     "id": "abuelo_reina_04", "speaker": "", "portrait": null,
-    "style": "narrative_float",
+    "style": "abuelo_reina_scene",
     "text": "Los fragmentos sobre su cabeza giran más rápido un instante, como si hubiera escuchado. Como si la palabra 'reina' le hubiera llegado en el sueño.",
     "next": "abuelo_reina_05"
   },
   "abuelo_reina_05": {
     "id": "abuelo_reina_05", "speaker": "", "portrait": null,
-    "style": "abuelo_memory",
+    "style": "abuelo_reina_scene",
     "text": "Te llamaré Reina. Porque incluso dormida, se nota. Eres la dueña de este lugar. Espero no tener que despertarte nunca.",
     "next": "abuelo_reina_05b",
     "onExit": "saveSystem.setFlag('m08_reina_named', true)"
   },
   "abuelo_reina_05b": {
     "id": "abuelo_reina_05b", "speaker": "", "portrait": null,
-    "style": "narrative_float",
+    "style": "abuelo_reina_scene",
     "text": "Los fragmentos sobre su cabeza giran más rápido un instante, como si hubiera escuchado. Como si la palabra 'reina' le hubiera llegado en el sueño.",
     "next": "m08_memory_legacy"
   },
