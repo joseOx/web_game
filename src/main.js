@@ -734,9 +734,9 @@ events.on('zone:loaded', data => {
     setTimeout(() => dialogue.start('umbral_espejo_trigger_01'), 1500);
   }
 
-  // Dama de la Niebla — texto de conexión con M01 si el faro fue completado
+  // Dama de la Niebla — texto de conexión con M01 si el faro fue completado y todos los fragmentos recogidos
   if (data.zoneId === 'V_LIGHTHOUSE' &&
-      save.getFlag('fog_encounter_dama_01') &&
+      save.getFlag('fog_dama_all_fragments') &&
       save.getFlag('mission_lighthouse_done') &&
       !save.getFlag('fog_dama_m01_connection_seen')) {
     save.setFlag('fog_dama_m01_connection_seen', true);

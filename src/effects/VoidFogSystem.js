@@ -41,6 +41,9 @@ export class VoidFogSystem {
     for (let i = 0; i < POOL_SIZE; i++) {
       this._pool.push(this._createParticle(i));
     }
+
+    // Activar todas las partículas al inicio (bugfix: pool arranca vacío)
+    this._resetAll();
   }
 
   // ── Inyección de dependencias ──────────────────────────────────────────────
@@ -79,9 +82,13 @@ export class VoidFogSystem {
   /** Escuchar cambios de dimensión externamente */
   onDimensionChange(dim) {
     this._dimension = dim;
+    const wasActive = this._active;
     this._active = (dim === 'void');
     if (!this._active) {
       for (const p of this._pool) p.active = false;
+    } else if (!wasActive && this._active) {
+      // Reactivar niebla al reingresar al Vacío (bugfix: partículas quedaban inactivas)
+      this._resetAll();
     }
   }
 
