@@ -2667,5 +2667,65 @@
     "next": null,
     "condition": "flag:reina_met",
     "onExit": "saveSystem.setFlag('diario_post_reina_entry', true)"
+  },
+
+  "fog_encounter_dama_01": {
+    "id": "fog_encounter_dama_01",
+    "speaker": "",
+    "portrait": null,
+    "text": "Entre la niebla, una voz que no es una voz: 'La carta se mojó. No llegué a entregarla. La lluvia entraba por la ventana y yo pensé — si se borra la tinta, se borra la culpa. Pero la culpa no se borra. Solo se dispersa. Como yo.'",
+    "next": null,
+    "style": "narrative_float",
+    "onExit": "saveSystem.setFlag('fog_encounter_dama_01', true)"
+  },
+  "fog_encounter_dama_02": {
+    "id": "fog_encounter_dama_02",
+    "speaker": "",
+    "portrait": null,
+    "text": "La niebla se estira hacia la ventana como una mano que quiere tocar el vidrio. No llega. 'Su mano era pequeña. Cabía entera en la mía. Ya no recuerdo su color de ojos. Recuerdo el peso. Una mano pequeña confiada en la mía. Eso es lo único que no se ha ido.'",
+    "next": null,
+    "style": "narrative_float",
+    "condition": "flag:fog_encounter_dama_01",
+    "onExit": "saveSystem.setFlag('fog_encounter_dama_02', true)"
+  },
+  "fog_encounter_dama_03": {
+    "id": "fog_encounter_dama_03",
+    "speaker": "",
+    "portrait": null,
+    "text": "Un olor a pan recién horneado atraviesa la niebla. No debería haber olores en el Vacío. 'Ella tenía cuatro años. Se sentaba en la puerta de la cocina mientras yo amasaba. Cantaba canciones que inventaba. El pan siempre se quema un poco cuando ella canta. Eso decía. Eso decía siempre.'",
+    "next": null,
+    "style": "narrative_float",
+    "condition": "flag:fog_encounter_dama_02",
+    "onExit": "saveSystem.setFlag('fog_encounter_dama_03', true)"
+  },
+  "fog_encounter_dama_04": {
+    "id": "fog_encounter_dama_04",
+    "speaker": "",
+    "portrait": null,
+    "text": "La niebla forma remolinos sobre el agua invertida. 'Me llamo... no. Ya no. Empezaba con una letra que hacía un sonido suave, como el viento. Mi hija la decía corriendo desde la puerta. Esa palabra. Esa palabra era mi nombre. Ya no la recuerdo entera. Pero recuerdo cómo sonaba cuando ella la decía.'",
+    "next": null,
+    "style": "narrative_float",
+    "condition": "flag:fog_encounter_dama_03",
+    "onExit": "saveSystem.setFlag('fog_encounter_dama_04', true)"
+  },
+  "fog_encounter_dama_05": {
+    "id": "fog_encounter_dama_05",
+    "speaker": "",
+    "portrait": null,
+    "text": "La niebla se ilumina desde dentro. Una luz dorada tenue. 'Gracias. No sé quién eres. No sé si eres real o eres otro fragmento de mi memoria que inventa consuelo. Pero gracias. Por quedarte. Por escuchar. Ya puedo irme. Ya recuerdo lo que vine a buscar: no era a ella. Era el permiso para recordarla sin dolor. Y lo encontré. En tus ojos. En los de él. En los míos.'",
+    "next": null,
+    "style": "narrative_float",
+    "condition": "flag:fog_encounter_dama_04",
+    "onEnter": "saveSystem.setFlag('fog_dama_all_fragments', true); eventBus.emit('fog:dama_complete')",
+    "onExit": "saveSystem.setFlag('fog_encounter_dama_05', true)"
+  },
+  "inspect_fog_after_dama": {
+    "id": "inspect_fog_after_dama",
+    "speaker": "mateo",
+    "portrait": "mateo_soft",
+    "text": "La niebla ya no se siente fría. Sigue moviéndose igual, pero el color es distinto. Como si alguien hubiera recordado algo bonito y el recuerdo se hubiera quedado flotando.",
+    "next": null,
+    "style": "narrative_float",
+    "condition": "flag:fog_dama_all_fragments"
   }
 }

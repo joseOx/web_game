@@ -72,6 +72,7 @@ import { ZoneV_THRONE } from './world/zones/ZoneV_THRONE.js';
 import { Reina } from './entities/Reina.js';
 import { Cortesano } from './entities/Cortesano.js';
 import { MinigameObservationSystem } from './ui/MinigameObservationSystem.js';
+import { VoidFogSystem } from './effects/VoidFogSystem.js';
 
 const canvas = document.getElementById('game-canvas');
 
@@ -105,6 +106,7 @@ export const minigameObs = new MinigameObservationSystem();
 export const world     = new World();
 export const scenes    = new SceneManager();
 export const game      = new Game(canvas);
+export const voidFog   = new VoidFogSystem();
 
 // ── Entities ─────────────────────────────────────────────────────────────────
 const mateo = new Mateo(BASE_WIDTH / 2, BASE_HEIGHT / 2 + 20);
@@ -159,6 +161,7 @@ prologue.inject({ input });
 titleScreen.inject({ input, hasSave: save.hasSave(), saveSystem: save });
 chapterMgr.inject({ saveSystem: save, eventBus: events, sceneManager: scenes, dialogue, transition });
 lunaMode.inject({ input, particles, audio });
+voidFog.inject({ dimension });
 heartAnchor.inject({
   mateo, visionSystem: vision, echoManager: echoes, luna,
   bondSystem: bond, eventBus: events, saveSystem: save,
@@ -206,6 +209,7 @@ events.on('dimension:changed', ({ dim }) => {
   lighting.setTimeOfDay(dim === 'void' ? 'night' : 'day');
   audio.startAmbient(dim === 'void');
   audio.playTone(dim === 'void' ? 220 : 330, 1.2, 'sawtooth', 0.06);
+  voidFog.onDimensionChange(dim);
 });
 
 const EMOTION_COLORS = { grief:'#7EC8E3', guilt:'#B8E07A', fear:'#C8A9FF', anger:'#FF8C8C', longing:'#FFD97D' };
@@ -440,6 +444,18 @@ events.on('zone:loaded', data => {
     }
   }
 
+  // Imagen de piso para R_LIGHTHOUSE y V_LIGHTHOUSE (tiled 5×4)
+  if (data.zoneId === 'R_LIGHTHOUSE' || data.zoneId === 'V_LIGHTHOUSE') {
+    const pisoFaro = assets.getImage('piso_faro');
+    if (pisoFaro) world.setBgImage(pisoFaro, { tile: { cols: 6, rows: 6 } });
+  }
+
+  // Imagen de piso para R_HUB
+  if (data.zoneId === 'R_HUB') {
+    const pisoImg = assets.getImage('r_hub_piso');
+    if (pisoImg) world.setBgImage(pisoImg);
+  }
+
   // Aplicar sprite de Diego en R_HUB
   if (data.zoneId === 'R_HUB') {
     const diegoSprite = assets.getImage('diego');
@@ -474,6 +490,8 @@ events.on('zone:loaded', data => {
       label:      'Sra. Emilia',
       dialogueId: 'emilia_m07_route_hub',
     });
+    const emiliaSprite = assets.getImage('emilia_sprite');
+    if (emiliaSprite) emiliaNPC.setMateoSprite(emiliaSprite, { drawW: 28, drawH: 28 });
     world.addNPC(emiliaNPC);
   }
 
@@ -498,6 +516,8 @@ events.on('zone:loaded', data => {
       label:      'Sra. Emilia',
       dialogueId: 'cemetery_child_emilia_at_tree',
     });
+    const emiliaSpriteCem = assets.getImage('emilia_sprite');
+    if (emiliaSpriteCem) emiliaCem.setMateoSprite(emiliaSpriteCem, { drawW: 28, drawH: 28 });
     world.addNPC(emiliaCem);
   }
 
@@ -554,6 +574,38 @@ events.on('zone:loaded', data => {
     // M02 — Si el jugador re-entra con la partitura entregada y la grieta sin sellar
     if (save.getFlag('partitura_delivered_vera') && !save.getFlag('mission_melody_done')) {
       setTimeout(() => piano.start(), 1200);
+    }
+  }
+
+  // Aplicar sprite del archivista en V_LIBRARY
+  if (data.zoneId === 'V_LIBRARY') {
+    const archivistaSprite = assets.getImage('archivista_sprite');
+    if (archivistaSprite) {
+      echoes.get('echo_archivista')?.setMateoSprite(archivistaSprite, { drawW: 28, drawH: 28 });
+    }
+  }
+
+  // Aplicar sprite de Ponce en R_LIBRARY
+  if (data.zoneId === 'R_LIBRARY') {
+    const ponceSprite = assets.getImage('ponce_sprite');
+    if (ponceSprite) {
+      world.getNPC('ponce')?.setMateoSprite(ponceSprite, { drawW: 28, drawH: 28 });
+    }
+  }
+
+  // Aplicar sprite del abuelo en V_HOME
+  if (data.zoneId === 'V_HOME') {
+    const abueloSprite = assets.getImage('abuelo_sprite');
+    if (abueloSprite) {
+      echoes.get('echo_abuelo')?.setMateoSprite(abueloSprite, { drawW: 28, drawH: 28 });
+    }
+  }
+
+  // Aplicar sprite de Carmen en R_BEACH
+  if (data.zoneId === 'R_BEACH') {
+    const carmenSprite = assets.getImage('carmen_sprite');
+    if (carmenSprite) {
+      world.getNPC('carmen')?.setMateoSprite(carmenSprite, { drawW: 28, drawH: 28 });
     }
   }
 
@@ -682,6 +734,15 @@ events.on('zone:loaded', data => {
     setTimeout(() => dialogue.start('umbral_espejo_trigger_01'), 1500);
   }
 
+  // Dama de la Niebla — texto de conexión con M01 si el faro fue completado
+  if (data.zoneId === 'V_LIGHTHOUSE' &&
+      save.getFlag('fog_encounter_dama_01') &&
+      save.getFlag('mission_lighthouse_done') &&
+      !save.getFlag('fog_dama_m01_connection_seen')) {
+    save.setFlag('fog_dama_m01_connection_seen', true);
+    setTimeout(() => dialogue.start('inspect_fog_after_dama'), 2000);
+  }
+
   // Umbral del Espejo — activación al subir al desván con el marco activo
   if (data.zoneId === 'R_HOME_ATTIC' &&
       save.getFlag('ending_screen_shown') &&
@@ -769,6 +830,14 @@ bond.onLevelChange = (level) => {
     level === 'HEALTHY' ? 0 : bond.voidOverlayIntensity()
   );
 };
+
+// ── Dama de la Niebla — completitud ──────────────────────────────────────────
+events.on('fog:dama_complete', () => {
+  voidFog.setPaletteShift(true);
+  save.setFlag('fog_dama_released', true);
+  // +3 permanente al vínculo (no acumulable)
+  bond.applyStabilityBonus(3);
+});
 
 // ── Narrative combat encounters ───────────────────────────────────────────────
 // Wave definitions per location — emotion-themed, difficulty scales with story progression
@@ -962,6 +1031,10 @@ async function init() {
     assets.loadImage('ponce_sprite',     'ponce.png').catch(() => null),
     assets.loadImage('archivista_sprite','archivista.png').catch(() => null),
     assets.loadImage('abuelo_sprite',    'abuelo.png').catch(() => null),
+    assets.loadImage('carmen_sprite',    'carmen.png').catch(() => null),
+    assets.loadImage('emilia_sprite',    'emilia.png').catch(() => null),
+    assets.loadImage('r_hub_piso',       'r_hub_piso.png').catch(() => null),
+    assets.loadImage('piso_faro',        'piso_faro.png').catch(() => null),
   ]);
   dialogue.loadDialogues(json);
   luna.setRealSprite(lunaImg);
@@ -1010,6 +1083,8 @@ async function init() {
   const poncePortrait     = assets.getImage('ponce_sprite')      ? _cropFrame0(assets.getImage('ponce_sprite'))      : null;
   const archivistaPortrait= assets.getImage('archivista_sprite') ? _cropFrame0(assets.getImage('archivista_sprite')) : null;
   const abueloPortrait    = assets.getImage('abuelo_sprite')     ? _cropFrame0(assets.getImage('abuelo_sprite'))     : null;
+  const carmenPortrait    = assets.getImage('carmen_sprite')     ? _cropFrame0(assets.getImage('carmen_sprite'))     : null;
+  const emiliaPortrait    = assets.getImage('emilia_sprite')     ? _cropFrame0(assets.getImage('emilia_sprite'))     : null;
 
   for (const id of ['rosa_neutral','rosa_warm','rosa_thoughtful','rosa_sad','rosa_worried',
                     'rosa_peaceful','rosa_resigned','rosa_serious','rosa_shocked','rosa_crying']) {
@@ -1031,12 +1106,12 @@ async function init() {
     vera:      _makePortrait('#7BAFD4', 'V'),
     diego:     _makePortrait('#9B7FE8', 'D'),
     hermano:   _ghostify(_makePortrait('#8B6FD4', 'H')),
-    carmen:    camilaPortrait     ?? _makePortrait('#E8A87C', 'C'),
+    carmen:    carmenPortrait     ?? _makePortrait('#E8A87C', 'C'),
     ponce:     poncePortrait      ?? _makePortrait('#7EC8A0', 'P'),
     archivist: _ghostify(archivistaPortrait ?? _makePortrait('#C8A9FF', 'A')),
     weaver:    _ghostify(_makePortrait('#2A1A4E', 'T')),
     abuelo:    _ghostify(abueloPortrait     ?? _makePortrait('#8B6030', 'G')),
-    emilia:    _ghostify(_makePortrait('#A08060', 'E')),
+    emilia:    emiliaPortrait ?? _makePortrait('#A08060', 'E'),
     tomas:     _ghostify(_makePortrait('#7FB8D0', 'T')),
   };
   const npcPortraitMap = {
@@ -1101,6 +1176,7 @@ init().catch(console.error);
 const worldUpdate = {
   update(dt) {
     particles.update(dt);           // always run — also needed by lunaMode
+    voidFog.update(dt);
     _hudElapsed += dt;
     if (_controlsAlpha > 0 && _hudElapsed > 8000) {
       _controlsAlpha = Math.max(0, 1 - (_hudElapsed - 8000) / 3000);
@@ -1266,6 +1342,7 @@ const worldRender = {
     if (lunaMode.active) return;   // lunaMode renders its own scene
     camera.apply(ctx);
     world.render(ctx, alpha);       // tiles + NPCs
+    voidFog.render(ctx, alpha, camera);
     rifts.render(ctx, alpha);
     particles.render(ctx);
     echoes.render(ctx, alpha);
