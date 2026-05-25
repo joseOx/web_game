@@ -243,7 +243,7 @@
     "id": "antonio_echo_letter_03", "speaker": "Antonio", "portrait": "antonio_reading",
     "text": "\"Al pueblo de Miraloma: después de cuarenta años, el faro queda en manos de quienes vengan después. Yo hice mi parte.\"",
     "next": "antonio_echo_letter_04",
-    "condition": "flag:antonio_letter_read",
+    "condition": "NOT:flag:antonio_letter_read",
     "onEnter": "audioSystem.playSFX('paper_rustle')"
   },
   "antonio_echo_letter_04": {
@@ -2360,7 +2360,7 @@
     "style": "abuelo_memory",
     "text": "El Vacío de hace cuarenta años es igual al de ahora. Pero no hay Cortesanos. No hay Reina despierta. Solo silencio. Y algo durmiendo en el fondo.",
     "next": "m08_memory_04",
-    "onExit": "events.emit('memory:entered', 'memoryId', 'grandfather')"
+    "onExit": "eventBus.emit('memory:entered', 'memoryId', 'grandfather')"
   },
   "m08_memory_04": {
     "id": "m08_memory_04", "speaker": "", "portrait": null,
@@ -2461,7 +2461,7 @@
     "style": "narrative_float",
     "text": "La memoria se pliega como un libro que se cierra. El desván vuelve a ser el desván. Pero algo cambió.",
     "next": "m08_memory_end_02",
-    "onExit": "events.emit('memory:exited', 'memoryId', 'grandfather')"
+    "onExit": "eventBus.emit('memory:exited', 'memoryId', 'grandfather')"
   },
   "m08_memory_end_02": {
     "id": "m08_memory_end_02", "speaker": "", "portrait": null,

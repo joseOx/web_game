@@ -453,7 +453,7 @@ events.on('zone:loaded', data => {
   // Imagen de piso para R_HUB
   if (data.zoneId === 'R_HUB') {
     const pisoImg = assets.getImage('r_hub_piso');
-    if (pisoImg) world.setBgImage(pisoImg);
+    if (pisoImg) world.setBgImage(pisoImg, { tile: { cols: 6, rows: 7 } });
   }
 
   // Aplicar sprite de Diego en R_HUB
@@ -507,6 +507,15 @@ events.on('zone:loaded', data => {
   if (data.zoneId === 'V_CEMETERY' && !save.getFlag('mission_cemetery_child_active')) {
     const childRift = rifts.get('G_cemetery_child');
     if (childRift) { childRift.active = false; childRift._currentlyVisible = false; }
+  }
+
+  // M07 — Desbloquear visibilidad de la grieta oculta cuando la misión está activa
+  // forceHiddenInReal=true bloquea la grieta incondicionalmente; lo bajamos aquí
+  // para que la visión felina pueda revelarla (paso 1 de la misión)
+  if (data.zoneId === 'R_CEMETERY' && save.getFlag('mission_cemetery_child_active')
+      && !save.getFlag('mission_cemetery_child_done')) {
+    const childRift = rifts.get('G_cemetery_child');
+    if (childRift) childRift._forceHiddenInReal = false;
   }
 
   // M07 — Emilia como aliada en R_CEMETERY (resolución B)
@@ -646,11 +655,14 @@ events.on('zone:loaded', data => {
     setTimeout(() => dialogue.start('void_first_entry_01'), 400);
   }
 
-  // M01 — Pista de guardianes del farol (solo cuando la misión está activa)
+  // M01 — Pista de guardianes del farol (solo después de que Luna fue encontrada y el tutorial completó,
+  // para no interrumpir void_first_entry ni luna_lighthouse_reunion)
   if (data.zoneId === 'V_LIGHTHOUSE' &&
       missions.isActive('lighthouse') &&
       !save.getFlag('mission_lighthouse_done') &&
-      !save.getFlag('lighthouse_guard_hint_shown')) {
+      !save.getFlag('lighthouse_guard_hint_shown') &&
+      save.getFlag('void_first_entry') &&
+      save.getFlag('luna_found_void')) {
     save.setFlag('lighthouse_guard_hint_shown', true);
     setTimeout(() => dialogue.start('lighthouse_guard_hint'), 1200);
   }
@@ -977,6 +989,7 @@ const ZONE_NAMES = {
   V_LIBRARY:     'Archivo Borrado',
   V_UMBRAL:      'El Umbral',
   V_HEART:       'Corazón del Vacío',
+  V_THRONE:      'El Trono del Vacío',
   R_CHAPTER0_HOUSE: 'Casa de Rosa (hace 6 años)',
   R_CHAPTER0_GARDEN: 'Jardín Nocturno',
 };

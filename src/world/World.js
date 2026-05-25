@@ -16,6 +16,7 @@ export class World {
     this._exits        = [];
     this._itemTriggers = [];
     this._zoneDef      = null;
+    this._bgImage      = null;   // optional floor texture image
   }
 
   setCamera(camera) { this._camera = camera; }
@@ -51,7 +52,16 @@ export class World {
     }).map(e => ({ ...e, id: e.id }));
     this._itemTriggers = (zoneDef.items ?? []).map(i => ({ ...i }));
 
-    this.loaded = true;
+    this._bgImage = null;
+    this._bgTile  = null;
+    this.loaded   = true;
+  }
+
+  // Set a floor texture image for the current zone. Drawn below solid tiles.
+  // options.tile = { cols, rows } → repeat image N×M times instead of stretching.
+  setBgImage(img, { tile = null } = {}) {
+    this._bgImage = img;
+    this._bgTile  = tile;   // null = stretch, { cols, rows } = repeat
   }
 
   unload() {
@@ -172,11 +182,29 @@ export class World {
     const startRow = cam ? Math.max(0,                  Math.floor(cam.y / th) - 1) : 0;
     const endRow   = cam ? Math.min(this.tilemap.rows,  Math.ceil((cam.y + cam.height) / th) + 1) : this.tilemap.rows;
 
+    // Floor texture — drawn across the whole zone, solid tiles render on top
+    if (this._bgImage) {
+      if (this._bgTile) {
+        const { cols, rows } = this._bgTile;
+        const tw2 = this.tilemap.widthPx  / cols;
+        const th2 = this.tilemap.heightPx / rows;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            ctx.drawImage(this._bgImage, c * tw2, r * th2, tw2, th2);
+          }
+        }
+      } else {
+        ctx.drawImage(this._bgImage, 0, 0, this.tilemap.widthPx, this.tilemap.heightPx);
+      }
+    }
+
     for (let row = startRow; row < endRow; row++) {
       for (let col = startCol; col < endCol; col++) {
         const ch    = this.tilemap.charAt(col, row);
         const color = this._palette[ch];
         if (!color) continue;
+        // Skip non-solid tiles when a floor image is active — image handles the floor
+        if (this._bgImage && !this.tilemap.isSolid(col, row)) continue;
         ctx.fillStyle = color;
         ctx.fillRect(col * tw, row * th, tw, th);
       }

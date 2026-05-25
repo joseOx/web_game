@@ -62,7 +62,7 @@ export const ZoneV_LIBRARY = {
       type:             'bound',
       id:               'echo_archivista',
       x:                8 * 16,
-      y:                4 * 16,
+      y:                7 * 16,
       emotion:          'guilt',
       dialogueId:       'archivist_echo_encounter',
       spawnFlag:        'mission_library_active',

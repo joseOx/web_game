@@ -92,8 +92,8 @@ export const ZoneR_HUB = {
     },
     {
       id:          'to_library',
-      x:   24 * 16, y: 11 * 16,
-      width:  16,    height: 2 * 16,
+      x:   23 * 16, y: 11 * 16,
+      width:  2 * 16, height: 2 * 16,
       targetZone:  'R_LIBRARY',
       targetSpawn: 'from_hub',
     },

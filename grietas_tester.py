@@ -88,11 +88,13 @@ else:
 # ─────────────────────────────────────────────
 
 class TestState(TypedDict):
-    scope:              str   # "all" | "datos" | "zonas" | "misiones" | "coherencia" | zone_id
+    scope:              str   # "all" | "datos" | "zonas" | "misiones" | "coherencia" | "bug" | zone_id
+    bug_description:    str   # descripción libre del bug (solo cuando scope="bug")
     reporte_datos:      str
     reporte_zonas:      str
     reporte_misiones:   str
     reporte_coherencia: str
+    reporte_bug:        str
     issues_total:       int
     aprobado:           bool
 
@@ -288,6 +290,37 @@ Reportes anteriores de contexto:
   Zonas: {{reporte_zonas_resumen}}
 """
 
+SYSTEM_BUG = f"""
+{CONTEXTO_BASE}
+
+Eres el Investigador de Bugs de GRIETAS. Se te ha proporcionado una descripción de un bug
+o comportamiento inesperado reportado por el desarrollador.
+
+Tu misión: investigar la causa raíz del bug en el código fuente y, si es posible, corregirlo.
+
+PASOS:
+1. Lee con atención la descripción del bug.
+2. Identificá qué sistemas, zonas o archivos podrían estar involucrados.
+3. Leé los archivos relevantes con read_file. Empezá por los más probables según el síntoma:
+   - Bug visual o de movimiento → src/entities/, src/systems/, src/main.js
+   - Bug de diálogo             → assets/data/dialogues.json, src/ui/DialogueSystem.js
+   - Bug de misión              → src/missions/data/, src/missions/MissionBase.js
+   - Bug de zona o transición   → src/world/zones/, src/world/SceneManager.js
+   - Bug de EchoBound/ecos      → src/entities/EchoBound.js, src/systems/EchoBoundAI.js
+   - Bug de sprite o render     → src/entities/NPC.js, src/entities/Player.js, src/main.js
+4. Usá search_in_files para localizar código sospechoso (flags, IDs, nombres de función).
+5. Analizá el flujo de datos y eventos que reproduce el bug.
+6. Si encontrás el problema:
+   - Corregilo con edit_file si la corrección es segura y acotada.
+   - Reportalo como [ISSUE-01] BUG con causa raíz y solución propuesta si no podés corregirlo.
+7. Si no encontrás el problema:
+   - Reportá qué investigaste, qué descartaste, y qué queda pendiente de verificar.
+8. Al finalizar: "ISSUES ENCONTRADOS: N" donde N = BUGs confirmados (0 si se corrigió todo).
+
+IMPORTANTE: Siempre leé el archivo COMPLETO antes de sugerir o aplicar una corrección.
+No editás sin leer primero. No asumás — verificá con search_in_files.
+"""
+
 SYSTEM_COHERENCIA = f"""
 {CONTEXTO_BASE}
 
@@ -480,6 +513,41 @@ def nodo_coherencia(state: TestState) -> dict:
     }
 
 
+def nodo_bug(state: TestState) -> dict:
+    if not _scope_applies(state["scope"], "bug"):
+        return {"reporte_bug": "(omitido por scope)"}
+
+    print("\n" + "═" * 60)
+    print("🐛  INVESTIGADOR DE BUGS — analizando bug reportado...")
+    print("═" * 60)
+
+    bug_desc = state.get("bug_description", "").strip()
+    if not bug_desc:
+        return {
+            "reporte_bug": "No se proporcionó descripción del bug.",
+            "aprobado":    False,
+        }
+
+    agente = crear_agente(SYSTEM_BUG)
+    resultado = agente.invoke({
+        "messages": [HumanMessage(content=(
+            f"BUG REPORTADO:\n{bug_desc}\n\n"
+            "Investigá la causa raíz en el código fuente. Leé los archivos relevantes, "
+            "corregí si es posible, y terminá con 'ISSUES ENCONTRADOS: N'."
+        ))]
+    })
+    respuesta = resultado["messages"][-1].content
+    print(respuesta)
+    issues = _parse_issues(respuesta)
+    aprobado = issues == 0 and "REQUIERE_REVISION" not in respuesta.upper()
+
+    return {
+        "reporte_bug":  respuesta,
+        "issues_total": state.get("issues_total", 0) + issues,
+        "aprobado":     aprobado,
+    }
+
+
 # ─────────────────────────────────────────────
 # Construcción del grafo
 # ─────────────────────────────────────────────
@@ -490,12 +558,14 @@ workflow.add_node("datos",      nodo_datos)
 workflow.add_node("zonas",      nodo_zonas)
 workflow.add_node("misiones",   nodo_misiones)
 workflow.add_node("coherencia", nodo_coherencia)
+workflow.add_node("bug",        nodo_bug)
 
 workflow.add_edge(START,        "datos")
 workflow.add_edge("datos",      "zonas")
 workflow.add_edge("zonas",      "misiones")
 workflow.add_edge("misiones",   "coherencia")
-workflow.add_edge("coherencia", END)
+workflow.add_edge("coherencia", "bug")
+workflow.add_edge("bug",        END)
 
 app = workflow.compile()
 
@@ -516,16 +586,25 @@ if __name__ == "__main__":
     print("  zonas        — solo archivos Zone*.js")
     print("  misiones     — solo archivos mission_*.js")
     print("  coherencia   — solo coherencia cruzada + main.js")
+    print("  bug          — investigar un bug específico (describís el error)")
     print("  <zone_id>    — zona específica, ej: R_CEMETERY")
     print(f"  Zonas válidas: {', '.join(ZONE_IDS)}")
 
     print("\nIngresá el scope (Enter = all): ", end="", flush=True)
     scope_input = input().strip() or "all"
 
-    VALID_SCOPES = {"all", "datos", "zonas", "misiones", "coherencia"} | set(ZONE_IDS)
+    VALID_SCOPES = {"all", "datos", "zonas", "misiones", "coherencia", "bug"} | set(ZONE_IDS)
     if scope_input not in VALID_SCOPES:
         print(f"\n⚠️  Scope inválido '{scope_input}'. Usando 'all'.")
         scope_input = "all"
+
+    bug_description = ""
+    if scope_input == "bug":
+        print("\nDescribí el bug o comportamiento inesperado: ", end="", flush=True)
+        bug_description = input().strip()
+        if not bug_description:
+            print("⚠️  No ingresaste descripción. Saliendo.")
+            exit(1)
 
     hoy = datetime.date.today().isoformat()
     etiqueta = f"tester_{scope_input}_{hoy}"
@@ -540,10 +619,12 @@ if __name__ == "__main__":
 
     estado_inicial: TestState = {
         "scope":              scope_input,
+        "bug_description":    bug_description,
         "reporte_datos":      "",
         "reporte_zonas":      "",
         "reporte_misiones":   "",
         "reporte_coherencia": "",
+        "reporte_bug":        "",
         "issues_total":       0,
         "aprobado":           False,
     }
@@ -564,6 +645,7 @@ if __name__ == "__main__":
         ("reporte_zonas",      "Zonas      "),
         ("reporte_misiones",   "Misiones   "),
         ("reporte_coherencia", "Coherencia "),
+        ("reporte_bug",        "Bug        "),
     ]:
         rep = resultado.get(campo, "")
         if rep and rep != "(omitido por scope)":
