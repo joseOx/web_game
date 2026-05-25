@@ -414,11 +414,56 @@ events.on('minigame:pattern_solved', data => {
   missions.dispatchEvent('minigame:pattern_solved', data);
 });
 
+// ── Tile textures ─────────────────────────────────────────────────────────────
+function _applyZoneTextures(zoneId) {
+  const tx = k => assets.getImage(k);
+  const wall  = tx('tx_wall');
+  const wood  = tx('tx_floor_wood');
+  const stone = tx('tx_floor_stone');
+  const sand  = tx('tx_floor_sand');
+  const bldg  = tx('tx_building');
+  const shelf = tx('tx_shelf');
+  const furn  = tx('tx_furniture');
+
+  world.setTileTexture('#', wall);
+
+  if (zoneId === 'R_HOME' || zoneId === 'R_CHAPTER0_HOUSE') {
+    world.setTileTexture('.', wood);
+    world.setTileTexture('f', furn);
+  } else if (zoneId === 'R_HOME_ATTIC') {
+    world.setTileTexture('.', wood);
+  } else if (zoneId === 'R_HUB' || zoneId === 'V_HUB') {
+    world.setTileTexture('b', bldg);
+    world.setTileTexture('f', bldg);
+    if (zoneId === 'V_HUB') world.setTileTexture('.', stone);
+  } else if (zoneId === 'R_LIBRARY' || zoneId === 'V_LIBRARY') {
+    world.setTileTexture('.', wood);
+    world.setTileTexture('b', shelf);
+    world.setTileTexture('t', furn);
+  } else if (zoneId === 'R_SCHOOL' || zoneId === 'V_SCHOOL') {
+    world.setTileTexture('b', bldg);
+  } else if (zoneId === 'R_BEACH' || zoneId === 'V_BEACH') {
+    world.setTileTexture('.', sand);
+  } else if (zoneId === 'R_CEMETERY' || zoneId === 'V_CEMETERY') {
+    world.setTileTexture('.', stone);
+    world.setTileTexture('g', stone);
+    world.setTileTexture('p', stone);
+  } else if (zoneId === 'V_HOME') {
+    world.setTileTexture('.', wood);
+  } else if (zoneId === 'R_CHAPTER0_GARDEN') {
+    world.setTileTexture('.', stone);
+  } else if (zoneId === 'V_HEART' || zoneId === 'V_THRONE') {
+    world.setTileTexture('.', stone);
+  }
+}
+
 // Verificar desbloqueo de Ecolectura cuando se carga una zona
 events.on('zone:loaded', () => {
   echoReading.checkUnlock();
 });
 events.on('zone:loaded', data => {
+  _applyZoneTextures(data.zoneId);
+
   // Auto-activate missions that start on first zone entry
   if ((data.zoneId === 'R_SCHOOL' || data.zoneId === 'V_SCHOOL') &&
       !missions.isActive('melody') && !missions.isDone('melody')) {
@@ -454,6 +499,12 @@ events.on('zone:loaded', data => {
   if (data.zoneId === 'R_HUB') {
     const pisoImg = assets.getImage('r_hub_piso');
     if (pisoImg) world.setBgImage(pisoImg, { tile: { cols: 6, rows: 7 } });
+  }
+
+  // Imagen de piso para R_SCHOOL y V_SCHOOL (7 filas × 6 columnas)
+  if (data.zoneId === 'R_SCHOOL' || data.zoneId === 'V_SCHOOL') {
+    const musicaPiso = assets.getImage('musica_piso');
+    if (musicaPiso) world.setBgImage(musicaPiso, { tile: { cols: 6, rows: 7 } });
   }
 
   // Aplicar sprite de Diego en R_HUB
@@ -528,6 +579,12 @@ events.on('zone:loaded', data => {
     const emiliaSpriteCem = assets.getImage('emilia_sprite');
     if (emiliaSpriteCem) emiliaCem.setMateoSprite(emiliaSpriteCem, { drawW: 28, drawH: 28 });
     world.addNPC(emiliaCem);
+  }
+
+  // Tabla del abuelo — imagen sobre el objeto diary_abuelo
+  if (data.zoneId === 'R_HOME_ATTIC') {
+    const tablaImg = assets.getImage('tabla_abuelo');
+    if (tablaImg) world.setObjectImage('diary_abuelo', tablaImg, { drawW: 28, drawH: 22 });
   }
 
   // M08 — Trigger del diario del abuelo en R_HOME_ATTIC
@@ -1048,6 +1105,15 @@ async function init() {
     assets.loadImage('emilia_sprite',    'emilia.png').catch(() => null),
     assets.loadImage('r_hub_piso',       'r_hub_piso.png').catch(() => null),
     assets.loadImage('piso_faro',        'piso_faro.png').catch(() => null),
+    assets.loadImage('tabla_abuelo',     'tabla.png').catch(() => null),
+    assets.loadImage('musica_piso',      'musica_piso.png').catch(() => null),
+    assets.loadImage('tx_wall',          'assets/tiles/tx_wall.png').catch(() => null),
+    assets.loadImage('tx_floor_wood',    'assets/tiles/tx_floor_wood.png').catch(() => null),
+    assets.loadImage('tx_floor_stone',   'assets/tiles/tx_floor_stone.png').catch(() => null),
+    assets.loadImage('tx_floor_sand',    'assets/tiles/tx_floor_sand.png').catch(() => null),
+    assets.loadImage('tx_building',      'assets/tiles/tx_building.png').catch(() => null),
+    assets.loadImage('tx_shelf',         'assets/tiles/tx_shelf.png').catch(() => null),
+    assets.loadImage('tx_furniture',     'assets/tiles/tx_furniture.png').catch(() => null),
   ]);
   dialogue.loadDialogues(json);
   luna.setRealSprite(lunaImg);

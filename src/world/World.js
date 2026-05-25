@@ -17,6 +17,7 @@ export class World {
     this._itemTriggers = [];
     this._zoneDef      = null;
     this._bgImage      = null;   // optional floor texture image
+    this._tileTextures = {};     // char → HTMLImageElement
   }
 
   setCamera(camera) { this._camera = camera; }
@@ -72,6 +73,7 @@ export class World {
     this._exits        = [];
     this._itemTriggers = [];
     this._zoneDef      = null;
+    this._tileTextures = {};
   }
 
   // Returns the nearest NPC within range, or null
@@ -162,6 +164,20 @@ export class World {
     this._npcs.push(npc);
   }
 
+  // Assign a texture to a tile char (tinted with palette color via multiply blend).
+  setTileTexture(char, img) {
+    if (img) this._tileTextures[char] = img;
+  }
+
+  // Assign an image to an object by id. drawW/drawH override render size.
+  setObjectImage(id, img, { drawW = null, drawH = null } = {}) {
+    const obj = this._objects.find(o => o.id === id);
+    if (!obj) return;
+    obj._img  = img;
+    if (drawW !== null) obj._imgW = drawW;
+    if (drawH !== null) obj._imgH = drawH;
+  }
+
   // ── Update / Render ───────────────────────────────────────────────────────────
 
   update(dt) {
@@ -205,8 +221,16 @@ export class World {
         if (!color) continue;
         // Skip non-solid tiles when a floor image is active — image handles the floor
         if (this._bgImage && !this.tilemap.isSolid(col, row)) continue;
+        const x = col * tw, y = row * th;
         ctx.fillStyle = color;
-        ctx.fillRect(col * tw, row * th, tw, th);
+        ctx.fillRect(x, y, tw, th);
+        const tex = this._tileTextures[ch];
+        if (tex) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'multiply';
+          ctx.drawImage(tex, x, y, tw, th);
+          ctx.restore();
+        }
       }
     }
 
@@ -218,8 +242,18 @@ export class World {
 
     // Draw inspectable objects
     for (const obj of this._objects) {
-      ctx.fillStyle = obj.color ?? '#7BAFD4';
-      ctx.fillRect(obj.x, obj.y, obj.width ?? 16, obj.height ?? 16);
+      if (obj._img) {
+        const dw = obj._imgW ?? (obj.width  ?? 16);
+        const dh = obj._imgH ?? (obj.height ?? 16);
+        const dx = obj.x + ((obj.width  ?? 16) - dw) / 2;
+        const dy = obj.y + ((obj.height ?? 16) - dh) / 2;
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillRect(dx - 1, dy - 1, dw + 2, dh + 2);
+        ctx.drawImage(obj._img, dx, dy, dw, dh);
+      } else {
+        ctx.fillStyle = obj.color ?? '#7BAFD4';
+        ctx.fillRect(obj.x, obj.y, obj.width ?? 16, obj.height ?? 16);
+      }
       if (obj.label) {
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
         ctx.font = '8px VT323, monospace';

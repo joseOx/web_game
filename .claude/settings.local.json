@@ -12,7 +12,24 @@
       "Bash(git add *)",
       "Bash(findstr /N \"\\\\\"text\\\\\":\" assets/data/dialogues.json)",
       "Bash(findstr \"umbral_espejo\\\\|umbral_abuelo\\\\|umbral_luna\")",
-      "Bash(xargs grep -l \"reina_sprite\\\\|reina\\\\.png\")"
+      "Bash(xargs grep -l \"reina_sprite\\\\|reina\\\\.png\")",
+      "WebSearch",
+      "WebFetch(domain:kenney.nl)",
+      "WebFetch(domain:opengameart.org)",
+      "Bash(mkdir -p /tmp/kenney_extract)",
+      "Bash(curl -L \"https://kenney.nl/media/pages/assets/tiny-dungeon/f8422efb44-1674742415/kenney_tiny-dungeon.zip\" -o /tmp/kenney_tiny_dungeon.zip)",
+      "Bash(cd /tmp)",
+      "Bash(unzip -o kenney_tiny_dungeon.zip -d kenney_extract)",
+      "Bash(python3 -c ' *)",
+      "Bash(cp /tmp/kenney_extract/Preview.png /tmp/preview_kenney.png)",
+      "Bash(cp /tmp/kenney_extract/Tilemap/tilemap.png /tmp/tilemap_kenney.png)",
+      "Bash(cp /tmp/kenney_extract/Preview.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/preview_kenney.png\")",
+      "Bash(cp /tmp/kenney_extract/Tilemap/tilemap.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/tilemap_kenney.png\")",
+      "Bash(cp /tmp/kenney_extract/Tiles/tile_0037.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_wall.png\")",
+      "Bash(cp /tmp/kenney_extract/Tiles/tile_0026.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_floor_wood.png\")",
+      "Bash(cp /tmp/kenney_extract/Tiles/tile_0040.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_floor_stone.png\")",
+      "Bash(cp /tmp/kenney_extract/Tiles/tile_0049.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_floor_sand.png\")",
+      "Bash(cp /tmp/kenney_extract/Tiles/tile_0028.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_building.png\")"
     ]
   }
 }
