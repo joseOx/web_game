@@ -68,7 +68,7 @@ export const ZoneR_CEMETERY = {
     // La grieta de la capilla: oculta sin visión felina, visible con ella
     { id: 'G_cemetery_chapel', x: 10 * 16, y: 4 * 16, size: 'major', emotion: 'grief' },
     // Grieta oculta de Tomás: solo visible con visión felina en el mundo real
-    { id: 'G_cemetery_child',  x: 18 * 16, y: 2 * 16, size: 'major', emotion: 'guilt', forceHiddenInReal: false },
+    { id: 'G_cemetery_child',  x: 18 * 16, y: 2 * 16, size: 'major', emotion: 'guilt', forceHiddenInReal: true },
   ],
 
   voidZoneId: 'V_CEMETERY',

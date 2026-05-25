@@ -7,7 +7,7 @@ import { MissionBase } from '../MissionBase.js';
 export class Mission08Grandfather extends MissionBase {
   constructor() {
     super({
-      id: 'grandfather_chronicle',
+      id: 'grandfather',
       title: 'El diario del abuelo',
       steps: [
         { description: 'Encontrar el diario del abuelo en el desván' },

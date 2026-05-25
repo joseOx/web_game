@@ -41,6 +41,7 @@ export const ZoneV_HUB = {
     default:      { x: 12 * 16, y: 9 * 16 },
     from_hub:     { x: 12 * 16, y: 9 * 16 },
     heart_return: { x: 12 * 16, y: 3 * 16 },
+    throne_return: { x: 12 * 16, y: 15 * 16 },
   },
 
   exits: [

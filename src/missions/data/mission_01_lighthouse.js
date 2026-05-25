@@ -31,7 +31,7 @@ export class Mission01Lighthouse extends MissionBase {
         }
         if (data.nodeId === 'antonio_echo_letter_03') {
           this._saveSystem?.setFlag('antonio_letter_read', true);
-          if (this._saveSystem?.getFlag('antonio_notes_secret_active') === false) {
+          if (!this._saveSystem?.getFlag('antonio_notes_secret_active')) {
             this._saveSystem?.setFlag('antonio_notes_secret_active', true);
           }
         }

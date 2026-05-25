@@ -237,7 +237,7 @@ events.on('dialogue:node_exit', data => {
   // M08 — Al encontrar el diario, activar la misión y entrar a la memoria
   if (data.nodeId === 'm08_trigger_02' && !save.getFlag('mission_grandfather_active')) {
     save.setFlag('m08_diary_found', true);
-    missions.activate('grandfather_chronicle');
+    missions.activate('grandfather');
     (async () => {
       await transition.playFull('diary_open');
       events.emit('memory:entered', { memoryId: 'grandfather' });
@@ -250,7 +250,7 @@ events.on('dialogue:node_exit', data => {
 
   // M08 — Al terminar los diálogos de memoria, iniciar minijuego de observación
   if (data.nodeId === 'm08_memory_04' &&
-      missions.isActive('grandfather_chronicle') &&
+      missions.isActive('grandfather') &&
       !save.getFlag('m08_objects_found')) {
     // Iniciar minijuego de objetos ocultos
     const targets = [
@@ -265,7 +265,7 @@ events.on('dialogue:node_exit', data => {
 
   // M08 — Al terminar el diálogo de objetos completos, iniciar minijuego de patrón
   if (data.nodeId === 'm08_memory_objects_complete' &&
-      missions.isActive('grandfather_chronicle')) {
+      missions.isActive('grandfather')) {
     const symbols = [
       { id: 'eye',     label: '👁' },
       { id: 'curve',   label: '◠' },
@@ -445,6 +445,22 @@ events.on('zone:loaded', data => {
     const diegoSprite = assets.getImage('diego');
     if (diegoSprite) {
       world.getNPC('diego')?.setMateoSprite(diegoSprite, { drawW: 28, drawH: 28 });
+    }
+    const antonioSprite = assets.getImage('antonio_sprite');
+    if (antonioSprite) {
+      const _aFW = antonioSprite.naturalWidth / 4, _aFH = antonioSprite.naturalHeight / 4;
+      const _aDH = 24, _aDW = Math.round(_aFW / _aFH * _aDH);
+      echoes.get('echo_antonio_hub')?.setMateoSprite(antonioSprite, { drawW: _aDW, drawH: _aDH });
+    }
+  }
+
+  // Aplicar sprite de Antonio en V_LIGHTHOUSE
+  if (data.zoneId === 'V_LIGHTHOUSE') {
+    const antonioSprite = assets.getImage('antonio_sprite');
+    if (antonioSprite) {
+      const _aFW = antonioSprite.naturalWidth / 4, _aFH = antonioSprite.naturalHeight / 4;
+      const _aDH = 24, _aDW = Math.round(_aFW / _aFH * _aDH);
+      echoes.get('echo_antonio_lighthouse')?.setMateoSprite(antonioSprite, { drawW: _aDW, drawH: _aDH });
     }
   }
 
@@ -942,6 +958,10 @@ async function init() {
     assets.loadImage('rosa_sprite',    'rosa_sprite.png').catch(() => null),
     assets.loadImage('antonio_sprite', 'antonio_sprite.png').catch(() => null),
     assets.loadImage('reina_scene_img', 'reina.png').catch(() => null),
+    assets.loadImage('camila_sprite',    'camila.png').catch(() => null),
+    assets.loadImage('ponce_sprite',     'ponce.png').catch(() => null),
+    assets.loadImage('archivista_sprite','archivista.png').catch(() => null),
+    assets.loadImage('abuelo_sprite',    'abuelo.png').catch(() => null),
   ]);
   dialogue.loadDialogues(json);
   luna.setRealSprite(lunaImg);
@@ -963,8 +983,33 @@ async function init() {
     return c;
   }
 
+  function _cropFrame0(img) {
+    if (!(img instanceof HTMLImageElement)) return img;
+    const fw = Math.floor(img.naturalWidth  / 4);
+    const fh = Math.floor(img.naturalHeight / 4);
+    const pc = document.createElement('canvas');
+    pc.width = fw; pc.height = fh;
+    pc.getContext('2d').drawImage(img, 0, 0, fw, fh, 0, 0, fw, fh);
+    return pc;
+  }
+
+  function _ghostify(canvas) {
+    const gctx = canvas.getContext('2d');
+    gctx.globalCompositeOperation = 'screen';
+    gctx.fillStyle = 'rgba(100, 200, 255, 0.38)';
+    gctx.fillRect(0, 0, canvas.width, canvas.height);
+    gctx.globalCompositeOperation = 'source-over';
+    return canvas;
+  }
+
   const rosaImg     = assets.getImage('rosa_sprite')    ?? _makePortrait('#C49060', 'R');
-  const antonioImg  = assets.getImage('antonio_sprite') ?? _makePortrait('#708090', 'A');
+  const antonioImg  = assets.getImage('antonio_sprite');
+  const antonioPortrait = _ghostify(antonioImg ? _cropFrame0(antonioImg) : _makePortrait('#708090', 'A'));
+
+  const camilaPortrait    = assets.getImage('camila_sprite')     ? _cropFrame0(assets.getImage('camila_sprite'))     : null;
+  const poncePortrait     = assets.getImage('ponce_sprite')      ? _cropFrame0(assets.getImage('ponce_sprite'))      : null;
+  const archivistaPortrait= assets.getImage('archivista_sprite') ? _cropFrame0(assets.getImage('archivista_sprite')) : null;
+  const abueloPortrait    = assets.getImage('abuelo_sprite')     ? _cropFrame0(assets.getImage('abuelo_sprite'))     : null;
 
   for (const id of ['rosa_neutral','rosa_warm','rosa_thoughtful','rosa_sad','rosa_worried',
                     'rosa_peaceful','rosa_resigned','rosa_serious','rosa_shocked','rosa_crying']) {
@@ -972,7 +1017,7 @@ async function init() {
   }
   for (const id of ['antonio_confused','antonio_sad','antonio_shocked',
                     'antonio_reading','antonio_peaceful','antonio_fading']) {
-    dialogue.loadPortrait(id, antonioImg);
+    dialogue.loadPortrait(id, antonioPortrait);
   }
   for (const id of ['mateo_worried','mateo_relieved','mateo_curious','mateo_neutral',
                     'mateo_serious','mateo_calm','mateo_gentle','mateo_focused',
@@ -985,14 +1030,14 @@ async function init() {
   const npcPortraits = {
     vera:      _makePortrait('#7BAFD4', 'V'),
     diego:     _makePortrait('#9B7FE8', 'D'),
-    hermano:   _makePortrait('#8B6FD4', 'H'),
-    carmen:    _makePortrait('#E8A87C', 'C'),
-    ponce:     _makePortrait('#7EC8A0', 'P'),
-    archivist: _makePortrait('#C8A9FF', 'A'),
-    weaver:    _makePortrait('#2A1A4E', 'T'),
-    abuelo:    _makePortrait('#8B6030', 'G'),
-    emilia:    _makePortrait('#A08060', 'E'),
-    tomas:     _makePortrait('#7FB8D0', 'T'),
+    hermano:   _ghostify(_makePortrait('#8B6FD4', 'H')),
+    carmen:    camilaPortrait     ?? _makePortrait('#E8A87C', 'C'),
+    ponce:     poncePortrait      ?? _makePortrait('#7EC8A0', 'P'),
+    archivist: _ghostify(archivistaPortrait ?? _makePortrait('#C8A9FF', 'A')),
+    weaver:    _ghostify(_makePortrait('#2A1A4E', 'T')),
+    abuelo:    _ghostify(abueloPortrait     ?? _makePortrait('#8B6030', 'G')),
+    emilia:    _ghostify(_makePortrait('#A08060', 'E')),
+    tomas:     _ghostify(_makePortrait('#7FB8D0', 'T')),
   };
   const npcPortraitMap = {
     vera:      ['vera_confused','vera_sad','vera_hopeful','vera_excited','vera_peaceful'],
@@ -1278,7 +1323,7 @@ function _renderHUD(ctx) {
   ctx.fillText(ZONE_NAMES[zoneId] ?? zoneId ?? '…', 6, 24);
 
   // Active mission + step
-  const active = ['lighthouse','melody','garden','dogs','brothers','library','cemetery_child','umbral_espejo','grandfather_chronicle']
+  const active = ['lighthouse','melody','garden','dogs','brothers','library','cemetery_child','umbral_espejo','grandfather']
     .find(id => missions.isActive(id));
   if (active) {
     const m    = missions.get(active);

@@ -959,7 +959,8 @@
     "id": "carmen_route", "speaker": "Carmen", "portrait": "carmen_worried",
     "text": "¿Has oído los perros de noche? Llevan tres días aullando hacia la playa norte.",
     "condition": "NOT:flag:mission_dogs_done",
-    "next": "carmen_post_m04"
+    "next": "carmen_dogs_hint",
+    "nextElse": "carmen_post_m04"
   },
   "carmen_post_m04": {
     "id": "carmen_post_m04", "speaker": "Carmen", "portrait": "carmen_relieved",
@@ -2483,7 +2484,7 @@
     "style": "narrative_float",
     "text": "Luna ronronea desde la puerta del desván. Ella sabe que despertó. Y sabe que tienes que ir.",
     "next": null,
-    "onExit": "missionManager.complete('grandfather_chronicle')"
+    "onExit": "missionManager.complete('grandfather')"
   },
 
   "throne_inspect_01": {
