@@ -484,16 +484,15 @@ export class DialogueSystem {
 
     // ── Reina (lado derecho, grande) ────────────────────────────────────────
     const rX = 192, rY = 10, rW = 62, rH = 96;
-    const reinaImg = this._sceneImages.get('reina_scene_img');
+    const reinaImg = this._sceneImages.get('reina_sprite');
     if (reinaImg) {
-      // Spritesheet 2×2: 4 frames de idle leídos en orden (0,0)→(1,0)→(0,1)→(1,1)
-      const fW    = reinaImg.width  / 2;
-      const fH    = reinaImg.height / 2;
-      const frame = Math.floor(Date.now() / 200) % 4;
-      const col   = frame % 2;
-      const row   = Math.floor(frame / 2);
+      // Spritesheet 5×2: row 0 = idle (5 frames)
+      const COLS = 5;
+      const fW   = Math.floor(reinaImg.naturalWidth  / COLS);
+      const fH   = Math.floor(reinaImg.naturalHeight / 2);
+      const frame = Math.floor(Date.now() / 160) % COLS;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(reinaImg, col * fW, row * fH, fW, fH, rX, rY, rW, rH);
+      ctx.drawImage(reinaImg, frame * fW, 0, fW, fH, rX, rY, rW, rH);
     } else {
       // Fallback: silueta violeta con corona
       ctx.fillStyle = 'rgba(75, 35, 120, 0.85)';

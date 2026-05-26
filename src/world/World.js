@@ -18,6 +18,7 @@ export class World {
     this._zoneDef      = null;
     this._bgImage      = null;   // optional floor texture image
     this._tileTextures = {};     // char → HTMLImageElement
+    this._customEntities = [];   // Reina, Cortesanos, etc.
   }
 
   setCamera(camera) { this._camera = camera; }
@@ -74,6 +75,7 @@ export class World {
     this._itemTriggers = [];
     this._zoneDef      = null;
     this._tileTextures = {};
+    this._customEntities = [];
   }
 
   // Returns the nearest NPC within range, or null
@@ -164,6 +166,11 @@ export class World {
     this._npcs.push(npc);
   }
 
+  // Adds a custom entity (Reina, Cortesanos, etc.) rendered after NPCs
+  addCustomEntity(entity) {
+    this._customEntities.push(entity);
+  }
+
   // Assign a texture to a tile char (tinted with palette color via multiply blend).
   setTileTexture(char, img) {
     if (img) this._tileTextures[char] = img;
@@ -182,6 +189,7 @@ export class World {
 
   update(dt) {
     for (const npc of this._npcs) npc.update(dt);
+    for (const e of this._customEntities) e.update(dt);
   }
 
   setDimension(_dim) { /* reserved for future void world variant */ }
@@ -227,7 +235,7 @@ export class World {
         const tex = this._tileTextures[ch];
         if (tex) {
           ctx.save();
-          ctx.globalCompositeOperation = 'multiply';
+          ctx.globalCompositeOperation = 'overlay';
           ctx.drawImage(tex, x, y, tw, th);
           ctx.restore();
         }
@@ -267,6 +275,11 @@ export class World {
     // Draw NPCs
     for (const npc of this._npcs) {
       npc.render(ctx, alpha);
+    }
+
+    // Draw custom entities (Reina, Cortesanos, etc.)
+    for (const e of this._customEntities) {
+      e.render(ctx, alpha);
     }
   }
 }

@@ -13,10 +13,12 @@ import { AnimationComponent } from '../systems/AnimationSystem.js';
 //   warm       → tono más cálido (después de pacto/resolución positiva)
 //   fade       → desapareciendo
 
-const W = 22;
-const H = 36;
-const DRAW_W = 32;
-const DRAW_H = 48;
+// Frame real: 230×184 px → ratio 5:4
+// DRAW_H × 1.25 = DRAW_W (sin distorsión)
+const DRAW_H = 40;
+const DRAW_W = 50;    // Math.round(230/184 * 40)
+const W = 32;         // hitbox centrado bajo el sprite
+const H = 32;
 
 const PLACEHOLDER_STATES = {
   idle: {
@@ -50,15 +52,22 @@ export class Reina extends Entity {
     this.addComponent('animation', new AnimationComponent(PLACEHOLDER_STATES, 'idle'));
   }
 
-  setSprite(img, { drawW = DRAW_W, drawH = DRAW_H } = {}) {
-    const fw = img.naturalWidth;
-    const fh = img.naturalHeight;
-    const f = (col, row) => ({ sx: col * (fw / 2), sy: row * (fh / 2), sw: fw / 2, sh: fh / 2 });
+  setSprite(img, { drawH = DRAW_H } = {}) {
+    const COLS = 5, ROWS = 2;
+    // Math.floor evita que sw/sh sean decimales y sangren al frame vecino
+    const fw = Math.floor(img.naturalWidth  / COLS);
+    const fh = Math.floor(img.naturalHeight / ROWS);
+    // Preserve frame aspect ratio
+    const drawW = Math.round(fw / fh * drawH);
+    const f = (col, row) => ({ sx: col * fw, sy: row * fh, sw: fw, sh: fh });
+
+    const row0 = [f(0,0), f(1,0), f(2,0), f(3,0), f(4,0)];
+    const row1 = [f(0,1), f(1,1), f(2,1), f(3,1), f(4,1)];
 
     const states = {
-      idle:  { spritesheet: img, frames: [f(0,0), f(1,0)], frameDuration: 800, loop: true },
-      speak: { spritesheet: img, frames: [f(0,1), f(1,1)], frameDuration: 400, loop: true },
-      warm:  { spritesheet: img, frames: [f(0,0)], frameDuration: 500, loop: true },
+      idle:  { spritesheet: img, frames: row0, frameDuration: 160, loop: true },
+      speak: { spritesheet: img, frames: row1, frameDuration: 110, loop: true },
+      warm:  { spritesheet: img, frames: row0.slice(0, 3), frameDuration: 200, loop: true },
     };
 
     const existing = this.getComponent('animation');
@@ -119,7 +128,7 @@ export class Reina extends Entity {
     if (frame?.spritesheet) {
       const dx = rx + (this.width  - this._drawW) / 2;
       const dy = ry + this.height  - this._drawH;
-      ctx.drawImage(frame.spritesheet, frame.sx, frame.sy, frame.sw, frame.sh,
+ctx.drawImage(frame.spritesheet, frame.sx, frame.sy, frame.sw, frame.sh,
         Math.round(dx), Math.round(dy), this._drawW, this._drawH);
     } else {
       // Placeholder: silueta violeta con corona de triángulos

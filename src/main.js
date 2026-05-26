@@ -1097,6 +1097,7 @@ async function init() {
     assets.loadImage('rosa_sprite',    'rosa_sprite.png').catch(() => null),
     assets.loadImage('antonio_sprite', 'antonio_sprite.png').catch(() => null),
     assets.loadImage('reina_scene_img', 'reina.png').catch(() => null),
+    assets.loadImage('reina_sprite',    'reina_v.png').catch(() => null),
     assets.loadImage('camila_sprite',    'camila.png').catch(() => null),
     assets.loadImage('ponce_sprite',     'ponce.png').catch(() => null),
     assets.loadImage('archivista_sprite','archivista.png').catch(() => null),
@@ -1220,6 +1221,7 @@ async function init() {
     for (const id of ids) dialogue.loadPortrait(id, npcPortraits[key]);
   }
   dialogue.setSceneImage('reina_scene_img', assets.getImage('reina_scene_img'));
+  dialogue.setSceneImage('reina_sprite',    assets.getImage('reina_sprite'));
   const mode = await titleScreen.start();
 
   if (mode === 'luna_mode') {

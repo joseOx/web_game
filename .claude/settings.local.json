@@ -29,7 +29,10 @@
       "Bash(cp /tmp/kenney_extract/Tiles/tile_0026.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_floor_wood.png\")",
       "Bash(cp /tmp/kenney_extract/Tiles/tile_0040.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_floor_stone.png\")",
       "Bash(cp /tmp/kenney_extract/Tiles/tile_0049.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_floor_sand.png\")",
-      "Bash(cp /tmp/kenney_extract/Tiles/tile_0028.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_building.png\")"
+      "Bash(cp /tmp/kenney_extract/Tiles/tile_0028.png \"C:/Users/Mazaius/Desktop/mathi/reina/web_game/assets/tiles/tx_building.png\")",
+      "Bash(curl -sL \"https://kenney.nl/media/pages/assets/tiny-dungeon/f8422efb44-1674742415/kenney_tiny-dungeon.zip\" -o /tmp/kd.zip)",
+      "Bash(unzip -o /tmp/kd.zip -d /tmp/kd)",
+      "Bash(python3 *)"
     ]
   }
 }
