@@ -38,21 +38,23 @@ export class DialogueSystem {
     this._missionManager = null;
     this._riftSystem     = null;
     this._audioSystem    = null;
-    this._visionSystem   = null;
-    this._inventory      = null;   // saveSystem doubles as inventory
-    this._eventBus       = null;
+    this._visionSystem       = null;
+    this._dimensionManager   = null;
+    this._inventory          = null;   // saveSystem doubles as inventory
+    this._eventBus           = null;
 
     this._onEnd = null;  // callback when dialogue ends
   }
 
-  inject({ input, saveSystem, missionManager, riftSystem, audioSystem, visionSystem, eventBus } = {}) {
-    if (input)          this._input          = input;
-    if (saveSystem)     this._saveSystem     = saveSystem;
-    if (missionManager) this._missionManager = missionManager;
-    if (riftSystem)     this._riftSystem     = riftSystem;
-    if (audioSystem)    this._audioSystem    = audioSystem;
-    if (visionSystem)   this._visionSystem   = visionSystem;
-    if (eventBus)       this._eventBus       = eventBus;
+  inject({ input, saveSystem, missionManager, riftSystem, audioSystem, visionSystem, dimensionManager, eventBus } = {}) {
+    if (input)            this._input            = input;
+    if (saveSystem)       this._saveSystem       = saveSystem;
+    if (missionManager)   this._missionManager   = missionManager;
+    if (riftSystem)       this._riftSystem       = riftSystem;
+    if (audioSystem)      this._audioSystem      = audioSystem;
+    if (visionSystem)     this._visionSystem     = visionSystem;
+    if (dimensionManager) this._dimensionManager = dimensionManager;
+    if (eventBus)         this._eventBus         = eventBus;
   }
 
   loadDialogues(json) {
@@ -187,8 +189,9 @@ export class DialogueSystem {
     const boxH     = Math.max(BOX_H, choiceH);
     const boxY     = BASE_HEIGHT - boxH - 2;
 
-    // Box background
-    ctx.fillStyle   = 'rgba(10, 8, 18, 0.72)';
+    // Box background — more transparent in the void so characters show through
+    const bgAlpha   = this._dimensionManager?.isVoid() ? 0.52 : 0.92;
+    ctx.fillStyle   = `rgba(10, 8, 18, ${bgAlpha})`;
     ctx.strokeStyle = '#3B2D6E';
     ctx.lineWidth   = 1;
     ctx.fillRect(PAD, boxY, BASE_WIDTH - PAD * 2, boxH);

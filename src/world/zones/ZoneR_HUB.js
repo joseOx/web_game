@@ -34,10 +34,10 @@ export const ZoneR_HUB = {
 
   palette: {
     '#': '#2D2D3D',   // edge wall
-    '.': '#666676',   // stone floor
+    '.': '#2A2838',   // stone floor
     'b': '#3A3545',   // building facade
     'f': '#555565',   // fountain/bench feature
-    'd': '#666676',   // side exit tiles (same color as floor)
+    'd': '#2A2838',   // side exit tiles (same color as floor)
     'g': '#4A6040',   // grass
     'h': '#A87C5A',   // south exit → R_HOME (warm amber path)
     'c': '#4A6045',   // south exit → R_CEMETERY (mossy green path)

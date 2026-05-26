@@ -156,7 +156,7 @@ missions.register(new Mission08Grandfather());
 dimension.inject({ transitionFX: transition, lightingSystem: lighting, riftSystem: rifts, audioSystem: audio, eventBus: events });
 rifts.inject({ saveSystem: save, missionManager: missions, audioSystem: audio, eventBus: events });
 vision.inject({ input, riftSystem: rifts, eventBus: events, luna });
-dialogue.inject({ input, saveSystem: save, missionManager: missions, riftSystem: rifts, audioSystem: audio, visionSystem: vision, eventBus: events });
+dialogue.inject({ input, saveSystem: save, missionManager: missions, riftSystem: rifts, audioSystem: audio, visionSystem: vision, dimensionManager: dimension, eventBus: events });
 minigameObs.inject({ input, eventBus: events, dialogue });
 
 hints.inject({ rifts, dimension, vision, dialogue, mateo, world });
