@@ -220,6 +220,8 @@ events.on('rift:sealed', data => {
   if (data.riftId === 'G_lighthouse_lantern') {
     setTimeout(() => dialogue.start('lighthouse_sealed_hint'), 800);
   }
+  _sealNotifColor = EMOTION_COLORS[data.emotion] ?? '#C8A9FF';
+  _sealNotifTimer = 0;
 });
 events.on('dialogue:node_exit', data => {
   missions.dispatchEvent('dialogue:node_exit', data);
@@ -463,6 +465,10 @@ events.on('zone:loaded', () => {
 });
 events.on('zone:loaded', data => {
   _applyZoneTextures(data.zoneId);
+  // Zone name announcement
+  _zoneNameText  = ZONE_NAMES[data.zoneId] ?? data.zoneId ?? '';
+  _zoneNameSub   = data.zoneId?.startsWith('V_') ? 'El Vacío' : 'Mundo Real';
+  _zoneNameTimer = 0;
 
   // Auto-activate missions that start on first zone entry
   if ((data.zoneId === 'R_SCHOOL' || data.zoneId === 'V_SCHOOL') &&
@@ -1054,6 +1060,15 @@ const ZONE_NAMES = {
 // ── HUD state ─────────────────────────────────────────────────────────────────
 let _hudElapsed      = 0;
 let _controlsAlpha   = 1.0;
+// Zone name announcement (D1)
+let _zoneNameTimer = -1;
+let _zoneNameAlpha = 0;
+let _zoneNameText  = '';
+let _zoneNameSub   = '';
+// Seal notification (D2)
+let _sealNotifTimer = -1;
+let _sealNotifAlpha = 0;
+let _sealNotifColor = '#C8A9FF';
 
 // ── Ending determination ──────────────────────────────────────────────────────
 function _determineEnding() {
@@ -1262,6 +1277,20 @@ const worldUpdate = {
     if (_controlsAlpha > 0 && _hudElapsed > 8000) {
       _controlsAlpha = Math.max(0, 1 - (_hudElapsed - 8000) / 3000);
     }
+    if (_zoneNameTimer >= 0) {
+      _zoneNameTimer += dt;
+      if      (_zoneNameTimer < 300)  _zoneNameAlpha = _zoneNameTimer / 300;
+      else if (_zoneNameTimer < 1500) _zoneNameAlpha = 1;
+      else if (_zoneNameTimer < 2000) _zoneNameAlpha = (2000 - _zoneNameTimer) / 500;
+      else { _zoneNameAlpha = 0; _zoneNameTimer = -1; }
+    }
+    if (_sealNotifTimer >= 0) {
+      _sealNotifTimer += dt;
+      if      (_sealNotifTimer < 400)  _sealNotifAlpha = _sealNotifTimer / 400;
+      else if (_sealNotifTimer < 1600) _sealNotifAlpha = 1;
+      else if (_sealNotifTimer < 2200) _sealNotifAlpha = (2200 - _sealNotifTimer) / 600;
+      else { _sealNotifAlpha = 0; _sealNotifTimer = -1; }
+    }
     if (lunaMode.active) return;    // lunaMode owns the loop while active
 
     const dialogueOpen = dialogue.isVisible();
@@ -1423,6 +1452,7 @@ const worldRender = {
     if (lunaMode.active) return;   // lunaMode renders its own scene
     camera.apply(ctx);
     world.render(ctx, alpha);       // tiles + NPCs
+    _renderExitHints(ctx);
     voidFog.render(ctx, alpha, camera);
     rifts.render(ctx, alpha);
     particles.render(ctx);
@@ -1446,7 +1476,56 @@ const worldRender = {
   },
 };
 
+// A2 — Exit arrows drawn in world-space (called inside camera.apply)
+function _renderExitHints(ctx) {
+  if (!world.loaded) return;
+  const mx    = mateo.centerX();
+  const my    = mateo.centerY();
+  const col   = dimension.isVoid() ? '#9B7FE8' : '#FFD97D';
+  const pulse = 0.6 + 0.4 * Math.sin(_hudElapsed / 380);
+  for (const exit of world.exits) {
+    const cx = exit.x + (exit.width  ?? 16) / 2;
+    const cy = exit.y + (exit.height ?? 16) / 2;
+    const d  = Math.hypot(cx - mx, cy - my);
+    if (d > 72) continue;
+    const fa    = pulse * Math.max(0.25, 1 - d / 72);
+    const angle = Math.atan2(cy - my, cx - mx);
+    ctx.save();
+    ctx.globalAlpha = fa;
+    ctx.fillStyle   = col;
+    ctx.shadowColor = col;
+    ctx.shadowBlur  = 6;
+    ctx.translate(Math.round(cx), Math.round(cy));
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(8, 0);
+    ctx.lineTo(-5, -4);
+    ctx.lineTo(-5, 4);
+    ctx.closePath();
+    ctx.fill();
+    if (d < 56) {
+      ctx.rotate(-angle);
+      ctx.shadowBlur = 2;
+      ctx.font = '8px VT323, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(ZONE_NAMES[exit.targetZone] ?? '', 0, -11);
+      ctx.textAlign = 'left';
+    }
+    ctx.restore();
+  }
+}
+
 function _renderHUD(ctx) {
+  // C3 — Rift emotion ambient tint (very subtle)
+  const unsealedRifts = rifts.getAll().filter(r => !r.sealed && r.active);
+  if (unsealedRifts.length > 0) {
+    const riftPulse = 0.5 + 0.5 * Math.sin(_hudElapsed / 2000);
+    ctx.globalAlpha = 0.05 * riftPulse;
+    ctx.fillStyle   = EMOTION_COLORS[unsealedRifts[0].emotion] ?? '#9B7FE8';
+    ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+    ctx.globalAlpha = 1;
+  }
+
   // Bond danger vignette
   const bondLevel = bond.currentLevel();
   if (bondLevel === 'CRITICAL' || bondLevel === 'DANGER') {
@@ -1497,6 +1576,39 @@ function _renderHUD(ctx) {
     ctx.fillStyle = '#ffffff'; ctx.font = '8px VT323, monospace';
     const fText = heartAnchor.unlocked ? '   [F] pulso' : '';
     ctx.fillText('[E] interactuar   [Q] llamar Luna   [Shift] visión felina' + fText, 6, BASE_HEIGHT - 4);
+    ctx.globalAlpha = 1;
+  }
+
+  // D1 — Zone name announcement
+  if (_zoneNameAlpha > 0) {
+    ctx.globalAlpha = _zoneNameAlpha;
+    ctx.fillStyle   = 'rgba(0,0,0,0.40)';
+    ctx.fillRect(0, BASE_HEIGHT / 2 - 22, BASE_WIDTH, 30);
+    ctx.shadowColor   = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur    = 4;
+    ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+    ctx.fillStyle   = '#FFFFFF';
+    ctx.font        = '14px VT323, monospace';
+    ctx.textAlign   = 'center';
+    ctx.fillText(_zoneNameText, BASE_WIDTH / 2, BASE_HEIGHT / 2 - 4);
+    ctx.fillStyle   = 'rgba(255,255,255,0.50)';
+    ctx.font        = '8px VT323, monospace';
+    ctx.fillText(_zoneNameSub, BASE_WIDTH / 2, BASE_HEIGHT / 2 + 6);
+    ctx.textAlign   = 'left';
+    ctx.globalAlpha = 1;
+  }
+
+  // D2 — Rift sealed notification
+  if (_sealNotifAlpha > 0) {
+    ctx.globalAlpha = _sealNotifAlpha;
+    ctx.shadowColor = _sealNotifColor;
+    ctx.shadowBlur  = 6;
+    ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+    ctx.fillStyle   = _sealNotifColor;
+    ctx.font        = '10px VT323, monospace';
+    ctx.textAlign   = 'center';
+    ctx.fillText('✦ Grieta sellada', BASE_WIDTH / 2, 18);
+    ctx.textAlign   = 'left';
     ctx.globalAlpha = 1;
   }
 

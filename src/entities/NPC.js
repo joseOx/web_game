@@ -13,8 +13,9 @@ export class NPC extends Entity {
     this.dialogueId = dialogueId;
     this.label      = label;
 
-    this._drawW  = 0;
-    this._drawH  = 0;
+    this._drawW    = 0;
+    this._drawH    = 0;
+    this._bobPhase = Math.random() * Math.PI * 2;
   }
 
   // img        : HTMLImageElement (the sprite sheet)
@@ -108,8 +109,10 @@ export class NPC extends Entity {
       labelCX   = dx + this._drawW / 2;
       labelTopY = dy;
     } else {
+      const bob = Math.round(Math.sin(Date.now() / 1600 + this._bobPhase) * 0.5);
       ctx.fillStyle = this.color;
-      ctx.fillRect(rx, ry, this.width, this.height);
+      ctx.fillRect(rx, ry + bob, this.width, this.height);
+      labelTopY = ry + bob;
     }
 
     if (this.label) {
