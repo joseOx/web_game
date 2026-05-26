@@ -188,7 +188,7 @@ export class DialogueSystem {
     const boxY     = BASE_HEIGHT - boxH - 2;
 
     // Box background
-    ctx.fillStyle   = 'rgba(10, 8, 18, 0.92)';
+    ctx.fillStyle   = 'rgba(10, 8, 18, 0.72)';
     ctx.strokeStyle = '#3B2D6E';
     ctx.lineWidth   = 1;
     ctx.fillRect(PAD, boxY, BASE_WIDTH - PAD * 2, boxH);

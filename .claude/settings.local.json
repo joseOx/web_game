@@ -35,7 +35,8 @@
       "Bash(python3 *)",
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(Select-Object -ExpandProperty Name)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(powershell *)"
     ]
   }
 }

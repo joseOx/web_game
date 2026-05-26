@@ -1,4 +1,4 @@
-{
+﻿{
   "rosa_default": {
     "id": "rosa_default", "speaker": "Rosa", "portrait": "rosa_neutral",
     "text": "¿Ya desayunaste, Mateo? No salgas sin comer.",
@@ -2727,5 +2727,94 @@
     "next": null,
     "style": "narrative_float",
     "condition": "flag:fog_dama_all_fragments"
+  }
+,
+  "townsperson_a_route": {
+    "id": "townsperson_a_route",
+    "speaker": "",
+    "portrait": null,
+    "text": "",
+    "next": "townsperson_a_m3_text",
+    "nextElse": "townsperson_a_check_m1",
+    "style": "narrative_float",
+    "condition": "flag:mission_cemetery_done"
+  },
+  "townsperson_a_m3_text": {
+    "id": "townsperson_a_m3_text",
+    "speaker": "Lorenzo",
+    "portrait": null,
+    "text": "Vi flores nuevas en el jardín de Rosa. Hacía años que no florecía nada ahí. Como si el suelo hubiera recordado algo.",
+    "next": null,
+    "style": "narrative_float"
+  },
+  "townsperson_a_check_m1": {
+    "id": "townsperson_a_check_m1",
+    "speaker": "",
+    "portrait": null,
+    "text": "",
+    "next": "townsperson_a_m1_text",
+    "nextElse": "townsperson_a_default",
+    "style": "narrative_float",
+    "condition": "flag:mission_lighthouse_done"
+  },
+  "townsperson_a_m1_text": {
+    "id": "townsperson_a_m1_text",
+    "speaker": "Lorenzo",
+    "portrait": null,
+    "text": "El faro volvió a encenderse anoche. Todos lo vimos desde el pueblo. El viejo Antonio también lo hubiera querido ver.",
+    "next": null,
+    "style": "narrative_float"
+  },
+  "townsperson_a_default": {
+    "id": "townsperson_a_default",
+    "speaker": "Lorenzo",
+    "portrait": null,
+    "text": "El faro lleva años sin encenderse. El pueblo no es el mismo sin esa luz en la noche.",
+    "next": null,
+    "style": "narrative_float"
+  },
+  "townsperson_b_route": {
+    "id": "townsperson_b_route",
+    "speaker": "",
+    "portrait": null,
+    "text": "",
+    "next": "townsperson_b_m5_text",
+    "nextElse": "townsperson_b_check_m2",
+    "style": "narrative_float",
+    "condition": "flag:mission_school_done"
+  },
+  "townsperson_b_m5_text": {
+    "id": "townsperson_b_m5_text",
+    "speaker": "Lucía",
+    "portrait": null,
+    "text": "Vera finalmente descansó. Lo supe cuando el viento cambió de dirección esta mañana. El pueblo se siente más liviano.",
+    "next": null,
+    "style": "narrative_float"
+  },
+  "townsperson_b_check_m2": {
+    "id": "townsperson_b_check_m2",
+    "speaker": "",
+    "portrait": null,
+    "text": "",
+    "next": "townsperson_b_m2_text",
+    "nextElse": "townsperson_b_default",
+    "style": "narrative_float",
+    "condition": "flag:mission_beach_done"
+  },
+  "townsperson_b_m2_text": {
+    "id": "townsperson_b_m2_text",
+    "speaker": "Lucía",
+    "portrait": null,
+    "text": "Alguien despejó algo en la playa esta mañana. Encontré flores secas cerca del agua. No sé de quién son, pero se veían en paz.",
+    "next": null,
+    "style": "narrative_float"
+  },
+  "townsperson_b_default": {
+    "id": "townsperson_b_default",
+    "speaker": "Lucía",
+    "portrait": null,
+    "text": "Hay algo raro en el aire últimamente. Como si el pueblo estuviera esperando algo que ya pasó, pero nadie se lo dijo.",
+    "next": null,
+    "style": "narrative_float"
   }
 }

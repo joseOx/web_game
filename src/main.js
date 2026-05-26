@@ -73,6 +73,8 @@ import { Reina } from './entities/Reina.js';
 import { Cortesano } from './entities/Cortesano.js';
 import { MinigameObservationSystem } from './ui/MinigameObservationSystem.js';
 import { VoidFogSystem } from './effects/VoidFogSystem.js';
+import { ZoneParticles } from './effects/ZoneParticles.js';
+import { Minimap } from './ui/Minimap.js';
 
 const canvas = document.getElementById('game-canvas');
 
@@ -106,7 +108,9 @@ export const minigameObs = new MinigameObservationSystem();
 export const world     = new World();
 export const scenes    = new SceneManager();
 export const game      = new Game(canvas);
-export const voidFog   = new VoidFogSystem();
+export const voidFog        = new VoidFogSystem();
+export const zoneParticles  = new ZoneParticles();
+export const minimap        = new Minimap();
 
 // ── Entities ─────────────────────────────────────────────────────────────────
 const mateo = new Mateo(BASE_WIDTH / 2, BASE_HEIGHT / 2 + 20);
@@ -162,6 +166,7 @@ titleScreen.inject({ input, hasSave: save.hasSave(), saveSystem: save });
 chapterMgr.inject({ saveSystem: save, eventBus: events, sceneManager: scenes, dialogue, transition });
 lunaMode.inject({ input, particles, audio });
 voidFog.inject({ dimension });
+minimap.inject({ world });
 heartAnchor.inject({
   mateo, visionSystem: vision, echoManager: echoes, luna,
   bondSystem: bond, eventBus: events, saveSystem: save,
@@ -465,6 +470,7 @@ events.on('zone:loaded', () => {
 });
 events.on('zone:loaded', data => {
   _applyZoneTextures(data.zoneId);
+  zoneParticles.setZone(data.zoneId);
   // Zone name announcement
   _zoneNameText  = ZONE_NAMES[data.zoneId] ?? data.zoneId ?? '';
   _zoneNameSub   = data.zoneId?.startsWith('V_') ? 'El Vacío' : 'Mundo Real';
@@ -1273,6 +1279,7 @@ const worldUpdate = {
   update(dt) {
     particles.update(dt);           // always run — also needed by lunaMode
     voidFog.update(dt);
+    zoneParticles.update(dt);
     _hudElapsed += dt;
     if (_controlsAlpha > 0 && _hudElapsed > 8000) {
       _controlsAlpha = Math.max(0, 1 - (_hudElapsed - 8000) / 3000);
@@ -1461,6 +1468,7 @@ const worldRender = {
     mateo.render(ctx, alpha);
     camera.restore(ctx);
 
+    zoneParticles.render(ctx);
     lighting.renderDarkness(ctx);
     vision.render(ctx, alpha);
     heartAnchor.render(ctx, alpha);
@@ -1470,6 +1478,7 @@ const worldRender = {
     dialogue.render(ctx);
     hints.render(ctx);
     _renderHUD(ctx);
+    minimap.render(ctx, mateo, luna);
     piano.render(ctx);
     minigameObs.render(ctx, alpha);
     input.renderTouchControls(ctx);
