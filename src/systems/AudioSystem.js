@@ -150,6 +150,82 @@ export class AudioSystem {
     });
   }
 
+  // ── Zone-based ambient ──────────────────────────────────────────────────────
+  // Synthesized ambient profiles keyed by zone category.
+  // Each profile defines oscillator params + LFO modulation + noise character.
+
+  startZoneAmbient(zoneId, isVoid) {
+    this._ensureContext();
+    this._stopAmbient();
+
+    const profile = ZONE_AMBIENT[zoneId] ?? ZONE_AMBIENT._default;
+    // Void shifts everything down an octave and adds dissonance
+    const octave = isVoid ? 0.5 : 1.0;
+    const detuneAmount = isVoid ? 0.8 : 0;
+
+    const nodes = [];
+    const baseFreqs = profile.freqs ?? [110, 165, 220];
+    const waveform   = profile.wave ?? 'sine';
+    const baseVol    = (profile.volume ?? 0.025) * (isVoid ? 0.7 : 1.0);
+    const lfoRate    = profile.lfoRate ?? 0;
+    const lfoDepth   = profile.lfoDepth ?? 0;
+    const noiseVol   = profile.noise ?? 0;
+
+    for (let i = 0; i < baseFreqs.length; i++) {
+      const osc = this._ctx.createOscillator();
+      const g   = this._ctx.createGain();
+      osc.type = waveform;
+      osc.frequency.value = baseFreqs[i] * octave;
+      if (detuneAmount) osc.detune.value = (i - 1) * detuneAmount * 15;
+
+      // LFO modulation
+      if (lfoRate > 0) {
+        const lfo = this._ctx.createOscillator();
+        const lfoG = this._ctx.createGain();
+        lfo.frequency.value = lfoRate;
+        lfoG.gain.value = lfoDepth * baseFreqs[i] * 0.3;
+        lfo.connect(lfoG);
+        lfoG.connect(osc.frequency);
+        lfo.start();
+        nodes.push({ osc: lfo, g: lfoG, lfo: true });
+      }
+
+      const vol = baseVol - i * (baseVol * 0.25);
+      const fadeSecs = profile.fadeIn ?? 2;
+      g.gain.setValueAtTime(0, this._ctx.currentTime);
+      g.gain.linearRampToValueAtTime(vol, this._ctx.currentTime + fadeSecs);
+      osc.connect(g);
+      g.connect(this._master);
+      osc.start();
+      nodes.push({ osc, g });
+    }
+
+    // Noise layer (for wind/waves/texture)
+    if (noiseVol > 0) {
+      const bufSize = 2 * this._ctx.sampleRate;
+      const noiseBuf = this._ctx.createBuffer(1, bufSize, this._ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+      const noiseSrc = this._ctx.createBufferSource();
+      noiseSrc.buffer = noiseBuf;
+      noiseSrc.loop = true;
+      const noiseFilter = this._ctx.createBiquadFilter();
+      noiseFilter.type = 'lowpass';
+      noiseFilter.frequency.value = isVoid ? 400 : 800;
+      const noiseG = this._ctx.createGain();
+      const noiseFade = profile.fadeIn ?? 3;
+      noiseG.gain.setValueAtTime(0, this._ctx.currentTime);
+      noiseG.gain.linearRampToValueAtTime(noiseVol, this._ctx.currentTime + noiseFade);
+      noiseSrc.connect(noiseFilter);
+      noiseFilter.connect(noiseG);
+      noiseG.connect(this._master);
+      noiseSrc.start();
+      nodes.push({ osc: noiseSrc, g: noiseG, noise: true });
+    }
+
+    this._ambientNodes = nodes;
+  }
+
   _stopAmbient() {
     if (!this._ambientNodes) return;
     const now = this._ctx.currentTime;
@@ -182,3 +258,41 @@ export class AudioSystem {
     this._ctx = null;
   }
 }
+
+// ── Zone ambient profiles ─────────────────────────────────────────────────────
+// Synthesized — no external audio files needed.
+// freqs: base chord (Hz), wave: oscillator type, volume: 0–1
+// lfoRate: vibrato/tremolo freq, lfoDepth: modulation intensity
+// noise: filtered white noise for texture (wind, waves, room tone)
+// fadeIn: ramp-up seconds
+
+const ZONE_AMBIENT = {
+  // ── Real world ──────────────────────────────────────────────────────────────
+  R_HOME:        { freqs: [131, 196, 262], wave: 'triangle', volume: 0.020, noise: 0.008, fadeIn: 2.5, desc: 'Hogar cálido' },
+  R_HOME_ATTIC:  { freqs: [98, 147, 196],  wave: 'sine',     volume: 0.015, noise: 0.004, fadeIn: 3,   desc: 'Desván polvoriento' },
+  R_HUB:         { freqs: [165, 220, 330], wave: 'triangle', volume: 0.022, noise: 0.012, lfoRate: 0.3, lfoDepth: 0.4, fadeIn: 2, desc: 'Plaza abierta' },
+  R_LIGHTHOUSE:  { freqs: [110, 165, 220], wave: 'sine',     volume: 0.018, noise: 0.020, lfoRate: 0.15, lfoDepth: 0.5, fadeIn: 3, desc: 'Faro — viento marino' },
+  R_SCHOOL:      { freqs: [196, 247, 330], wave: 'triangle', volume: 0.016, noise: 0.006, fadeIn: 2.5, desc: 'Aula silenciosa' },
+  R_BEACH:       { freqs: [131, 196, 262], wave: 'sine',     volume: 0.020, noise: 0.028, lfoRate: 0.12, lfoDepth: 0.6, fadeIn: 3, desc: 'Playa — olas' },
+  R_CEMETERY:    { freqs: [87, 110, 131],  wave: 'sine',     volume: 0.014, noise: 0.010, lfoRate: 0.08, lfoDepth: 0.3, fadeIn: 3.5, desc: 'Cementerio — quietud' },
+  R_LIBRARY:     { freqs: [165, 220, 262], wave: 'sine',     volume: 0.014, noise: 0.005, fadeIn: 3,   desc: 'Biblioteca — eco suave' },
+
+  // ── Void zones ──────────────────────────────────────────────────────────────
+  V_HOME:        { freqs: [65, 82, 110],   wave: 'sine',     volume: 0.016, noise: 0.010, lfoRate: 0.2, lfoDepth: 0.4, fadeIn: 3, desc: 'Jardín marchito' },
+  V_HUB:         { freqs: [73, 110, 147],  wave: 'sine',     volume: 0.018, noise: 0.014, lfoRate: 0.25, lfoDepth: 0.5, fadeIn: 2.5, desc: 'Plaza del Vacío' },
+  V_LIGHTHOUSE:  { freqs: [55, 73, 98],    wave: 'sawtooth', volume: 0.014, noise: 0.024, lfoRate: 0.1, lfoDepth: 0.6, fadeIn: 3.5, desc: 'Faro hundido' },
+  V_SCHOOL:      { freqs: [98, 131, 165],  wave: 'triangle', volume: 0.012, noise: 0.008, lfoRate: 0.18, lfoDepth: 0.3, fadeIn: 3, desc: 'Aula distorsionada' },
+  V_BEACH:       { freqs: [65, 98, 131],   wave: 'sawtooth', volume: 0.015, noise: 0.030, lfoRate: 0.08, lfoDepth: 0.7, fadeIn: 3.5, desc: 'Naufragio — tormenta' },
+  V_CEMETERY:    { freqs: [44, 55, 65],    wave: 'sine',     volume: 0.012, noise: 0.012, lfoRate: 0.06, lfoDepth: 0.2, fadeIn: 4, desc: 'Cripta — profundo' },
+  V_LIBRARY:     { freqs: [82, 110, 131],  wave: 'sine',     volume: 0.012, noise: 0.008, lfoRate: 0.15, lfoDepth: 0.3, fadeIn: 3, desc: 'Archivo borrado' },
+  V_UMBRAL:      { freqs: [131, 196, 262], wave: 'sine',     volume: 0.022, noise: 0.018, lfoRate: 0.4, lfoDepth: 0.8, fadeIn: 2, desc: 'Umbral — etéreo' },
+  V_HEART:       { freqs: [98, 147, 196],  wave: 'triangle', volume: 0.016, noise: 0.006, lfoRate: 0.5, lfoDepth: 0.2, fadeIn: 3, desc: 'Corazón del Vacío' },
+  V_THRONE:      { freqs: [55, 82, 110],   wave: 'sawtooth', volume: 0.020, noise: 0.016, lfoRate: 0.35, lfoDepth: 0.6, fadeIn: 2.5, desc: 'Trono — regio' },
+
+  // ── Chapter 0 ───────────────────────────────────────────────────────────────
+  R_CHAPTER0_HOUSE:  { freqs: [110, 165, 220], wave: 'triangle', volume: 0.018, noise: 0.006, fadeIn: 2.5, desc: 'Casa — hace 6 años' },
+  R_CHAPTER0_GARDEN: { freqs: [131, 196, 247], wave: 'triangle', volume: 0.020, noise: 0.010, lfoRate: 0.2, lfoDepth: 0.3, fadeIn: 2.5, desc: 'Jardín nocturno' },
+
+  // ── Fallback ────────────────────────────────────────────────────────────────
+  _default:      { freqs: [110, 165, 220], wave: 'sine',     volume: 0.020, noise: 0.010, fadeIn: 2, desc: 'Genérico' },
+};

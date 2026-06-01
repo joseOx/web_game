@@ -96,7 +96,10 @@ export const ZoneV_HUB = {
     { id: 'G_hub_alley', x: 7 * 16, y: 5 * 16, size: 'minor', emotion: 'longing' },
   ],
   echoes:  [],
-  objects: [],
+  objects: [
+    // Fragmento de la Dama — parte 3 de 5 (zona central abierta, lejos de la grieta)
+    { id: 'dama_frag_03', x: 10 * 16, y: 9 * 16, width: 14, height: 14, color: '#B8B8D0', label: 'Jirón de niebla', dialogueId: 'fog_encounter_dama_03', doneFlag: 'fog_encounter_dama_03' },
+  ],
 
   realZoneId: 'R_HUB',
   dimension:  'void',

@@ -140,7 +140,7 @@ lunaAI.inject({
 luna.setAI(lunaAI);
 
 // ── Dependency injection ──────────────────────────────────────────────────────
-save.inject({ missionManager: missions, bondSystem: bond, mateo, luna, dimensionManager: dimension });
+save.inject({ missionManager: missions, bondSystem: bond, mateo, luna, dimensionManager: dimension, sceneManager: scenes });
 
 missions.inject({ saveSystem: save, eventBus: events });
 missions.register(new Mission01Lighthouse());
@@ -212,7 +212,7 @@ events.on('dimension:changed', ({ dim }) => {
   echoes.setDimension(dim);
   world.setDimension(dim);
   lighting.setTimeOfDay(dim === 'void' ? 'night' : 'day');
-  audio.startAmbient(dim === 'void');
+  audio.startZoneAmbient(scenes.currentZoneId, dim === 'void');
   audio.playTone(dim === 'void' ? 220 : 330, 1.2, 'sawtooth', 0.06);
   voidFog.onDimensionChange(dim);
 });
@@ -220,12 +220,17 @@ events.on('dimension:changed', ({ dim }) => {
 const EMOTION_COLORS = { grief:'#7EC8E3', guilt:'#B8E07A', fear:'#C8A9FF', anger:'#FF8C8C', longing:'#FFD97D' };
 events.on('rift:sealed', data => {
   missions.dispatchEvent('rift:sealed', data);
-  if (data.x != null) particles.emit(data.x, data.y, EMOTION_COLORS[data.emotion] ?? '#fff', 30);
+  const emotionColor = EMOTION_COLORS[data.emotion] ?? '#fff';
+  if (data.x != null) {
+    particles.startSealSequence(data.x, data.y, emotionColor);
+  } else {
+    particles.emit(data.x ?? 160, data.y ?? 90, emotionColor, 30);
+  }
   audio.playTone(440, 0.6, 'sine', 0.12);
   if (data.riftId === 'G_lighthouse_lantern') {
     setTimeout(() => dialogue.start('lighthouse_sealed_hint'), 800);
   }
-  _sealNotifColor = EMOTION_COLORS[data.emotion] ?? '#C8A9FF';
+  _sealNotifColor = emotionColor;
   _sealNotifTimer = 0;
 });
 events.on('dialogue:node_exit', data => {
@@ -375,7 +380,7 @@ events.on('echo:separated', data => {
         { id: 'guard_sub_4', x: 12 * 16, y: 6 * 16 },
       ];
       for (const gd of guardDefs) {
-        const em   = new EchoMinor(gd.id, gd.x, gd.y, { emotion: 'fear' });
+        const em   = echoes.acquireMinor(gd.id, gd.x, gd.y, { emotion: 'fear' });
         const emAI = new EchoMinorAI();
         emAI.inject({ echo: em, luna, mateo, riftSystem: rifts, dimensionManager: dimension, heartAnchorSystem: heartAnchor });
         emAI.setGuard();
@@ -440,9 +445,9 @@ function _applyZoneTextures(zoneId) {
   } else if (zoneId === 'R_HOME_ATTIC') {
     world.setTileTexture('.', wood);
   } else if (zoneId === 'R_HUB' || zoneId === 'V_HUB') {
+    world.setTileTexture('.', stone);
     world.setTileTexture('b', bldg);
     world.setTileTexture('f', bldg);
-    if (zoneId === 'V_HUB') world.setTileTexture('.', stone);
   } else if (zoneId === 'R_LIBRARY' || zoneId === 'V_LIBRARY') {
     world.setTileTexture('.', wood);
     world.setTileTexture('b', shelf);
@@ -476,6 +481,9 @@ events.on('zone:loaded', data => {
   _zoneNameSub   = data.zoneId?.startsWith('V_') ? 'El Vacío' : 'Mundo Real';
   _zoneNameTimer = 0;
 
+  // Update zone ambient (crossfades to new zone profile)
+  audio.startZoneAmbient(data.zoneId, dimension.isVoid());
+
   // Auto-activate missions that start on first zone entry
   if ((data.zoneId === 'R_SCHOOL' || data.zoneId === 'V_SCHOOL') &&
       !missions.isActive('melody') && !missions.isDone('melody')) {
@@ -505,12 +513,6 @@ events.on('zone:loaded', data => {
   if (data.zoneId === 'R_LIGHTHOUSE' || data.zoneId === 'V_LIGHTHOUSE') {
     const pisoFaro = assets.getImage('piso_faro');
     if (pisoFaro) world.setBgImage(pisoFaro, { tile: { cols: 6, rows: 6 } });
-  }
-
-  // Imagen de piso para R_HUB
-  if (data.zoneId === 'R_HUB') {
-    const pisoImg = assets.getImage('r_hub_piso');
-    if (pisoImg) world.setBgImage(pisoImg, { tile: { cols: 6, rows: 7 } });
   }
 
   // Imagen de piso para R_SCHOOL y V_SCHOOL (7 filas × 6 columnas)
@@ -624,7 +626,25 @@ events.on('zone:loaded', data => {
     if (diegoSprite) {
       diegoLib.setMateoSprite(diegoSprite, { drawW: 28, drawH: 28 });
     }
+    // Diego sigue a Mateo como acompañante
+    diegoLib.setFollowTarget(mateo, collision, { stopDist: 28 });
     world.addNPC(diegoLib);
+  }
+
+  // Diego acompañante en R_CEMETERY — resolución C, si ya está la misión hecha
+  if (data.zoneId === 'R_CEMETERY' && save.getFlag('diego_resolution') === 'C'
+      && save.getFlag('mission_brothers_done')) {
+    const diegoCem = new NPC('diego_cemetery', 14 * 16, 9 * 16, {
+      color:      '#9B7FE8',
+      label:      'Diego',
+      dialogueId: 'diego_cemetery_visit',
+    });
+    const diegoSprite = assets.getImage('diego');
+    if (diegoSprite) {
+      diegoCem.setMateoSprite(diegoSprite, { drawW: 28, drawH: 28 });
+    }
+    diegoCem.setFollowTarget(mateo, collision, { stopDist: 28 });
+    world.addNPC(diegoCem);
   }
 
   // Aplicar sprite del hermano de Diego en V_CEMETERY
@@ -1262,14 +1282,38 @@ async function init() {
     // Restaurar estado de Corazón Firme desde el save
     heartAnchor.restoreUnlocked(save.getFlag('mateo_heart_anchor_unlocked', false));
     echoReading.restoreUnlocked(save.getFlag('mateo_echo_reading_unlocked', false));
+    const savedScene = data.scene;
+    const savedPos   = data.position;
+    const savedDim   = data.dimension;
+    await prologue.start();
+    save.setFlag('game_started', true);
+    // Verificar desbloqueo de Corazón Firme al inicio
+    heartAnchor.checkUnlock();
+    // Restaurar dimensión sin transición (sin FX)
+    if (savedDim && savedDim !== dimension.current) {
+      dimension.applyDimension(savedDim);
+    }
+    // Restaurar la escena guardada
+    if (savedScene && scenes._zones.has(savedScene)) {
+      await scenes.load(savedScene);
+      // Sobrescribir posición tras cargar la zona (SceneManager pone el spawn por defecto)
+      if (savedPos) {
+        mateo.x = savedPos.x;
+        mateo.y = savedPos.y;
+        luna.x  = savedPos.x + 20;
+        luna.y  = savedPos.y;
+      }
+    } else {
+      await scenes.load('R_HOME');
+    }
   } else {
     save.deleteSave();
+    await prologue.start();
+    save.setFlag('game_started', true);
+    // Verificar desbloqueo de Corazón Firme al inicio
+    heartAnchor.checkUnlock();
+    await scenes.load('R_HOME');
   }
-  await prologue.start();
-  save.setFlag('game_started', true);
-  // Verificar desbloqueo de Corazón Firme al inicio
-  heartAnchor.checkUnlock();
-  await scenes.load('R_HOME');
 }
 
 init().catch(console.error);

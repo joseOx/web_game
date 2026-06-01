@@ -73,6 +73,8 @@ export const ZoneV_HOME = {
     { id: 'memo_garden_1', x: 5 * 16 + 4, y: 2 * 16 + 4, width: 8, height: 8, color: '#5A2080', label: '...', dialogueId: 'garden_memory_01' },
     { id: 'memo_garden_2', x: 11 * 16,    y: 4 * 16 + 4, width: 8, height: 8, color: '#5A2080', label: '...', dialogueId: 'garden_memory_02' },
     { id: 'memo_garden_3', x: 5 * 16 + 4, y: 8 * 16 + 4, width: 8, height: 8, color: '#5A2080', label: '...', dialogueId: 'garden_memory_03' },
+    // Fragmento de la Dama — parte 2 de 5
+    { id: 'dama_frag_02', x: 14 * 16, y: 6 * 16, width: 14, height: 14, color: '#B8B8D0', label: 'Jirón de niebla', dialogueId: 'fog_encounter_dama_02', doneFlag: 'fog_encounter_dama_02' },
   ],
 
   realZoneId: 'R_HOME',

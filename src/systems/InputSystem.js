@@ -1,7 +1,10 @@
 // D-pad layout in logical 320×180 canvas space
 const DPAD_CX = 40, DPAD_CY = 152, DPAD_R = 26;
-const BTN_E   = { x: 286, y: 155, r: 14 };
-const BTN_Q   = { x: 263, y: 141, r: 11 };
+// Right-side action buttons (vertical column, right edge)
+const BTN_E   = { x: 286, y: 120, r: 14 };  // interact
+const BTN_Q   = { x: 286, y: 150, r: 11 };  // call luna
+const BTN_SHIFT = { x: 263, y: 120, r: 11 }; // feline vision
+const BTN_F   = { x: 263, y: 150, r: 11 };  // heart anchor
 
 function _dist2(ax, ay, bx, by) { return (ax-bx)**2 + (ay-by)**2; }
 
@@ -44,6 +47,7 @@ export class InputSystem {
     this._actions = {};
     this._canvas  = null;
     this._touchActive = false;
+    this._hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     this._boundKeyDown = this._onKeyDown.bind(this);
     this._boundKeyUp   = this._onKeyUp.bind(this);
@@ -207,7 +211,17 @@ export class InputSystem {
     for (const t of e.changedTouches) {
       const { x, y } = this._toLogical(t.clientX, t.clientY);
 
-      // Right-side buttons
+      // Right-side action buttons (check smaller buttons first)
+      if (_dist2(x, y, BTN_SHIFT.x, BTN_SHIFT.y) <= BTN_SHIFT.r ** 2) {
+        this._actions['feline_vision'] = 'just_pressed';
+        this._btnTouches.set(t.identifier, 'feline_vision');
+        continue;
+      }
+      if (_dist2(x, y, BTN_F.x, BTN_F.y) <= BTN_F.r ** 2) {
+        this._actions['heart_anchor'] = 'just_pressed';
+        this._btnTouches.set(t.identifier, 'heart_anchor');
+        continue;
+      }
       if (_dist2(x, y, BTN_E.x, BTN_E.y) <= BTN_E.r ** 2) {
         this._actions['interact'] = 'just_pressed';
         this._btnTouches.set(t.identifier, 'interact');
@@ -265,7 +279,8 @@ export class InputSystem {
   }
 
   renderTouchControls(ctx) {
-    if (!this._touchActive) return;
+    // Auto-show controls on touch devices, hide on desktop until first touch
+    if (!this._touchActive && !this._hasTouch) return;
 
     ctx.save();
     ctx.globalAlpha = 0.45;
@@ -296,7 +311,9 @@ export class InputSystem {
     ctx.arc(DPAD_CX, DPAD_CY, DPAD_R, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Button E
+    // ── Right-side action buttons (2 columns × 2 rows) ──────────────────────
+
+    // Button E (interact) — bottom-right, largest
     ctx.fillStyle = '#C8A9FF';
     ctx.beginPath();
     ctx.arc(BTN_E.x, BTN_E.y, BTN_E.r, 0, Math.PI * 2);
@@ -307,7 +324,7 @@ export class InputSystem {
     ctx.textBaseline = 'middle';
     ctx.fillText('E', BTN_E.x, BTN_E.y + 1);
 
-    // Button Q
+    // Button Q (call luna)
     ctx.fillStyle = '#7EC8E3';
     ctx.beginPath();
     ctx.arc(BTN_Q.x, BTN_Q.y, BTN_Q.r, 0, Math.PI * 2);
@@ -315,6 +332,24 @@ export class InputSystem {
     ctx.fillStyle = '#fff';
     ctx.font = '8px VT323, monospace';
     ctx.fillText('Q', BTN_Q.x, BTN_Q.y + 1);
+
+    // Button Shift (feline vision) — top-left
+    ctx.fillStyle = '#FFD97D';
+    ctx.beginPath();
+    ctx.arc(BTN_SHIFT.x, BTN_SHIFT.y, BTN_SHIFT.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#7EC8E3';
+    ctx.font = '8px VT323, monospace';
+    ctx.fillText('👁', BTN_SHIFT.x, BTN_SHIFT.y + 1);
+
+    // Button F (heart anchor)
+    ctx.fillStyle = '#FF8C8C';
+    ctx.beginPath();
+    ctx.arc(BTN_F.x, BTN_F.y, BTN_F.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '8px VT323, monospace';
+    ctx.fillText('F', BTN_F.x, BTN_F.y + 1);
 
     ctx.textAlign    = 'left';
     ctx.textBaseline = 'alphabetic';

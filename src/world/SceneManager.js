@@ -196,7 +196,7 @@ export class SceneManager {
     if (def.doneFlag  &&  this._save?.getFlag(def.doneFlag))  return;
 
     if (def.type === 'minor') {
-      const em   = new EchoMinor(def.id, def.x, def.y, { emotion: def.emotion });
+      const em   = this._echoes.acquireMinor(def.id, def.x, def.y, { emotion: def.emotion });
       const emAI = new EchoMinorAI();
       emAI.inject({ echo: em, luna: this._luna, mateo: this._mateo,
         riftSystem: this._rifts, dimensionManager: this._dimension,

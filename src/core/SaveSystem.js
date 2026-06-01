@@ -79,7 +79,7 @@ export class SaveSystem {
     const data = {
       version:   SAVE_VERSION,
       timestamp: Date.now(),
-      scene:     this._sceneManager?.current ?? null,
+      scene:     this._sceneManager?.currentZoneId ?? null,
       position:  this._mateo ? { x: this._mateo.x, y: this._mateo.y } : null,
       dimension: this._dimensionManager?.current ?? 'real',
       missions:  this._missionManager?.serialize() ?? {},

@@ -89,6 +89,8 @@ export const ZoneV_BEACH = {
       label:      'Caja sellada',
       color:      '#8B6914',
     },
+    // Fragmento de la Dama — parte 4 de 5 (zona caminable, lejos de la grieta)
+    { id: 'dama_frag_04', x: 20 * 16, y: 8 * 16, width: 14, height: 14, color: '#B8B8D0', label: 'Jirón de niebla', dialogueId: 'fog_encounter_dama_04', doneFlag: 'fog_encounter_dama_04' },
   ],
 
   realZoneId: 'R_BEACH',

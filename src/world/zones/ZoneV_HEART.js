@@ -65,6 +65,8 @@ export const ZoneV_HEART = {
       dialogueId: 'corazon_vacio_fragment_03',
       doneFlag:   'corazon_vacio_frag_03_done',
     },
+    // Fragmento de la Dama — parte 5 de 5 (último)
+    { id: 'dama_frag_05', x: 185, y: 120, width: 14, height: 14, color: '#B8B8D0', label: 'Último jirón de niebla', dialogueId: 'fog_encounter_dama_05', doneFlag: 'fog_encounter_dama_05' },
   ],
 
   // Sin Ecos ni Grietas — es un lugar de paz

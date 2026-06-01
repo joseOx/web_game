@@ -576,36 +576,129 @@ El ending varía según el estado de los flags al llegar al Acto 5.
 
 | Condición | Ending |
 |-----------|--------|
-| Todas las misiones secundarias completadas + resoluciones profundas (B/C en M05) | Ending completo — máximo lore, Luna y Mateo sellan juntos con apoyo de aliados |
-| Mayoría de misiones completadas, mix de resoluciones | Ending estándar — Luna y Mateo sellan. El pueblo queda estable. |
-| Pocas misiones, vínculo frecuentemente crítico | Ending mínimo — Luna sellada pero debilitada. Mateo no entiende del todo lo que pasó. |
-| Sin misiones secundarias, vínculo roto una o más veces | Ending difícil — Luna sella sola. Mateo queda fuera. Epílogo melancólico. |
+| 7 misiones completadas + resolución profunda + secretos + vínculo sano + Reina resuelta | Ending completo |
+| 5+ misiones + vínculo sano | Ending estándar |
+| 3+ misiones | Ending mínimo |
+| Menos de 3 misiones | Ending difícil |
 
-**Flags que determinan el ending:**
+**Implementación real (main.js `_determineEnding()`):**
 
 ```javascript
-function determineEnding() {
-  const missionsCompleted = [
-    'mission_lighthouse_done', 'mission_melody_done',
-    'mission_garden_done', 'mission_dogs_done',
-    'mission_brothers_done', 'mission_library_done'
-  ].filter(f => SaveSystem.getFlag(f)).length;
+function _determineEnding() {
+  const missions_done = [
+    'mission_lighthouse_done', 'mission_melody_done', 'mission_garden_done',
+    'mission_dogs_done', 'mission_brothers_done', 'mission_library_done',
+    'mission_cemetery_child_done',
+  ].filter(f => save.getFlag(f)).length;
 
-  const deepResolution = SaveSystem.getFlag('diego_resolution') !== 'A';
-  const secretsFound   = SaveSystem.getFlag('abuelo_connection_unlocked');
-  const bondHealthy    = BondSystem.bond > 60 && BondSystem.bondCriticalCount < 2;
+  const deepResolution = (save.getFlag('diego_resolution') !== 'A' &&
+                          save.getFlag('diego_resolution') !== null) ||
+                         save.getFlag('m07_resolution') === 'B';
+  const secretsFound   = save.getFlag('abuelo_connection_unlocked') ||
+                         save.getFlag('corazon_vacio_completed');
+  const bondHealthy    = bond.normalized() > 0.6 && bond.bondCriticalCount < 2;
+  const reinaResolved  = save.getFlag('reina_resolution') !== null &&
+                         save.getFlag('reina_resolution') !== false;
 
-  if (missionsCompleted === 6 && deepResolution && secretsFound && bondHealthy) {
+  if ((missions_done === 7 || (missions_done >= 6 && reinaResolved)) &&
+      deepResolution && secretsFound && bondHealthy) {
     return 'ENDING_COMPLETE';
-  } else if (missionsCompleted >= 4 && bondHealthy) {
+  } else if (missions_done >= 5 && bondHealthy) {
     return 'ENDING_STANDARD';
-  } else if (missionsCompleted >= 2) {
+  } else if (missions_done >= 3) {
     return 'ENDING_MINIMAL';
-  } else {
-    return 'ENDING_HARD';
   }
+  return 'ENDING_HARD';
 }
 ```
+
+---
+
+### M07 — El niño del cementerio
+
+| Flag | Tipo | Default | Descripción |
+|------|------|---------|-------------|
+| `mission_cemetery_child_active` | bool | false | M07 activada |
+| `mission_cemetery_child_done` | bool | false | M07 completada |
+| `emilia_met` | bool | false | Mateo habló con Emilia en R_HUB |
+| `emilia_stone_given` | bool | false | Emilia entregó su piedra de memoria |
+| `m07_resolution` | enum | null | `A` (Emilia) / `B` (juntos) |
+| `emilia_ally` | bool | false | Emilia aparece como aliada en R_CEMETERY |
+| `rift_G_cemetery_child_discovered` | bool | false | Grieta oculta detectada con visión felina |
+| `rift_G_cemetery_child_sealed` | bool | false | Grieta de Tomás sellada |
+| `collar_tomas_found` | bool | false | Collar recuperado del Vacío |
+| `tomas_released` | bool | false | Eco de Tomás liberado |
+
+---
+
+### M08 — El diario del abuelo
+
+| Flag | Tipo | Default | Descripción |
+|------|------|---------|-------------|
+| `mission_grandfather_active` | bool | false | M08 activada |
+| `mission_grandfather_done` | bool | false | M08 completada |
+| `m08_diary_ready` | bool | false | Diario visible en R_HOME_ATTIC |
+| `m08_diary_found` | bool | false | Diario encontrado e inspeccionado |
+| `m08_memory_entered` | bool | false | Memoria del abuelo iniciada |
+| `m08_objects_found` | bool | false | 3 objetos de la memoria encontrados |
+| `m08_pattern_solved` | bool | false | Patrón de símbolos resuelto |
+| `m08_memory_exited` | bool | false | Memoria del abuelo terminada |
+
+---
+
+### Reina del Vacío (V_THRONE)
+
+| Flag | Tipo | Default | Descripción |
+|------|------|---------|-------------|
+| `reina_vacio_unlocked` | bool | false | Acceso a V_THRONE desbloqueado |
+| `reina_met` | bool | false | Primer encuentro con Reina |
+| `reina_throne_visited` | bool | false | V_THRONE visitado al menos una vez |
+| `reina_resolution` | enum | null | `pacto` / `aliada` / `confianza` / `respeto_condicional` |
+| `reina_throne_lit` | bool | false | Trono iluminado (resolución pacto) |
+| `reina_throne_empty` | bool | false | Trono vacío (resolución confianza) |
+| `reina_ally` | bool | false | Reina es aliada de Mateo (resolución confianza) |
+| `reina_fragment_item` | bool | false | Fragmento de Reina en inventario (resolución aliada) |
+
+---
+
+### Dama de la Niebla
+
+| Flag | Tipo | Default | Descripción |
+|------|------|---------|-------------|
+| `fog_encounter_dama_01` | bool | false | Fragmento 1 encontrado (V_LIGHTHOUSE) |
+| `fog_encounter_dama_02` | bool | false | Fragmento 2 encontrado (V_HOME) |
+| `fog_encounter_dama_03` | bool | false | Fragmento 3 encontrado (V_HUB) |
+| `fog_encounter_dama_04` | bool | false | Fragmento 4 encontrado (V_BEACH) |
+| `fog_encounter_dama_05` | bool | false | Fragmento 5 encontrado (V_HEART) |
+| `fog_dama_all_fragments` | bool | false | Los 5 fragmentos recolectados |
+| `fog_dama_released` | bool | false | Dama liberada (evento fog:dama_complete) |
+| `fog_dama_m01_connection_seen` | bool | false | Diálogo de conexión Dama-M01 visto |
+
+---
+
+### Umbral del Espejo
+
+| Flag | Tipo | Default | Descripción |
+|------|------|---------|-------------|
+| `umbral_espejo_visto` | bool | false | Umbral completado |
+| `umbral_espejo_trigger_01_seen` | bool | false | Primer trigger visto en R_HOME |
+| `umbral_espejo_attic_triggered` | bool | false | Trigger del desván activado |
+| `umbral_resolution` | enum | null | `A` / `B` / `C` |
+| `chapter_umbral_unlocked` | bool | false | Capítulo 0 desbloqueado en menú |
+| `umbral_espejo_active` | bool | false | Misión de umbral activa |
+
+---
+
+### Corazón del Vacío (V_HEART)
+
+| Flag | Tipo | Default | Descripción |
+|------|------|---------|-------------|
+| `corazon_vacio_entrance_seen` | bool | false | Narración de entrada vista |
+| `corazon_vacio_frag_01_done` | bool | false | Fragmento 1 (raíz de piedra) |
+| `corazon_vacio_frag_02_done` | bool | false | Fragmento 2 (cenizas frías) |
+| `corazon_vacio_frag_03_done` | bool | false | Fragmento 3 (primer sello) |
+| `corazon_vacio_fragments_done` | bool | false | Los 3 fragmentos completados |
+| `corazon_vacio_completed` | bool | false | Secuencia de Luna en V_HEART completada |
 
 ---
 

@@ -89,6 +89,78 @@ export class NPC extends Entity {
 
   update(dt) {
     this.getComponent('animation')?.update(dt);
+
+    // ── Companion follow AI ──────────────────────────────────────────────────
+    if (this._followTarget && this._followTarget.active) {
+      this.prevX = this.x;
+      this.prevY = this.y;
+
+      const dx = this._followTarget.centerX() - this.centerX();
+      const dy = this._followTarget.centerY() - this.centerY();
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      const stopDist = this._followStopDist ?? 24;
+      if (dist <= stopDist) {
+        this.vx = 0;
+        this.vy = 0;
+        if (this._animWalkState) {
+          this.getComponent('animation')?.setState(this._animIdleState);
+        }
+        return;
+      }
+
+      const accelDist = this._followAccelDist ?? 80;
+      const minSpeed  = this._followMinSpeed  ?? 0.8;
+      const maxSpeed  = this._followMaxSpeed  ?? 1.8;
+      const t     = Math.min(1, (dist - stopDist) / accelDist);
+      const speed = minSpeed + t * (maxSpeed - minSpeed);
+
+      this.vx = (dx / dist) * speed;
+      this.vy = (dy / dist) * speed;
+
+      // direction-based animation state switching
+      if (this._animWalkState) {
+        const absVX = Math.abs(this.vx);
+        const absVY = Math.abs(this.vy);
+        if (absVX > absVY) {
+          this.getComponent('animation')?.setState(this.vx > 0 ? 'walk_right' : 'walk_left');
+        } else if (absVY > 0.1) {
+          this.getComponent('animation')?.setState(this.vy > 0 ? 'walk_front' : 'walk_back');
+        }
+      }
+
+      // Apply collision
+      if (this._collision) {
+        this.x += this.vx;
+        this.y += this.vy;
+        this._collision.resolve(this);
+      } else {
+        this.x += this.vx;
+        this.y += this.vy;
+      }
+    }
+  }
+
+  // ── Companion follow ───────────────────────────────────────────────────────
+  // target: Entity with centerX/centerY (e.g. Mateo)
+  // collision: CollisionSystem instance for wall resolution
+  // opts: { stopDist, accelDist, minSpeed, maxSpeed, animWalkState, animIdleState }
+  setFollowTarget(target, collision, opts = {}) {
+    this._followTarget    = target;
+    this._collision       = collision;
+    this._followStopDist  = opts.stopDist  ?? 24;
+    this._followAccelDist = opts.accelDist ?? 80;
+    this._followMinSpeed  = opts.minSpeed  ?? 0.8;
+    this._followMaxSpeed  = opts.maxSpeed  ?? 1.8;
+    this._animWalkState   = opts.animWalkState ?? 'walk_front';
+    this._animIdleState   = opts.animIdleState ?? 'idle_front';
+  }
+
+  clearFollowTarget() {
+    this._followTarget = null;
+    this._collision    = null;
+    this.vx = 0;
+    this.vy = 0;
   }
 
   render(ctx, alpha) {

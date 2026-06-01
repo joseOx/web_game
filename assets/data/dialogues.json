@@ -510,6 +510,12 @@
     "next": null
   },
 
+  "diego_cemetery_visit": {
+    "id": "diego_cemetery_visit", "speaker": "Diego", "portrait": "diego_grieving",
+    "text": "Aquí es donde... donde está él. No sé qué decir. Pero gracias por traerme.",
+    "next": null
+  },
+
   "hermano_echo_encounter": {
     "id": "hermano_echo_encounter", "speaker": "???", "portrait": "hermano_dim",
     "text": "No eres Diego.", "next": "hermano_echo_02"
@@ -2684,6 +2690,7 @@
     "portrait": null,
     "text": "La niebla se estira hacia la ventana como una mano que quiere tocar el vidrio. No llega. 'Su mano era pequeña. Cabía entera en la mía. Ya no recuerdo su color de ojos. Recuerdo el peso. Una mano pequeña confiada en la mía. Eso es lo único que no se ha ido.'",
     "next": null,
+    "nextElse": "dama_locked_hint",
     "style": "narrative_float",
     "condition": "flag:fog_encounter_dama_01",
     "onExit": "saveSystem.setFlag('fog_encounter_dama_02', true)"
@@ -2694,6 +2701,7 @@
     "portrait": null,
     "text": "Un olor a pan recién horneado atraviesa la niebla. No debería haber olores en el Vacío. 'Ella tenía cuatro años. Se sentaba en la puerta de la cocina mientras yo amasaba. Cantaba canciones que inventaba. El pan siempre se quema un poco cuando ella canta. Eso decía. Eso decía siempre.'",
     "next": null,
+    "nextElse": "dama_locked_hint",
     "style": "narrative_float",
     "condition": "flag:fog_encounter_dama_02",
     "onExit": "saveSystem.setFlag('fog_encounter_dama_03', true)"
@@ -2704,6 +2712,7 @@
     "portrait": null,
     "text": "La niebla forma remolinos sobre el agua invertida. 'Me llamo... no. Ya no. Empezaba con una letra que hacía un sonido suave, como el viento. Mi hija la decía corriendo desde la puerta. Esa palabra. Esa palabra era mi nombre. Ya no la recuerdo entera. Pero recuerdo cómo sonaba cuando ella la decía.'",
     "next": null,
+    "nextElse": "dama_locked_hint",
     "style": "narrative_float",
     "condition": "flag:fog_encounter_dama_03",
     "onExit": "saveSystem.setFlag('fog_encounter_dama_04', true)"
@@ -2714,10 +2723,20 @@
     "portrait": null,
     "text": "La niebla se ilumina desde dentro. Una luz dorada tenue. 'Gracias. No sé quién eres. No sé si eres real o eres otro fragmento de mi memoria que inventa consuelo. Pero gracias. Por quedarte. Por escuchar. Ya puedo irme. Ya recuerdo lo que vine a buscar: no era a ella. Era el permiso para recordarla sin dolor. Y lo encontré. En tus ojos. En los de él. En los míos.'",
     "next": null,
+    "nextElse": "dama_locked_hint",
     "style": "narrative_float",
     "condition": "flag:fog_encounter_dama_04",
     "onEnter": "saveSystem.setFlag('fog_dama_all_fragments', true); eventBus.emit('fog:dama_complete')",
     "onExit": "saveSystem.setFlag('fog_encounter_dama_05', true)"
+  },
+
+  "dama_locked_hint": {
+    "id": "dama_locked_hint",
+    "speaker": "mateo",
+    "portrait": "mateo_thinking",
+    "text": "Este jirón está incompleto. La niebla no responde... todavía. Debo encontrar los fragmentos anteriores primero.",
+    "next": null,
+    "style": "narrative_float"
   },
   "inspect_fog_after_dama": {
     "id": "inspect_fog_after_dama",

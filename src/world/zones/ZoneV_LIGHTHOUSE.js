@@ -58,6 +58,19 @@ export const ZoneV_LIGHTHOUSE = {
 
   npcs: [],
 
+  // Fragmento de la Dama de la Niebla — parte 1 de 5
+  objects: [
+    {
+      id:         'dama_frag_01',
+      x:          12 * 16,  y: 4 * 16,
+      width:      14,       height: 14,
+      color:      '#B8B8D0',
+      label:      'Jirón de niebla',
+      dialogueId: 'fog_encounter_dama_01',
+      doneFlag:   'fog_encounter_dama_01',
+    },
+  ],
+
   // Rift visible en el Vacío (siempre visible)
   rifts: [
     {
